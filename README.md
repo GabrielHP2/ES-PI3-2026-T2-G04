@@ -15,3 +15,5 @@
 - Lucas Leonel
 
   <br>
+  
+ Stack projeto
