@@ -1,0 +1,20 @@
+{
+  "name": "pi03-backend",
+  "version": "1.0.0",
+  "description": "Projeto Integrador 3 do curso de engenharia de software PUC Campinas",
+  "homepage": "https://github.com/GabrielHP2/ES-PI3-2026-T2-G04#readme",
+  "bugs": {
+    "url": "https://github.com/GabrielHP2/ES-PI3-2026-T2-G04/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/GabrielHP2/ES-PI3-2026-T2-G04.git"
+  },
+  "license": "ISC",
+  "author": "",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  }
+}
