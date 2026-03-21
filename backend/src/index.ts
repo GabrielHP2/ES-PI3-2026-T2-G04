@@ -1,3 +1,3 @@
-let numberA:Number = 5;
+let numberA: number = 5;
 
 console.log(numberA);
