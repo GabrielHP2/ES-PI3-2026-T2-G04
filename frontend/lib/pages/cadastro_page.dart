@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/pages/cadastro_page.dart';
+import 'package:frontend/pages/login_page.dart';
 
-class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
+class SigninPage extends StatefulWidget {
+  const SigninPage({super.key});
 
   @override
-  State<LoginPage> createState() => _LoginPageState();
+  State<SigninPage> createState() => _SigninPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _SigninPageState extends State<SigninPage> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
 
@@ -30,16 +30,18 @@ class _LoginPageState extends State<LoginPage> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               const Text(
-                'Bem-vindo!',
+                'Cadastrando sua conta',
+                textAlign: .center,
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
-                  fontSize: 32,
+                  fontSize: 28,
                   color: Color(0xFF5759E0),
                 ),
               ),
               SizedBox(height: 6),
               const Text(
-                'Faça o login para continuar',
+                'Preencha todos os campos para continuar',
+                textAlign: .center,
                 style: TextStyle(
                   fontWeight: FontWeight.normal,
                   fontSize: 16,
@@ -77,7 +79,14 @@ class _LoginPageState extends State<LoginPage> {
               SizedBox(height: 12),
               ElevatedButton(
                 onPressed: () {
-                  //Log-in logic
+                  //Sign-in logic
+                  // 1- validar campos vazios
+                  // 2- validar formatos
+                  // 3- validar se já existe campos críticos no banco de dados
+                  // 4- Confirmar cadastro
+                  // 5- cadastrar no banco de dados
+                  // 6- feedback para o usuário
+                  // 7- Ir para página de log-in
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Color(0xFF5759E0),
@@ -86,28 +95,29 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                 ),
                 child: const Text(
-                  'Log-in',
+                  'Cadastrar-se',
                   style: TextStyle(color: Colors.white),
                 ),
               ),
               SizedBox(height: 12),
               Center(
                 child: Row(
+                  crossAxisAlignment: .center,
                   children: [
                     Text(
-                      'Não tem uma conta?',
+                      'Já tem uma conta?',
                       style: TextStyle(color: Color(0xFF1E1E1E), fontSize: 14),
                     ),
                     TextButton(
                       onPressed: () {
                         Navigator.of(context).push(
                           MaterialPageRoute<void>(
-                            builder: (context) => const SigninPage(),
+                            builder: (context) => const LoginPage(),
                           ),
                         );
                       },
                       child: Text(
-                        'Cadastre-se',
+                        'Fazer log-in',
                         style: TextStyle(
                           color: Color(0xFF5759E0),
                           fontSize: 14,
