@@ -36,7 +36,7 @@ class _LoginPageState extends State<LoginPage> {
                 style: TextStyle(
                   fontFamily: 'inter',
                   fontWeight: FontWeight.normal,
-                  fontSize: 24,
+                  fontSize: 16,
                   color: Color(0xFF1E1E1E),
                 ),
               ),
@@ -63,7 +63,8 @@ class _LoginPageState extends State<LoginPage> {
                     borderRadius: BorderRadius.circular(16),
                   ),
                 ),
-                child: const Text('Log-in'),
+                child: const Text('Log-in', style: TextStyle(color:Colors.white
+                ),),
               ),
             ],
           ),
