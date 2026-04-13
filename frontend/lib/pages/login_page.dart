@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'recuperar_senha.dart'; // 
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -30,7 +31,7 @@ class _LoginPageState extends State<LoginPage> {
                   color: Color(0xFF5759E0),
                 ),
               ),
-              SizedBox(height: 6),
+              const SizedBox(height: 6),
               const Text(
                 'Faça o Login para continuar',
                 style: TextStyle(
@@ -40,7 +41,7 @@ class _LoginPageState extends State<LoginPage> {
                   color: Color(0xFF1E1E1E),
                 ),
               ),
-              SizedBox(height: 24),
+              const SizedBox(height: 24),
               TextField(
                 controller: _emailController,
                 keyboardType: TextInputType.emailAddress,
@@ -49,7 +50,7 @@ class _LoginPageState extends State<LoginPage> {
                   border: OutlineInputBorder(),
                 ),
               ),
-              SizedBox(height: 24),
+              const SizedBox(height: 24),
               TextField(
                 controller: _passwordController,
                 obscureText: true,
@@ -58,31 +59,47 @@ class _LoginPageState extends State<LoginPage> {
                   border: OutlineInputBorder(),
                 ),
               ),
-              SizedBox(height: 32),
-              ElevatedButton(
-                onPressed: () {
-                  //Log-in logic
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Color(0xFF5759E0),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
+              const SizedBox(height: 32),
+              SizedBox(
+                width: double.infinity, 
+                height: 50,
+                child: ElevatedButton(
+                  onPressed: () {
+                    //Log-in logic
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF5759E0),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                  ),
+                  child: const Text(
+                    'Log-in',
+                    style: TextStyle(color: Colors.white, fontSize: 16),
                   ),
                 ),
-                child: const Text(
-                  'Log-in',
-                  style: TextStyle(color: Colors.white),
-                ),
               ),
-              SizedBox(height: 24),
+              const SizedBox(height: 24),
               Center(
-                child: Text(
-                  'Esqueci minha senha',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(color: Color(0xFF5759E0), fontSize: 14),
+                child: TextButton(
+                  onPressed: () {
+                    // função para recuperar senha
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const RecuperarSenhaPage(),
+                      ),
+                    );
+                  },
+                  child: const Text(
+                    'Esqueci minha senha',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: Color(0xFF5759E0), fontSize: 14),
+                  ),
                 ),
               ),
-              SizedBox(height: 12),
+
+              const SizedBox(height: 12),
               Center(
                 child: Text(
                   'Não tenho uma conta? Cadastre-se',
