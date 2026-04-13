@@ -12,6 +12,13 @@ class _LoginPageState extends State<LoginPage> {
   final _passwordController = TextEditingController();
 
   @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
@@ -22,9 +29,8 @@ class _LoginPageState extends State<LoginPage> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               const Text(
-                'Bem vindo!',
+                'Bem-vindo!',
                 style: TextStyle(
-                  fontFamily: "inter",
                   fontWeight: FontWeight.bold,
                   fontSize: 32,
                   color: Color(0xFF5759E0),
@@ -32,9 +38,8 @@ class _LoginPageState extends State<LoginPage> {
               ),
               SizedBox(height: 6),
               const Text(
-                'Faça o Login para continuar',
+                'Faça o login para continuar',
                 style: TextStyle(
-                  fontFamily: 'inter',
                   fontWeight: FontWeight.normal,
                   fontSize: 16,
                   color: Color(0xFF1E1E1E),
@@ -75,7 +80,10 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ),
               SizedBox(height: 24),
-              Center(
+              TextButton(
+                onPressed: () {
+                  // Ir para esqueci minha senha, levar o email
+                },
                 child: Text(
                   'Esqueci minha senha',
                   textAlign: TextAlign.center,
@@ -84,14 +92,23 @@ class _LoginPageState extends State<LoginPage> {
               ),
               SizedBox(height: 12),
               Center(
-                child: Text(
-                  'Não tenho uma conta? Cadastre-se',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontFamily: 'inter',
-                    color: Color(0xFF1E1E1E),
-                    fontSize: 14,
-                  ),
+                child: Row(
+                  children: [
+                    Text(
+                      'Não tenho uma conta?',
+                      style: TextStyle(color: Color(0xFF1E1E1E), fontSize: 14),
+                    ),
+                    TextButton(
+                      onPressed: () {},
+                      child: Text(
+                        'Cadastre-se',
+                        style: TextStyle(
+                          color: Color(0xFF5759E0),
+                          fontSize: 14,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
