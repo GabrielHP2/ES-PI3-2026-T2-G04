@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/controllers/cadastro_controller.dart';
 import 'package:frontend/pages/login_page.dart';
 
 class SigninPage extends StatefulWidget {
@@ -9,18 +10,38 @@ class SigninPage extends StatefulWidget {
 }
 
 class _SigninPageState extends State<SigninPage> {
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
-  final _usernameController = TextEditingController();
-  final _cpfController = TextEditingController();
+  final _controller = SigninController();
 
   @override
   void dispose() {
-    _emailController.dispose();
-    _passwordController.dispose();
-    _usernameController.dispose();
-    _cpfController.dispose();
-    super.dispose();
+    _controller.dispose();
+    super.dispose;
+  }
+
+  Future<bool> _handleCadastro() async {
+    final isCadastroDone = await _controller.cadastrar();
+    if (!mounted) return false;
+
+    if (!isCadastroDone) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            _controller.errorMessage ?? 'Falha ao cadastrar',
+            style: TextStyle(color: Colors.red),
+          ),
+        ),
+      );
+      return false;
+    }
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Cadastrro Feito!', style: TextStyle(color: Colors.red)),
+      ),
+    );
+    Navigator.of(
+      context,
+    ).push(MaterialPageRoute(builder: (context) => const LoginPage()));
+    return true;
   }
 
   @override
@@ -54,7 +75,7 @@ class _SigninPageState extends State<SigninPage> {
               ),
               SizedBox(height: 48),
               TextField(
-                controller: _emailController,
+                controller: _controller.emailController,
                 keyboardType: TextInputType.emailAddress,
                 decoration: const InputDecoration(
                   labelText: 'E-mail',
@@ -63,7 +84,7 @@ class _SigninPageState extends State<SigninPage> {
               ),
               SizedBox(height: 12),
               TextField(
-                controller: _usernameController,
+                controller: _controller.usernameController,
                 decoration: const InputDecoration(
                   labelText: 'Nome Completo',
                   border: OutlineInputBorder(),
@@ -71,7 +92,7 @@ class _SigninPageState extends State<SigninPage> {
               ),
               SizedBox(height: 12),
               TextField(
-                controller: _cpfController,
+                controller: _controller.cpfController,
                 decoration: const InputDecoration(
                   labelText: 'CPF',
                   border: OutlineInputBorder(),
@@ -79,7 +100,7 @@ class _SigninPageState extends State<SigninPage> {
               ),
               SizedBox(height: 12),
               TextField(
-                controller: _passwordController,
+                controller: _controller.passwordController,
                 obscureText: true,
                 decoration: const InputDecoration(
                   labelText: 'Senha',
@@ -90,13 +111,14 @@ class _SigninPageState extends State<SigninPage> {
               ElevatedButton(
                 onPressed: () {
                   //Sign-in logic
-                  // 1- validar campos vazios
-                  // 2- validar formatos
-                  // 3- validar se já existe campos críticos no banco de dados
-                  // 4- Confirmar cadastro
-                  // 5- cadastrar no banco de dados
-                  // 6- feedback para o usuário
-                  // 7- Ir para página de log-in
+                  // (x) 1- validar campos vazios
+                  // (x) 2- validar formatos
+                  // ( ) 3- validar se já existe campos críticos no banco de dados
+                  // (x) 4- Confirmar cadastro
+                  // ( ) 5- cadastrar no banco de dados
+                  // (x) 6- feedback para o usuário
+                  // (x) 7- Ir para página de log-in
+                  _handleCadastro();
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Color(0xFF5759E0),
