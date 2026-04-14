@@ -11,11 +11,15 @@ class SigninPage extends StatefulWidget {
 class _SigninPageState extends State<SigninPage> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _usernameController = TextEditingController();
+  final _cpfController = TextEditingController();
 
   @override
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
+    _usernameController.dispose();
+    _cpfController.dispose();
     super.dispose();
   }
 
@@ -57,23 +61,29 @@ class _SigninPageState extends State<SigninPage> {
                   border: OutlineInputBorder(),
                 ),
               ),
-              SizedBox(height: 24),
+              SizedBox(height: 12),
+              TextField(
+                controller: _usernameController,
+                decoration: const InputDecoration(
+                  labelText: 'Nome Completo',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              SizedBox(height: 12),
+              TextField(
+                controller: _cpfController,
+                decoration: const InputDecoration(
+                  labelText: 'CPF',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              SizedBox(height: 12),
               TextField(
                 controller: _passwordController,
                 obscureText: true,
                 decoration: const InputDecoration(
                   labelText: 'Senha',
                   border: OutlineInputBorder(),
-                ),
-              ),
-              TextButton(
-                onPressed: () {
-                  // Ir para esqueci minha senha, levar o email
-                },
-                child: Text(
-                  'Esqueci minha senha',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(color: Color(0xFF5759E0), fontSize: 14),
                 ),
               ),
               SizedBox(height: 12),
