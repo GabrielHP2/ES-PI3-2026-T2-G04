@@ -47,6 +47,13 @@ class SigninController {
     return true;
   }
 
+  bool _validatePhone() {
+    if (phoneController.text.length != 11) {
+      return false;
+    }
+    return true;
+  }
+
   bool _validatePassword() {
     if (passwordController.text.length < 8) {
       _errorMessage = 'Senha deve ter no mínimo 8 caracteres';
@@ -61,6 +68,7 @@ class SigninController {
     if (!_validateEmail()) return false;
     if (!_validateCPF()) return false;
     if (!_validatePassword()) return false;
+    if (!_validatePhone()) return false;
 
     return true;
   }
