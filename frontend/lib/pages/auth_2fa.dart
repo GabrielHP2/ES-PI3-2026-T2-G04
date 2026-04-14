@@ -1,30 +1,22 @@
 import 'package:flutter/material.dart';
 
-//  Gabriel Hespanholeto Maziero
+// Gabriel Hespanholeto
 // 25004669
 
-class RecuperarSenhaPage extends StatefulWidget {
-  final String emailInicial; // nome do email associado a conta
-
-  const RecuperarSenhaPage({super.key, required this.emailInicial});
+class Autenticacao2FAPage extends StatefulWidget {
+  const Autenticacao2FAPage({super.key});
 
   @override
-  State<RecuperarSenhaPage> createState() => _RecuperarSenhaPageState();
+  State<Autenticacao2FAPage> createState() => _Autenticacao2FAPageState();
 }
 
-class _RecuperarSenhaPageState extends State<RecuperarSenhaPage> {
-  late TextEditingController _emailController;
-
-  @override
-  void initState() {
-    super.initState();
-    _emailController = TextEditingController(text: widget.emailInicial);
-  }
+class _Autenticacao2FAPageState extends State<Autenticacao2FAPage> {
+  final _codigoController = TextEditingController();
 
   @override
   void dispose() {
-    _emailController.dispose();
-    super.dispose();
+    _codigoController.dispose();
+    super.dispose(); // limpa
   }
 
   @override
@@ -48,7 +40,7 @@ class _RecuperarSenhaPageState extends State<RecuperarSenhaPage> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               const Text(
-                'Recuperar Senha',
+                'Segurança 2FA',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontFamily: "inter",
@@ -59,7 +51,7 @@ class _RecuperarSenhaPageState extends State<RecuperarSenhaPage> {
               ),
               const SizedBox(height: 16),
               const Text(
-                'Insira seu e-mail cadastrado para receber as instruções de redefinição de senha.',
+                'Insira o código de 6 dígitos gerado pelo seu aplicativo de autenticação.',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontFamily: 'inter',
@@ -70,11 +62,15 @@ class _RecuperarSenhaPageState extends State<RecuperarSenhaPage> {
               ),
               const SizedBox(height: 32),
               TextField(
-                controller: _emailController,
-                keyboardType: TextInputType.emailAddress,
+                controller: _codigoController,
+                keyboardType: TextInputType.number,
+                maxLength: 6,
+                textAlign: TextAlign.center,
+                style: const TextStyle(fontSize: 24, letterSpacing: 8),
                 decoration: const InputDecoration(
-                  labelText: 'E-mail',
+                  labelText: 'Código 2FA',
                   border: OutlineInputBorder(),
+                  counterText: "", 
                 ),
               ),
               const SizedBox(height: 32),
@@ -83,7 +79,7 @@ class _RecuperarSenhaPageState extends State<RecuperarSenhaPage> {
                 height: 50,
                 child: ElevatedButton(
                   onPressed: () {
-                    // aqui envia as instruções
+                    // vlidação 2fa
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF5759E0),
@@ -92,7 +88,7 @@ class _RecuperarSenhaPageState extends State<RecuperarSenhaPage> {
                     ),
                   ),
                   child: const Text(
-                    'Enviar instruções',
+                    'Verificar',
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 16,

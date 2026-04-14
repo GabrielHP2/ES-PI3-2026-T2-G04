@@ -72,7 +72,7 @@ class _SigninPageState extends State<SigninPage> {
                 },
                 child: Text(
                   'Esqueci minha senha',
-                  textAlign: TextAlign.center,
+                  textAlign: TextAlign.center, // isso devia estar aqui?
                   style: TextStyle(color: Color(0xFF5759E0), fontSize: 14),
                 ),
               ),
