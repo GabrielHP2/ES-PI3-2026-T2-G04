@@ -4,7 +4,11 @@ class SigninController {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
   final usernameController = TextEditingController();
+  final phoneController = TextEditingController();
   final cpfController = TextEditingController();
+
+  final birthDateController = TextEditingController();
+  DateTime? birthDate;
 
   String? _errorMessage;
   String? get errorMessage => _errorMessage;
@@ -12,8 +16,10 @@ class SigninController {
   bool _validateEmptyFields() {
     if (emailController.text.isEmpty ||
         usernameController.text.isEmpty ||
+        phoneController.text.isEmpty ||
         cpfController.text.isEmpty ||
-        passwordController.text.isEmpty) {
+        passwordController.text.isEmpty ||
+        birthDateController.text.isEmpty) {
       _errorMessage = 'Todos os campos sao obrigatorios';
       return false;
     }
@@ -59,6 +65,14 @@ class SigninController {
     return true;
   }
 
+  void setBirthDate(DateTime date) {
+    birthDate = date;
+    final day = date.day.toString().padLeft(2, '0');
+    final month = date.month.toString().padLeft(2, '0');
+    final year = date.year.toString();
+    birthDateController.text = '$day/$month/$year';
+  }
+
   Future<bool> cadastrar() async {
     if (!validate()) {
       return false;
@@ -71,6 +85,8 @@ class SigninController {
     emailController.dispose();
     passwordController.dispose();
     usernameController.dispose();
+    phoneController.dispose();
     cpfController.dispose();
+    birthDateController.dispose();
   }
 }

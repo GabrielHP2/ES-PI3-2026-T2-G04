@@ -15,7 +15,19 @@ class _SigninPageState extends State<SigninPage> {
   @override
   void dispose() {
     _controller.dispose();
-    super.dispose;
+    super.dispose();
+  }
+
+  Future<void> _pickBirthDate() async {
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime(2000),
+      firstDate: DateTime(1800),
+      lastDate: DateTime.now(),
+    );
+    if (picked == null) return;
+
+    _controller.setBirthDate(picked);
   }
 
   Future<bool> _handleCadastro() async {
@@ -47,9 +59,14 @@ class _SigninPageState extends State<SigninPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
+      body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.all(30.0),
+          padding: const EdgeInsets.only(
+            left: 30.0,
+            right: 30.0,
+            top: 40.0,
+            bottom: 30.0,
+          ),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -69,11 +86,11 @@ class _SigninPageState extends State<SigninPage> {
                 textAlign: .center,
                 style: TextStyle(
                   fontWeight: FontWeight.normal,
-                  fontSize: 16,
+                  fontSize: 12,
                   color: Color(0xFF1E1E1E),
                 ),
               ),
-              SizedBox(height: 48),
+              SizedBox(height: 24),
               TextField(
                 controller: _controller.emailController,
                 keyboardType: TextInputType.emailAddress,
@@ -87,6 +104,27 @@ class _SigninPageState extends State<SigninPage> {
                 controller: _controller.usernameController,
                 decoration: const InputDecoration(
                   labelText: 'Nome Completo',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              SizedBox(height: 12),
+              TextField(
+                onTap: _pickBirthDate,
+                readOnly: true,
+                controller: _controller.birthDateController,
+                decoration: const InputDecoration(
+                  labelText: 'Data de Nascimento',
+                  hintText: 'dd/mm/aaaa',
+                  suffixIcon: Icon(Icons.calendar_today),
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              SizedBox(height: 12),
+              TextField(
+                controller: _controller.phoneController,
+                keyboardType: TextInputType.phone,
+                decoration: const InputDecoration(
+                  labelText: 'Telefone',
                   border: OutlineInputBorder(),
                 ),
               ),
@@ -131,7 +169,6 @@ class _SigninPageState extends State<SigninPage> {
                   style: TextStyle(color: Colors.white),
                 ),
               ),
-              SizedBox(height: 12),
               Center(
                 child: Row(
                   crossAxisAlignment: .center,
