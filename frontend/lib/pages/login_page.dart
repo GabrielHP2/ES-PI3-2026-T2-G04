@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/pages/cadastro_page.dart';
+import 'package:frontend/pages/recuperar_senha.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -66,7 +67,11 @@ class _LoginPageState extends State<LoginPage> {
               ),
               TextButton(
                 onPressed: () {
-                  // Ir para esqueci minha senha, levar o email
+                  Navigator.of(context).push(
+                    MaterialPageRoute<void>(
+                      builder: (context) => RecuperarSenhaPage(),
+                    ),
+                  );
                 },
                 child: Text(
                   'Esqueci minha senha',
@@ -102,7 +107,7 @@ class _LoginPageState extends State<LoginPage> {
                       onPressed: () {
                         Navigator.of(context).push(
                           MaterialPageRoute<void>(
-                            builder: (context) => const SigninPage(),
+                            builder: (context) => SigninPage(),
                           ),
                         );
                       },

@@ -65,7 +65,8 @@ class _RecuperarSenhaPageState extends State<RecuperarSenhaPage> {
               ),
               const SizedBox(height: 32),
               SizedBox(
-                width: double.infinity, // Faz o botão ocupar toda a largura disponível
+                width: double
+                    .infinity, // Faz o botão ocupar toda a largura disponível
                 height: 50,
                 child: ElevatedButton(
                   onPressed: () {
