@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/pages/auth_2fa.dart';
 import 'package:frontend/pages/cadastro_page.dart';
 import 'package:frontend/pages/recuperar_senha.dart';
 
@@ -67,9 +68,12 @@ class _LoginPageState extends State<LoginPage> {
               ),
               TextButton(
                 onPressed: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute<void>(
-                      builder: (context) => RecuperarSenhaPage(),
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => RecuperarSenhaPage(
+                        emailInicial: _emailController.text,
+                      ),
                     ),
                   );
                 },
@@ -96,6 +100,36 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ),
               SizedBox(height: 12),
+              //---------------------------------
+              // VAI DIREITO PARA A 2FA, É SO TESTE ANTES DO FLUXO
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const Autenticacao2FAPage(),
+                    ),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF5759E0),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  minimumSize: const Size(double.infinity, 50),
+                ),
+                child: const Text(
+                  'TESTE, botao para teste da tela',
+                  style: TextStyle(
+                    color: Color.fromARGB(255, 255, 146, 3),
+                    fontSize: 16,
+                  ),
+                ),
+              ),
+
+              // -------- TESTE <<< ACABA NESSA LINHA, REMOVER DEPOIS
+              SizedBox(height: 12),
+
               Center(
                 child: Row(
                   children: [
