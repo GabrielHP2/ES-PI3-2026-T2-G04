@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/pages/cadastro_page.dart';
+import 'package:frontend/pages/recuperar_senha.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -45,7 +47,7 @@ class _LoginPageState extends State<LoginPage> {
                   color: Color(0xFF1E1E1E),
                 ),
               ),
-              SizedBox(height: 24),
+              SizedBox(height: 48),
               TextField(
                 controller: _emailController,
                 keyboardType: TextInputType.emailAddress,
@@ -63,7 +65,21 @@ class _LoginPageState extends State<LoginPage> {
                   border: OutlineInputBorder(),
                 ),
               ),
-              SizedBox(height: 32),
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute<void>(
+                      builder: (context) => RecuperarSenhaPage(),
+                    ),
+                  );
+                },
+                child: Text(
+                  'Esqueci minha senha',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: Color(0xFF5759E0), fontSize: 14),
+                ),
+              ),
+              SizedBox(height: 12),
               ElevatedButton(
                 onPressed: () {
                   //Log-in logic
@@ -79,27 +95,22 @@ class _LoginPageState extends State<LoginPage> {
                   style: TextStyle(color: Colors.white),
                 ),
               ),
-              SizedBox(height: 24),
-              TextButton(
-                onPressed: () {
-                  // Ir para esqueci minha senha, levar o email
-                },
-                child: Text(
-                  'Esqueci minha senha',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(color: Color(0xFF5759E0), fontSize: 14),
-                ),
-              ),
               SizedBox(height: 12),
               Center(
                 child: Row(
                   children: [
                     Text(
-                      'Não tenho uma conta?',
+                      'Não tem uma conta?',
                       style: TextStyle(color: Color(0xFF1E1E1E), fontSize: 14),
                     ),
                     TextButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute<void>(
+                            builder: (context) => SigninPage(),
+                          ),
+                        );
+                      },
                       child: Text(
                         'Cadastre-se',
                         style: TextStyle(
