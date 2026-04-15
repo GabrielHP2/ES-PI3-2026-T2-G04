@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/pages/auth-2fa.dart';
+import 'package:frontend/pages/auth_2fa.dart';
 import 'package:frontend/pages/cadastro_page.dart';
 import 'package:frontend/pages/recuperar_senha.dart';
-
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -102,7 +101,7 @@ class _LoginPageState extends State<LoginPage> {
               ),
               SizedBox(height: 12),
               //---------------------------------
-                 // VAI DIREITO PARA A 2FA, É SO TESTE ANTES DO FLUXO
+              // VAI DIREITO PARA A 2FA, É SO TESTE ANTES DO FLUXO
               ElevatedButton(
                 onPressed: () {
                   Navigator.push(
@@ -121,11 +120,14 @@ class _LoginPageState extends State<LoginPage> {
                 ),
                 child: const Text(
                   'TESTE, botao para teste da tela',
-                  style: TextStyle(color: Color.fromARGB(255, 255, 146, 3), fontSize: 16),
+                  style: TextStyle(
+                    color: Color.fromARGB(255, 255, 146, 3),
+                    fontSize: 16,
+                  ),
                 ),
               ),
-              // -------- TESTE <<< ACABA NESSA LINHA, REMOVER DEPOIS
 
+              // -------- TESTE <<< ACABA NESSA LINHA, REMOVER DEPOIS
               SizedBox(height: 12),
 
               Center(
@@ -161,4 +163,3 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 }
-
