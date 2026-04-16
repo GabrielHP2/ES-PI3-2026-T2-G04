@@ -49,6 +49,7 @@ class SigninController {
 
   bool _validatePhone() {
     if (phoneController.text.length != 11) {
+      _errorMessage = 'Telefone deve ter 11 dígitos';
       return false;
     }
     return true;
