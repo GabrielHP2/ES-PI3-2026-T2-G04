@@ -35,11 +35,31 @@ export const deleteStartup = onRequest(
   async (req, res) => {
     // try {
     // Desafio matheus: pegar o startupId pela requisição
+    // const toDelete = await req.body().JSON();
+
+    // const startupId = "toDelete.docId";
     const startupId = "gZwbd4nsGd8zCbux9uhp";
     const writeResult = await collectionStartups.doc(startupId).delete();
 
     writeResult.isEqual;
     res.send("Exclusão provavelmente realizada");
     // } catch (e) {}
+  },
+);
+
+export const showStartupByName = onRequest(
+  {
+    region: "southamerica-east1",
+  },
+  async (req, res) => {
+    // Busca de startups que sejam
+    const snapshot = await collectionStartups
+      .where("nome_startup", "==", "VizioAi")
+      .get();
+    const startups: FirebaseFirestore.DocumentData = [];
+    snapshot.forEach((doc) => {
+      startups.push(doc.data());
+    });
+    res.status(200).json(startups);
   },
 );
