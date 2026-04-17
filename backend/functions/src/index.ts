@@ -1,4 +1,4 @@
-import {onRequest} from "firebase-functions/v2/https";
+import { onRequest } from "firebase-functions/v2/https";
 import * as admin from "firebase-admin";
 
 // Tentei fazer do jeito do professor mas continuava dando erro,
@@ -9,8 +9,21 @@ admin.initializeApp();
 const db = admin.firestore();
 const collectionStartups = db.collection("startups");
 
+/*
+// Function de TESTE
+export const helloWorld = onRequest(
+  {
+    region: "southamerica-east1",
+  },
+  (req, res) => {
+    console.log("Esta mensagem é gravada nos logs da função");
+    res.send("Hello world!");
+  },
+);
+*/
+
 export const addSampleStartup = onRequest(
-  {region: "southamerica-east1"},
+  { region: "southamerica-east1" },
   async (req, res) => {
     const startup = {
       nome_startup: "GGTireShop",
