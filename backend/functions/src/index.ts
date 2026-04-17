@@ -71,7 +71,9 @@ exports.deleteStartup = onRequest(
     const writeResult = await collectionStartups.doc(startupId).delete();
 
     writeResult.isEqual;
-    res.send("Exclusão provavelmente realizada");
+    res
+      .status(201)
+      .json({message: "Startup provavelmente excluida.", id: startupId});
     // } catch (e) {}
   },
 );

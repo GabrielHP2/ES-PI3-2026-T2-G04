@@ -7,7 +7,6 @@ describe("Test Functions endpoint", () => {
   test("endpoint showStartupByName deve retornar ok", async () => {
     const response = await fetch(functionsUrl + "/showStartupByName");
     const data = await response.json();
-    console.log(data);
 
     expect(response.status).toBe(200);
     expect(data).toBeDefined();
@@ -22,5 +21,15 @@ describe("Test Functions endpoint", () => {
     expect(response.status).toBe(201);
     expect(data.message).toBe("Startup exemplo inserida com sucesso.");
     expect(data.id).toBeDefined();
+  });
+
+  test("endpoint deleteSampleStartup deve retornar ok", async () => {
+    const response = await fetch(functionsUrl + "/deleteStartup", {
+      method: "DELETE",
+    });
+    const data = await response.json();
+
+    expect(response.status).toBe(201);
+    expect(data.message).toBe("Startup provavelmente excluida.");
   });
 });
