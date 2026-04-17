@@ -27,3 +27,19 @@ export const addSampleStartup = onRequest(
     }
   },
 );
+
+export const deleteStartup = onRequest(
+  {
+    region: "southamerica-east1",
+  },
+  async (req, res) => {
+    // try {
+    // Desafio matheus: pegar o startupId pela requisição
+    const startupId = "gZwbd4nsGd8zCbux9uhp";
+    const writeResult = await collectionStartups.doc(startupId).delete();
+
+    writeResult.isEqual;
+    res.send("Exclusão provavelmente realizada");
+    // } catch (e) {}
+  },
+);
