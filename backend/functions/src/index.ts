@@ -1,4 +1,4 @@
-import { onRequest } from "firebase-functions/v2/https";
+import {onRequest} from "firebase-functions/v2/https";
 import * as admin from "firebase-admin";
 
 // Tentei fazer do jeito do professor mas continuava dando erro,
@@ -16,15 +16,26 @@ export const helloWorld = onRequest(
     region: "southamerica-east1",
   },
   (req, res) => {
-    console.log("Esta mensagem é gravada nos logs da função");
-    res.send("Hello world!");
+    if (req.method === "GET") {
+      console.log("Esta mensagem é gravada nos logs da função");
+      res.send("Hello world!");
+    }
+
   },
 );
 */
 
-export const addSampleStartup = onRequest(
-  { region: "southamerica-east1" },
+exports.addSampleStartup = onRequest(
+  {region: "southamerica-east1"},
   async (req, res) => {
+    if (req.method !== "POST") {
+      res.set("Allow", "POST");
+      res.status(405).json({
+        error: "Metodo nao permitido. Use POST.",
+      });
+      return;
+    }
+
     const startup = {
       nome_startup: "GGTireShop",
       capital_aportado_startup: 40000,
@@ -33,15 +44,20 @@ export const addSampleStartup = onRequest(
     };
     try {
       const docRef = await collectionStartups.add(startup);
-      res.send(`Startup exemplo inserida. Referencia: ${docRef.id}`);
-    } catch (e: unknown) {
+      res.status(201).json({
+        message: "Startup exemplo inserida com sucesso.",
+        id: docRef.id,
+      });
+    } catch (e) {
       console.error("Erro ao inserir a startup de exemplo: ", e);
-      res.send("Erro ao inserir a startup de exemplo: ");
+      res.status(500).json({
+        error: "Erro ao inserir a startup de exemplo.",
+      });
     }
   },
 );
 
-export const deleteStartup = onRequest(
+exports.deleteStartup = onRequest(
   {
     region: "southamerica-east1",
   },
@@ -60,7 +76,7 @@ export const deleteStartup = onRequest(
   },
 );
 
-export const showStartupByName = onRequest(
+exports.showStartupByName = onRequest(
   {
     region: "southamerica-east1",
   },
@@ -69,7 +85,7 @@ export const showStartupByName = onRequest(
     const snapshot = await collectionStartups
       .where("nome_startup", "==", "VizioAi")
       .get();
-    const startups: FirebaseFirestore.DocumentData = [];
+    const startups: FirebaseFirestore.DocumentData[] = [];
     snapshot.forEach((doc) => {
       startups.push(doc.data());
     });
