@@ -87,8 +87,7 @@ class _LoginPageState extends State<LoginPage> {
               ElevatedButton(
                 onPressed: () {
                   //login logic + if (2fa)?
-                  Navigator.push(
-                    context,
+                  Navigator.of(context).push(
                     MaterialPageRoute(
                       builder: (context) => const Autenticacao2FAPage(),
                     ),
