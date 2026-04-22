@@ -86,7 +86,13 @@ class _LoginPageState extends State<LoginPage> {
               SizedBox(height: 12),
               ElevatedButton(
                 onPressed: () {
-                  //Log-in logic
+                  //login logic + if (2fa)?
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const Autenticacao2FAPage(),
+                    ),
+                  );
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Color(0xFF5759E0),
@@ -100,36 +106,6 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ),
               SizedBox(height: 12),
-              //---------------------------------
-              // VAI DIREITO PARA A 2FA, É SO TESTE ANTES DO FLUXO
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const Autenticacao2FAPage(),
-                    ),
-                  );
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF5759E0),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  minimumSize: const Size(double.infinity, 50),
-                ),
-                child: const Text(
-                  'TESTE, botao para teste da tela',
-                  style: TextStyle(
-                    color: Color.fromARGB(255, 255, 146, 3),
-                    fontSize: 16,
-                  ),
-                ),
-              ),
-
-              // -------- TESTE <<< ACABA NESSA LINHA, REMOVER DEPOIS
-              SizedBox(height: 12),
-
               Center(
                 child: Row(
                   children: [
