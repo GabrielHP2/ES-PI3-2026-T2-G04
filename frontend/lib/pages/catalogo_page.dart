@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/classes/startup.dart';
+import 'package:frontend/controllers/catalogo_controller.dart';
 
 class CatalogoPage extends StatefulWidget {
   const CatalogoPage({super.key});
@@ -48,77 +49,93 @@ class _CatalogoPageState extends State<CatalogoPage> {
         elevation: 2,
         shadowColor: Colors.black,
       ),
-      body: _startups.isEmpty
-          ? const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-              child: Center(
-                child: Text(
-                  'Nenhuma Startup Disponível',
-                  textAlign: TextAlign.center,
-                ),
-              ),
-            )
-          : ListView.builder(
-              itemCount: _startups.length,
-              padding: EdgeInsets.all(12),
-              itemBuilder: (context, index) {
-                final startup = _startups[index];
-                return Card(
-                  color: const Color(0xFFFFFFFF),
-                  elevation: 5,
-                  margin: EdgeInsets.only(bottom: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
-                    side: const BorderSide(color: Color(0xFFCACACA), width: 1),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Row(
-                      children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              startup.name,
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.w600,
-                              ),
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 24),
+        child: Column(
+          children: [
+            Expanded(
+              child: _startups.isEmpty
+                  ? const Center(
+                      child: Text(
+                        'Nenhuma Startup Disponível',
+                        textAlign: TextAlign.center,
+                      ),
+                    )
+                  : ListView.builder(
+                      itemCount: _startups.length,
+                      itemBuilder: (context, index) {
+                        final startup = _startups[index];
+                        return Card(
+                          color: const Color(0xFFFFFFFF),
+                          elevation: 2,
+                          margin: EdgeInsets.only(bottom: 10),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20),
+                            side: const BorderSide(
+                              color: Color(0xFFCACACA),
+                              width: 1,
                             ),
-                            SizedBox(height: 8),
-                            Text(startup.description),
-                            Text('Tokens emitidos: ${startup.issuedTokens}'),
-                            ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Color(0xFF5759E0),
-                              ),
-                              onPressed:
-                                  () {}, // Chama _navigateToStartup(index)?
-                              child: Text(
-                                'ver mais',
-                                style: TextStyle(color: Colors.white),
-                              ),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.fromLTRB(16, 16, 0, 16),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  flex: 3,
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        startup.name,
+                                        style: TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                      SizedBox(height: 8),
+                                      Text(startup.description),
+                                      Text(
+                                        'Tokens emitidos: ${startup.issuedTokens}',
+                                      ),
+                                    ],
+                                  ),
+                                ),
+
+                                Expanded(
+                                  flex: 1,
+                                  child: Container(
+                                    alignment: .centerLeft,
+                                    padding: EdgeInsets.only(
+                                      left: 15,
+                                      top: 2,
+                                      right: 0,
+                                      bottom: 2,
+                                    ),
+                                    height: 35,
+                                    decoration: BoxDecoration(
+                                      color: Color(0xff7AE058),
+                                      borderRadius: BorderRadius.only(
+                                        topLeft: Radius.circular(20),
+                                        bottomLeft: Radius.circular(20),
+                                      ),
+                                    ),
+                                    child: Icon(
+                                      getStartupStateIcon(startup),
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
-                          ],
-                        ),
-                        Column(
-                          children: [
-                            Container(
-                              child: (startup.startupState == StartupState.nova)
-                                  ? Text('nova')
-                                  : (startup.startupState ==
-                                        StartupState.expansao)
-                                  ? Text('Em expansão')
-                                  : Text('Em Desenvolvimento'),
-                            ),
-                          ],
-                        ),
-                      ],
+                          ),
+                        );
+                      },
                     ),
-                  ),
-                );
-              },
             ),
+          ],
+        ),
+      ),
     );
   }
 }

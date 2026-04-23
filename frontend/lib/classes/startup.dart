@@ -1,4 +1,4 @@
-enum StartupState { nova, expansao, desenvolvimento }
+enum StartupState { nova, expansion, development }
 
 class Startup {
   final String name;
