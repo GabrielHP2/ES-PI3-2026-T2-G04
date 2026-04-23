@@ -1,3 +1,15 @@
+import {initializeApp} from "firebase-admin/app";
+import {setGlobalOptions} from "firebase-functions";
+
+
+setGlobalOptions({ maxInstances: 10 });
+
+initializeApp();
+
+export * from "./auth";
+export * from "./startups";
+
+/*
 import {onRequest} from "firebase-functions/v2/https";
 import * as admin from "firebase-admin";
 
@@ -9,7 +21,6 @@ admin.initializeApp();
 const db = admin.firestore();
 const collectionStartups = db.collection("startups");
 
-/*
 // Function de TESTE
 export const helloWorld = onRequest(
   {
@@ -23,7 +34,7 @@ export const helloWorld = onRequest(
 
   },
 );
-*/
+
 
 exports.addSampleStartup = onRequest(
   {region: "southamerica-east1"},
@@ -94,3 +105,4 @@ exports.showStartupByName = onRequest(
     res.status(200).json(startups);
   },
 );
+*/
