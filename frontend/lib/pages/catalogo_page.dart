@@ -1,10 +1,5 @@
 import 'package:flutter/material.dart';
-
-class Startup {
-  final String name;
-
-  Startup({required this.name});
-}
+import 'package:frontend/classes/startup.dart';
 
 class CatalogoPage extends StatefulWidget {
   const CatalogoPage({super.key});
@@ -14,7 +9,13 @@ class CatalogoPage extends StatefulWidget {
 }
 
 class _CatalogoPageState extends State<CatalogoPage> {
-  final Startup startupExemplo = Startup(name: 'VizioAI');
+  final Startup startupExemplo = Startup(
+    name: 'VizioAI',
+    description: 'O futuro da acessibilidade na navegação na internet',
+    contributedCapital: 15000.00,
+    issuedTokens: 1000,
+    startupState: .nova,
+  );
   final List<Startup> _startups = [];
 
   @override
@@ -72,29 +73,45 @@ class _CatalogoPageState extends State<CatalogoPage> {
                   ),
                   child: Padding(
                     padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                    child: Row(
                       children: [
-                        Text(
-                          startup.name,
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w600,
-                          ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              startup.name,
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            SizedBox(height: 8),
+                            Text(startup.description),
+                            Text('Tokens emitidos: ${startup.issuedTokens}'),
+                            ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Color(0xFF5759E0),
+                              ),
+                              onPressed:
+                                  () {}, // Chama _navigateToStartup(index)?
+                              child: Text(
+                                'ver mais',
+                                style: TextStyle(color: Colors.white),
+                              ),
+                            ),
+                          ],
                         ),
-                        SizedBox(height: 8),
-                        Text('Descrição startup'),
-                        Text('Setor de Atuação'),
-                        Text('Tokens emitidos:'),
-                        ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Color(0xFF5759E0),
-                          ),
-                          onPressed: () {}, // Chama _navigateToStartup(index)?
-                          child: Text(
-                            'ver mais',
-                            style: TextStyle(color: Colors.white),
-                          ),
+                        Column(
+                          children: [
+                            Container(
+                              child: (startup.startupState == StartupState.nova)
+                                  ? Text('nova')
+                                  : (startup.startupState ==
+                                        StartupState.expansao)
+                                  ? Text('Em expansão')
+                                  : Text('Em Desenvolvimento'),
+                            ),
+                          ],
                         ),
                       ],
                     ),
