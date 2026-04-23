@@ -56,7 +56,7 @@ export const signUp = onRequest(async (request, response) => {
             email: user.email,
             password: user.password,
             phoneNumber: user.phoneNumber,
-            
+
             // Após a criação, retorna no callback as infos do usuário registrado, como seu "uid"
         }).then(async (callback) => {
 
@@ -67,7 +67,7 @@ export const signUp = onRequest(async (request, response) => {
             }
 
             // Insere na coleção "usuários" o CPF e data de nascimento, tendo o id do usuário como identificador  
-            await db.collection('usuarios').doc(callback.uid).set(data);
+            await db.collection("usuarios").doc(callback.uid).set(data);
         });
         
         response.status(201).json({message: "Usuário cadastrado"});
@@ -75,7 +75,7 @@ export const signUp = onRequest(async (request, response) => {
 
     } catch (e) {
 
-        console.log("Erro ao realiza cadastro: ", e);
+        console.log("Erro ao realizar cadastro: ", e);
         response.status(500).json({error: "Erro ao realizar cadastro"})
     }
 });
