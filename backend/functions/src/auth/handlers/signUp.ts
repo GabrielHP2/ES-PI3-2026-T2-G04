@@ -14,15 +14,17 @@ const db = getFirestore();
 export const signUp = onRequest(async (request, response) => {
 
     try {
-
+        
+        // Recebe os dados vindos do corpo da requisição
         const user: User = request.body;
 
+        // Verifica se nenhum dado é nulo
         if (!user.email || !user.password || !user.cpf || !user.birthDate || !user.phoneNumber) {
             response.status(400).json({error: "Todos os campos são obrigatórios"});
             return;
         }
 
-
+        // Faz um teste individual com cada dado pra verificar se ele bate com seu respectivo RegEx
         if (!emailRegex.test(user.email)) {
             response.status(400).json({error: "Email inválido"});
             return;
@@ -48,22 +50,26 @@ export const signUp = onRequest(async (request, response) => {
             return;
         }
 
+        // Cria a conta do usuário por meio do authenticator, armazenando email, senha e nº de telefone
         await auth.createUser({
 
             email: user.email,
             password: user.password,
             phoneNumber: user.phoneNumber,
-
+            
+            // Após a criação, retorna no callback as infos do usuário registrado, como seu "uid"
         }).then(async (callback) => {
 
+            // Armazena em um objeto o CPF e data de nascimento
             const data = {
                 cpf: user.cpf,
                 data_nascimento: user.birthDate
             }
 
+            // Insere na coleção "usuários" o CPF e data de nascimento, tendo o id do usuário como identificador  
             await db.collection('usuarios').doc(callback.uid).set(data);
         });
-
+        
         response.status(201).json({message: "Usuário cadastrado"});
         return;
 
