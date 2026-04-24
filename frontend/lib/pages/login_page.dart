@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:frontend/pages/auth_2fa.dart';
 import 'package:frontend/pages/cadastro_page.dart';
 import 'package:frontend/pages/recuperar_senha.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -85,8 +86,59 @@ class _LoginPageState extends State<LoginPage> {
               ),
               SizedBox(height: 12),
               ElevatedButton(
-                onPressed: () {
-                  //Log-in logic
+                onPressed: () async{//login
+                  try {
+                    await FirebaseAuth.instance.signInWithEmailAndPassword(
+                      email: _emailController.text.trim(),
+                      password: _passwordController.text.trim(),
+                    ); //checa e-mail e senha
+                    Future<void> iniciar2FA() async {
+                      final user = FirebaseAuth.instance.currentUser;
+                      final phone = user!.phoneNumber;
+                      await FirebaseAuth.instance.verifyPhoneNumber(phoneNumber: phone!,verificationCompleted: (credential)
+                       async {
+                          // Para caso de android: 
+                          await FirebaseAuth.instance.signInWithCredential(credential);
+                        },
+                        verificationFailed: (FirebaseAuthException e) {
+                          if (e.code == 'invalid-phone-number') {
+                            print('The provided phone number is not valid.');
+                          }
+                        },
+                        codeSent: (String verificationId, int? resendToken) {
+                          Navigator.push(context,MaterialPageRoute(builder: (_) => Autenticacao2FAPage(verificationId: verificationId,),
+                            ),
+                          );
+                        },
+                        codeAutoRetrievalTimeout: (verificationId) {},
+                      );
+                    }
+                    await iniciar2FA();
+
+                  } on FirebaseAuthException catch (error) {//casos de erro
+                    if (!context.mounted) return;
+                    String mensagemErro = "Erro ao fazer login";
+                    if (error.code == 'user-not-found') {
+                      mensagemErro = "Usuário não encontrado";
+                    } else if (error.code == 'wrong-password') {
+                      mensagemErro = "Senha incorreta";
+                    } else if (error.code == 'invalid-email') {
+                      mensagemErro = "Email inválido";
+                    }
+
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text(mensagemErro)),
+                    );
+                  } catch (error) {
+                    if (!context.mounted) return;
+
+                    debugPrint("Erro inesperado login: $error");
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(error.toString()),
+                      ),
+                    );
+                  }
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Color(0xFF5759E0),
@@ -102,12 +154,12 @@ class _LoginPageState extends State<LoginPage> {
               SizedBox(height: 12),
               //---------------------------------
               // VAI DIREITO PARA A 2FA, É SO TESTE ANTES DO FLUXO
-              ElevatedButton(
+              /*ElevatedButton(
                 onPressed: () {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => const Autenticacao2FAPage(),
+                      builder: (context) => const Autenticacao2FAPage(verificationId: verificationId,),
                     ),
                   );
                 },
@@ -126,7 +178,7 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                 ),
               ),
-
+              */
               // -------- TESTE <<< ACABA NESSA LINHA, REMOVER DEPOIS
               SizedBox(height: 12),
 

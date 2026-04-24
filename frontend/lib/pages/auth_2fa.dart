@@ -1,18 +1,40 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 // Gabriel Hespanholeto
 // 25004669
 
 class Autenticacao2FAPage extends StatefulWidget {
-  const Autenticacao2FAPage({super.key});
-
+  final String verificationId;
+  const Autenticacao2FAPage({super.key, required this.verificationId});
+  
   @override
   State<Autenticacao2FAPage> createState() => _Autenticacao2FAPageState();
 }
 
 class _Autenticacao2FAPageState extends State<Autenticacao2FAPage> {
   final _codigoController = TextEditingController();
+  var code='';
+  signIn()async{
+    PhoneAuthCredential credential = PhoneAuthProvider.credential(
+      verificationId: widget.verificationId,
+      smsCode: code
+    );
 
+    try{
+      await FirebaseAuth.instance.signInWithCredential(credential).then((value) {
+        //Navigator.pushAndRemoveUntil(context,MaterialPageRoute(builder: (_) => HomePage()),(route) => false,
+        //);
+        //iria para pagina principal
+      });
+    }on FirebaseAuthException catch(e){
+      Get.snackbar('Ocorreu um erro',e.code);
+    }catch(e){
+      Get.snackbar('Ocorreu um erro',e.toString());
+    }
+  } 
+  
   @override
   void dispose() {
     _codigoController.dispose();
@@ -51,7 +73,7 @@ class _Autenticacao2FAPageState extends State<Autenticacao2FAPage> {
               ),
               const SizedBox(height: 16),
               const Text(
-                'Insira o código de 6 dígitos gerado pelo seu aplicativo de autenticação.',
+                'Insira o código de 6 enviado no seu sms.',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontFamily: 'inter',
@@ -65,6 +87,11 @@ class _Autenticacao2FAPageState extends State<Autenticacao2FAPage> {
                 controller: _codigoController,
                 keyboardType: TextInputType.number,
                 maxLength: 6,
+                onChanged: (value){
+                  setState((){
+                    code=value;
+                  });
+                },
                 textAlign: TextAlign.center,
                 style: const TextStyle(fontSize: 24, letterSpacing: 8),
                 decoration: const InputDecoration(
@@ -78,8 +105,8 @@ class _Autenticacao2FAPageState extends State<Autenticacao2FAPage> {
                 width: double.infinity,
                 height: 50,
                 child: ElevatedButton(
-                  onPressed: () {
-                    // vlidação 2fa
+                  onPressed: () async {
+                    await signIn();
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF5759E0),
