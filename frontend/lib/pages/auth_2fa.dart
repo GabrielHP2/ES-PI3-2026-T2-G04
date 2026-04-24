@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/pages/catalogo_page.dart';
 
 // Gabriel Hespanholeto
 // 25004669
@@ -70,7 +71,7 @@ class _Autenticacao2FAPageState extends State<Autenticacao2FAPage> {
                 decoration: const InputDecoration(
                   labelText: 'Código 2FA',
                   border: OutlineInputBorder(),
-                  counterText: "", 
+                  counterText: "",
                 ),
               ),
               const SizedBox(height: 32),
@@ -80,6 +81,11 @@ class _Autenticacao2FAPageState extends State<Autenticacao2FAPage> {
                 child: ElevatedButton(
                   onPressed: () {
                     // vlidação 2fa
+                    // Apenas para TESTAR a tela de catálogo de startup:
+                    Navigator.of(context).pushAndRemoveUntil(
+                      MaterialPageRoute(builder: (context) => CatalogoPage()),
+                      (route) => false,
+                    );
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF5759E0),
