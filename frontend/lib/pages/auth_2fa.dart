@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:frontend/pages/catalogo_page.dart';
 
 // Gabriel Hespanholeto
 // 25004669
@@ -24,9 +25,8 @@ class _Autenticacao2FAPageState extends State<Autenticacao2FAPage> {
 
     try{
       await FirebaseAuth.instance.signInWithCredential(credential).then((value) {
-        //Navigator.pushAndRemoveUntil(context,MaterialPageRoute(builder: (_) => HomePage()),(route) => false,
-        //);
-        //iria para pagina principal
+        Navigator.pushAndRemoveUntil(context,MaterialPageRoute(builder: (_) => CatalogoPage()),(route) => false,
+        );
       });
     }on FirebaseAuthException catch(e){
       Get.snackbar('Ocorreu um erro',e.code);
@@ -97,7 +97,7 @@ class _Autenticacao2FAPageState extends State<Autenticacao2FAPage> {
                 decoration: const InputDecoration(
                   labelText: 'Código 2FA',
                   border: OutlineInputBorder(),
-                  counterText: "", 
+                  counterText: "",
                 ),
               ),
               const SizedBox(height: 32),
