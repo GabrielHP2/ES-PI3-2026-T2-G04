@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/classes/startup.dart';
+import 'package:frontend/components/filter_button.dart';
 import 'package:frontend/controllers/catalogo_controller.dart';
 
 class CatalogoPage extends StatefulWidget {
@@ -18,6 +19,14 @@ class _CatalogoPageState extends State<CatalogoPage> {
     startupState: .nova,
   );
   final List<Startup> _startups = [];
+
+  StartupState? _selectedFilter;
+
+  void _toggleFilter(StartupState filter) {
+    setState(() {
+      _selectedFilter = _selectedFilter == filter ? null : filter;
+    });
+  }
 
   @override
   void initState() {
@@ -52,7 +61,43 @@ class _CatalogoPageState extends State<CatalogoPage> {
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 24),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            Text('Filtros', textAlign: .left),
+            const SizedBox(height: 6),
+            Container(
+              height: 48,
+              margin: EdgeInsets.only(bottom: 10),
+              child: ListView(
+                padding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                scrollDirection: Axis.horizontal,
+                children: [
+                  FilterButton(
+                    data: 'Nova',
+                    isPressed: _selectedFilter == StartupState.nova,
+                    onPressed: () => _toggleFilter(StartupState.nova),
+                    icon: Icons.lightbulb,
+                    iconBackgroundColor: Color(0xff7AE058),
+                  ),
+                  const SizedBox(width: 8),
+                  FilterButton(
+                    data: 'Em Desenvolvimento',
+                    isPressed: _selectedFilter == StartupState.development,
+                    onPressed: () => _toggleFilter(StartupState.development),
+                    icon: Icons.science,
+                    iconBackgroundColor: Color(0xFFF77F43),
+                  ),
+                  const SizedBox(width: 8),
+                  FilterButton(
+                    data: 'Em Expansão',
+                    isPressed: _selectedFilter == StartupState.expansion,
+                    onPressed: () => _toggleFilter(StartupState.expansion),
+                    icon: Icons.public,
+                    iconBackgroundColor: Color(0xFF5759E0),
+                  ),
+                ],
+              ),
+            ),
             Expanded(
               child: _startups.isEmpty
                   ? const Center(
