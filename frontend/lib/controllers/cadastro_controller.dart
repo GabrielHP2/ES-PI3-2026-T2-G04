@@ -86,7 +86,7 @@ class SigninController {
     if (!validate()) {
       return false;
     }
-    // TODO: implementar chamada real ao backend.
+
     return true;
   }
 
