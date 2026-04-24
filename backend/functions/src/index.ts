@@ -1,8 +1,7 @@
-import {initializeApp} from "firebase-admin/app";
-import {setGlobalOptions} from "firebase-functions";
+import { initializeApp } from "firebase-admin/app";
+import { setGlobalOptions } from "firebase-functions";
 
-
-setGlobalOptions({ maxInstances: 10 });
+setGlobalOptions({ maxInstances: 10, region: "southamerica-east1" });
 
 initializeApp();
 

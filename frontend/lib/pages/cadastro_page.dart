@@ -33,7 +33,6 @@ class _SigninPageState extends State<SigninPage> {
   Future<bool> _handleCadastro() async {
     final isCadastroDone = await _controller.cadastrar();
     if (!mounted) return false;
-
     if (!isCadastroDone) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(

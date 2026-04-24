@@ -9,32 +9,37 @@ import 'package:frontend/pages/catalogo_page.dart';
 class Autenticacao2FAPage extends StatefulWidget {
   final String verificationId;
   const Autenticacao2FAPage({super.key, required this.verificationId});
-  
+
   @override
   State<Autenticacao2FAPage> createState() => _Autenticacao2FAPageState();
 }
 
 class _Autenticacao2FAPageState extends State<Autenticacao2FAPage> {
   final _codigoController = TextEditingController();
-  var code='';
-  signIn()async{
+  var code = '';
+  Future signIn() async {
     PhoneAuthCredential credential = PhoneAuthProvider.credential(
       verificationId: widget.verificationId,
-      smsCode: code
+      smsCode: code,
     );
 
-    try{
-      await FirebaseAuth.instance.signInWithCredential(credential).then((value) {
-        Navigator.pushAndRemoveUntil(context,MaterialPageRoute(builder: (_) => CatalogoPage()),(route) => false,
+    try {
+      await FirebaseAuth.instance.signInWithCredential(credential).then((
+        value,
+      ) {
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (_) => CatalogoPage()),
+          (route) => false,
         );
       });
-    }on FirebaseAuthException catch(e){
-      Get.snackbar('Ocorreu um erro',e.code);
-    }catch(e){
-      Get.snackbar('Ocorreu um erro',e.toString());
+    } on FirebaseAuthException catch (e) {
+      Get.snackbar('Ocorreu um erro', e.code);
+    } catch (e) {
+      Get.snackbar('Ocorreu um erro', e.toString());
     }
-  } 
-  
+  }
+
   @override
   void dispose() {
     _codigoController.dispose();
@@ -87,9 +92,9 @@ class _Autenticacao2FAPageState extends State<Autenticacao2FAPage> {
                 controller: _codigoController,
                 keyboardType: TextInputType.number,
                 maxLength: 6,
-                onChanged: (value){
-                  setState((){
-                    code=value;
+                onChanged: (value) {
+                  setState(() {
+                    code = value;
                   });
                 },
                 textAlign: TextAlign.center,
