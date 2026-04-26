@@ -1,5 +1,7 @@
 // João Pedro Panza Mainieri - RA: 25006642
 import 'package:flutter/material.dart';
+import 'package:frontend/classes/user.dart';
+import 'package:frontend/services/signup_services.dart';
 
 class SigninController {
   final emailController = TextEditingController();
@@ -48,7 +50,7 @@ class SigninController {
 
   bool _validatePhone() {
     final phoneRegex = RegExp(r'^\+55[1-9]\d{9,10}$');
-    if (phoneRegex.hasMatch(phoneController.text)) {
+    if (!phoneRegex.hasMatch(phoneController.text)) {
       _errorMessage = 'Telefone deve ter o formato: Ex: +5511987654321';
       return false;
     }
@@ -59,7 +61,7 @@ class SigninController {
     final passwordRegex = RegExp(
       r'^(?=.*\d)(?=.*[A-Z])(?=.*[a-z])(?=.*[^\w\d\s:])([^\s]){8,16}$',
     );
-    if (passwordRegex.hasMatch(passwordController.text)) {
+    if (!passwordRegex.hasMatch(passwordController.text)) {
       _errorMessage =
           'Senha Inválida, a senha deve ter pelo menos: - 8 Caracteres; - 1 Letra maiúscula; - 1 Letra minúscula; - 1 Número;';
       return false;
@@ -90,8 +92,29 @@ class SigninController {
     if (!validate()) {
       return false;
     }
-    try {} catch (e) {}
-    return true;
+    try {
+      final user = SignUpUser(
+        name: usernameController.text,
+        email: emailController.text,
+        cpf: cpfController.text,
+        password: passwordController.text,
+        phoneNumber: phoneController.text,
+        birthDate: birthDateController.text,
+      );
+
+      final result = await SignUpService(user);
+
+      final success = result['success'] == true;
+      if (!success) {
+        _errorMessage = (result['message'] ?? 'Falha ao cadastrar').toString();
+        return false;
+      }
+
+      return true;
+    } catch (_) {
+      _errorMessage = 'Erro inesperado ao cadastrar';
+      return false;
+    }
   }
 
   void dispose() {

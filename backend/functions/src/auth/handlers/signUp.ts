@@ -25,6 +25,7 @@ export const signUp = onRequest(
 
       // Verifica se nenhum dado é nulo
       if (
+        !user.name ||
         !user.email ||
         !user.password ||
         !user.cpf ||
@@ -75,6 +76,7 @@ export const signUp = onRequest(
         .then(async (callback) => {
           // Armazena em um objeto o CPF e data de nascimento
           const data = {
+            name: user.name,
             cpf: user.cpf,
             data_nascimento: user.birthDate,
           };

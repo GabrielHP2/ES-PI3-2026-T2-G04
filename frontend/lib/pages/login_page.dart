@@ -86,7 +86,8 @@ class _LoginPageState extends State<LoginPage> {
               ),
               SizedBox(height: 12),
               ElevatedButton(
-                onPressed: () async {//login
+                onPressed: () async {
+                  //login
                   try {
                     await FirebaseAuth.instance.signInWithEmailAndPassword(
                       email: _emailController.text.trim(),
@@ -95,10 +96,13 @@ class _LoginPageState extends State<LoginPage> {
                     Future<void> iniciar2FA() async {
                       final user = FirebaseAuth.instance.currentUser;
                       final phone = user!.phoneNumber;
-                      await FirebaseAuth.instance.verifyPhoneNumber(phoneNumber: phone!,verificationCompleted: (credential)
-                       async {
-                          // Para caso de android: 
-                          await FirebaseAuth.instance.signInWithCredential(credential);
+                      await FirebaseAuth.instance.verifyPhoneNumber(
+                        phoneNumber: phone!,
+                        verificationCompleted: (credential) async {
+                          // Para caso de android:
+                          await FirebaseAuth.instance.signInWithCredential(
+                            credential,
+                          );
                         },
                         verificationFailed: (FirebaseAuthException e) {
                           if (e.code == 'invalid-phone-number') {
@@ -106,16 +110,22 @@ class _LoginPageState extends State<LoginPage> {
                           }
                         },
                         codeSent: (String verificationId, int? resendToken) {
-                          Navigator.push(context,MaterialPageRoute(builder: (_) => Autenticacao2FAPage(verificationId: verificationId,),
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => Autenticacao2FAPage(
+                                verificationId: verificationId,
+                              ),
                             ),
                           );
                         },
                         codeAutoRetrievalTimeout: (verificationId) {},
                       );
                     }
-                    await iniciar2FA();
 
-                  } on FirebaseAuthException catch (error) {//casos de erro
+                    await iniciar2FA();
+                  } on FirebaseAuthException catch (error) {
+                    //casos de erro
                     if (!context.mounted) return;
                     String mensagemErro = "Erro ao fazer login";
                     if (error.code == 'user-not-found') {
@@ -126,18 +136,16 @@ class _LoginPageState extends State<LoginPage> {
                       mensagemErro = "Email inválido";
                     }
 
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text(mensagemErro)),
-                    );
+                    ScaffoldMessenger.of(
+                      context,
+                    ).showSnackBar(SnackBar(content: Text(mensagemErro)));
                   } catch (error) {
                     if (!context.mounted) return;
 
                     debugPrint("Erro inesperado login: $error");
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(error.toString()),
-                      ),
-                    );
+                    ScaffoldMessenger.of(
+                      context,
+                    ).showSnackBar(SnackBar(content: Text(error.toString())));
                   }
                 },
                 style: ElevatedButton.styleFrom(
@@ -163,7 +171,7 @@ class _LoginPageState extends State<LoginPage> {
                       onPressed: () {
                         Navigator.of(context).push(
                           MaterialPageRoute<void>(
-                            builder: (context) => SigninPage(),
+                            builder: (context) => SignUpPage(),
                           ),
                         );
                       },
