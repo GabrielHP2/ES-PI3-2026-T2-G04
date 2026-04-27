@@ -63,7 +63,7 @@ class SigninController {
     );
     if (!passwordRegex.hasMatch(passwordController.text)) {
       _errorMessage =
-          'Senha Inválida, a senha deve ter pelo menos: - 8 Caracteres; - 1 Letra maiúscula; - 1 Letra minúscula; - 1 Número;';
+          'Senha Inválida, a senha deve ter pelo menos: - 8 Caracteres; - 1 Letra maiúscula; - 1 Letra minúscula; - 1 Número; 1 - Caractere especial';
       return false;
     }
     return true;

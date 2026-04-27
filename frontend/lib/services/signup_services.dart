@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:frontend/classes/user.dart';
 import 'package:http/http.dart' as http;
 
@@ -9,14 +11,14 @@ Future<Map<String, dynamic>> SignUpService(SignUpUser user) async {
     final response = await http.post(
       Uri.parse(functionUrl),
       headers: {'Content-Type': 'application/json'},
-      body: {
+      body: jsonEncode({
         'name': user.name,
         'phoneNumber': user.phoneNumber,
         'email': user.email,
         'birthDate': user.birthDate,
         'password': user.password,
         'cpf': user.cpf,
-      },
+      }),
     );
 
     final status = response.statusCode;
@@ -39,11 +41,11 @@ Future<Map<String, dynamic>> SignUpService(SignUpUser user) async {
           ? responseMessage
           : 'Falha ao realizar cadastro',
     };
-  } catch (_) {
+  } catch (e) {
     return {
       'success': false,
       'statusCode': 0,
-      'message': 'Erro de conexão ao realizar cadastro',
+      'message': 'Erro de conexão ao realizar cadastro: $e',
     };
   }
 }

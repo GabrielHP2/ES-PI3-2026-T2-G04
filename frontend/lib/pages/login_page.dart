@@ -3,6 +3,7 @@ import 'package:frontend/pages/auth_2fa.dart';
 import 'package:frontend/pages/cadastro_page.dart';
 import 'package:frontend/pages/recuperar_senha.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:frontend/pages/catalogo_page.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -14,6 +15,15 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+
+  void _showSnack(String message, {Color? backgroundColor}) {
+    if (!mounted) return;
+    final messenger = ScaffoldMessenger.of(context);
+    messenger.hideCurrentSnackBar();
+    messenger.showSnackBar(
+      SnackBar(content: Text(message), backgroundColor: backgroundColor),
+    );
+  }
 
   @override
   void dispose() {
@@ -87,58 +97,46 @@ class _LoginPageState extends State<LoginPage> {
               SizedBox(height: 12),
               ElevatedButton(
                 onPressed: () async {
+                  /*
+
+                  */
+
                   //login
                   try {
                     await FirebaseAuth.instance.signInWithEmailAndPassword(
                       email: _emailController.text.trim(),
                       password: _passwordController.text.trim(),
                     ); //checa e-mail e senha
-                    Future<void> iniciar2FA() async {
-                      final user = FirebaseAuth.instance.currentUser;
-                      final phone = user!.phoneNumber;
-                      await FirebaseAuth.instance.verifyPhoneNumber(
-                        phoneNumber: phone!,
-                        verificationCompleted: (credential) async {
-                          // Para caso de android:
-                          await FirebaseAuth.instance.signInWithCredential(
-                            credential,
-                          );
-                        },
-                        verificationFailed: (FirebaseAuthException e) {
-                          if (e.code == 'invalid-phone-number') {
-                            print('The provided phone number is not valid.');
-                          }
-                        },
-                        codeSent: (String verificationId, int? resendToken) {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => Autenticacao2FAPage(
-                                verificationId: verificationId,
-                              ),
-                            ),
-                          );
-                        },
-                        codeAutoRetrievalTimeout: (verificationId) {},
-                      );
+                    _showSnack('Login feito com sucesso');
+                    Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(builder: (_) => CatalogoPage()),
+                      (route) => false,
+                    );
+                    /*
+                    await cred.user?.reload();
+                    
+                    final user = FirebaseAuth.instance.currentUser;
+                    if (user == null || !user.emailVerified) {
+                      await user?.sendEmailVerification();
+                      return;
                     }
-
-                    await iniciar2FA();
+                    */
                   } on FirebaseAuthException catch (error) {
                     //casos de erro
                     if (!context.mounted) return;
-                    String mensagemErro = "Erro ao fazer login";
+                    String mensagemErro =
+                        "Erro ao fazer login: $error, Error Code: ${error.code}";
                     if (error.code == 'user-not-found') {
                       mensagemErro = "Usuário não encontrado";
                     } else if (error.code == 'wrong-password') {
                       mensagemErro = "Senha incorreta";
                     } else if (error.code == 'invalid-email') {
                       mensagemErro = "Email inválido";
+                    } else if (error.code == 'invalid-credential') {
+                      mensagemErro = "Credenciais Inválidas";
                     }
-
-                    ScaffoldMessenger.of(
-                      context,
-                    ).showSnackBar(SnackBar(content: Text(mensagemErro)));
+                    _showSnack(mensagemErro);
                   } catch (error) {
                     if (!context.mounted) return;
 
