@@ -2,15 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:frontend/controllers/cadastro_controller.dart';
 import 'package:frontend/pages/login_page.dart';
 
-class SigninPage extends StatefulWidget {
-  const SigninPage({super.key});
+class SignUpPage extends StatefulWidget {
+  const SignUpPage({super.key});
 
   @override
-  State<SigninPage> createState() => _SigninPageState();
+  State<SignUpPage> createState() => _SignUpPageState();
 }
 
-class _SigninPageState extends State<SigninPage> {
+class _SignUpPageState extends State<SignUpPage> {
   final _controller = SigninController();
+  bool _isSubmitting = false;
 
   @override
   void dispose() {
@@ -31,28 +32,42 @@ class _SigninPageState extends State<SigninPage> {
   }
 
   Future<bool> _handleCadastro() async {
+    if (_isSubmitting) return false;
+
+    setState(() {
+      _isSubmitting = true;
+    });
+
     final isCadastroDone = await _controller.cadastrar();
     if (!mounted) return false;
-    if (!isCadastroDone) {
+    try {
+      if (!isCadastroDone) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              _controller.errorMessage ?? 'Falha ao cadastrar',
+              style: TextStyle(color: Colors.red),
+            ),
+          ),
+        );
+        return false;
+      }
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(
-            _controller.errorMessage ?? 'Falha ao cadastrar',
-            style: TextStyle(color: Colors.red),
-          ),
+          content: Text('Cadastro feito!', style: TextStyle(color: Colors.red)),
         ),
       );
-      return false;
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (context) => const LoginPage()),
+      );
+      return true;
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isSubmitting = false;
+        });
+      }
     }
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Cadastrro Feito!', style: TextStyle(color: Colors.red)),
-      ),
-    );
-    Navigator.of(
-      context,
-    ).push(MaterialPageRoute(builder: (context) => const LoginPage()));
-    return true;
   }
 
   @override
@@ -146,26 +161,20 @@ class _SigninPageState extends State<SigninPage> {
               ),
               SizedBox(height: 12),
               ElevatedButton(
-                onPressed: () {
-                  //Sign-in logic
-                  // (x) 1- validar campos vazios
-                  // (x) 2- validar formatos
-                  // ( ) 3- validar se já existe campos críticos no banco de dados
-                  // (x) 4- Confirmar cadastro
-                  // ( ) 5- cadastrar no banco de dados
-                  // (x) 6- feedback para o usuário
-                  // (x) 7- Ir para página de log-in
-                  _handleCadastro();
-                },
+                onPressed: _isSubmitting
+                    ? null
+                    : () {
+                        _handleCadastro();
+                      },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Color(0xFF5759E0),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
                   ),
                 ),
-                child: const Text(
-                  'Cadastrar-se',
-                  style: TextStyle(color: Colors.white),
+                child: Text(
+                  _isSubmitting ? 'Cadastrando...' : 'Cadastrar-se',
+                  style: const TextStyle(color: Colors.white),
                 ),
               ),
               Center(
