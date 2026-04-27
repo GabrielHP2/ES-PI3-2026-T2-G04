@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 //  Gabriel Hespanholeto Maziero
@@ -82,8 +83,33 @@ class _RecuperarSenhaPageState extends State<RecuperarSenhaPage> {
                 width: double.infinity,
                 height: 50,
                 child: ElevatedButton(
-                  onPressed: () {
-                    // aqui envia as instruções
+                  onPressed: () async {
+                    final email = _emailController.text.trim();
+                    // verifica se tem espaço em branco 
+                    if (email.isNotEmpty) {
+                      try {
+                        await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
+                        // Verif se tem email, se sim envia a instrução pelo do fb
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Instruções enviadas! Verifique seu e-mail.'),
+                              backgroundColor: Colors.green,
+                            ),
+                          );
+                          Navigator.pop(context);
+                        }
+                      } catch (e) {
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('Erro ao enviar: $e'),
+                              backgroundColor: Colors.red,
+                            ),
+                          );
+                        }
+                      }
+                    }
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF5759E0),
