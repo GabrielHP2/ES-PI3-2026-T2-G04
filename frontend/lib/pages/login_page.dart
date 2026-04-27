@@ -107,21 +107,29 @@ class _LoginPageState extends State<LoginPage> {
                       email: _emailController.text.trim(),
                       password: _passwordController.text.trim(),
                     ); //checa e-mail e senha
-                    _showSnack('Login feito com sucesso');
-                    Navigator.pushAndRemoveUntil(
-                      context,
-                      MaterialPageRoute(builder: (_) => CatalogoPage()),
-                      (route) => false,
-                    );
-                    /*
-                    await cred.user?.reload();
-                    
-                    final user = FirebaseAuth.instance.currentUser;
-                    if (user == null || !user.emailVerified) {
-                      await user?.sendEmailVerification();
-                      return;
+                    Future<void> iniciar2FA() async {
+                      final user = FirebaseAuth.instance.currentUser;
+                      final phone = user!.phoneNumber;
+                      await FirebaseAuth.instance.verifyPhoneNumber(phoneNumber: phone!,verificationCompleted: (credential)
+                       async {
+                          // Para caso de android: 
+                          await FirebaseAuth.instance.signInWithCredential(credential);
+                        },
+                        verificationFailed: (FirebaseAuthException e) {
+                          if (e.code == 'invalid-phone-number') {
+                            print('The provided phone number is not valid.');
+                          }
+                        },
+                        codeSent: (String verificationId, int? resendToken) {
+                          Navigator.push(context,MaterialPageRoute(builder: (_) => Autenticacao2FAPage(verificationId: verificationId,),
+                            ),
+                          );
+                        },
+                        codeAutoRetrievalTimeout: (verificationId) {},
+                      );
                     }
-                    */
+                    await iniciar2FA();
+                    
                   } on FirebaseAuthException catch (error) {
                     //casos de erro
                     if (!context.mounted) return;
