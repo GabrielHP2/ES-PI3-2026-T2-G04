@@ -60,7 +60,7 @@ class _Autenticacao2FAPageState extends State<Autenticacao2FAPage> {
     try {
       await FirebaseAuth.instance.verifyPhoneNumber(
         multiFactorSession: widget.resolver.session,
-        multiFactorInfo: _phoneHint,
+        multiFactorInfo: _phoneHint!,
         verificationCompleted: (PhoneAuthCredential credential) async {
           try {
             await widget.resolver.resolveSignIn(
