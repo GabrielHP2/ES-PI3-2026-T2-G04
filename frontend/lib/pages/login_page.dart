@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/pages/auth_2fa.dart';
 import 'package:frontend/pages/cadastro_page.dart';
+import 'package:frontend/pages/home_shell.dart';
 import 'package:frontend/pages/recuperar_senha.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:frontend/pages/catalogo_page.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -110,7 +110,7 @@ class _LoginPageState extends State<LoginPage> {
                     _showSnack('Login feito com sucesso');
                     Navigator.pushAndRemoveUntil(
                       context,
-                      MaterialPageRoute(builder: (_) => CatalogoPage()),
+                      MaterialPageRoute(builder: (_) => const HomeShell()),
                       (route) => false,
                     );
                     /*

@@ -3,7 +3,7 @@ import 'package:frontend/components/home_navbar.dart';
 import 'package:frontend/pages/catalogo_page.dart';
 import 'package:frontend/pages/dashboard_page.dart';
 import 'package:frontend/pages/profile_page.dart';
-import 'token_market_page.dart';
+import 'package:frontend/pages/token_market_page.dart';
 
 class HomeShell extends StatefulWidget {
   const HomeShell({super.key});
