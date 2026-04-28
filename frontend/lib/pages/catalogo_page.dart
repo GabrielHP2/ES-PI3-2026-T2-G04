@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/components/home_navbar.dart';
 import 'package:frontend/models/startup.dart';
 import 'package:frontend/components/filter_button.dart';
 import 'package:frontend/controllers/catalogo_controller.dart';
+import 'package:frontend/pages/dashboard_page.dart';
 
 class CatalogoPage extends StatefulWidget {
   const CatalogoPage({super.key});
@@ -11,6 +13,7 @@ class CatalogoPage extends StatefulWidget {
 }
 
 class _CatalogoPageState extends State<CatalogoPage> {
+  int _currentIndex = 0;
   final Startup startupExemplo = Startup(
     name: 'VizioAI',
     description: 'O futuro da acessibilidade na navegação na internet',
@@ -180,6 +183,25 @@ class _CatalogoPageState extends State<CatalogoPage> {
             ),
           ],
         ),
+      ),
+      bottomNavigationBar: HomeNavbar(
+        currentIndex: _currentIndex,
+        onIndexChanged: (int index) {
+          if (index == _currentIndex) return;
+          setState(() {
+            _currentIndex = index;
+          });
+          if (index == 1) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => DashboardPage()),
+            );
+          } else if (index != 0) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Pagina ainda não foi implementada')),
+            );
+          }
+        },
       ),
     );
   }
