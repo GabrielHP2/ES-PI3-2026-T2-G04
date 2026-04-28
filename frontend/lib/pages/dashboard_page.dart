@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class DashboardPage extends StatefulWidget {
-  //const DashboardPage({});
+  const DashboardPage({super.key});
 
   @override
   State<DashboardPage> createState() => _DashboardPageState();
@@ -10,6 +10,12 @@ class DashboardPage extends StatefulWidget {
 class _DashboardPageState extends State<DashboardPage> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(body: Center(child: Text('Pagina em desenvolvimento')));
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Dashboard'),
+        automaticallyImplyLeading: false,
+      ),
+      body: Center(child: Text('Pagina de dashboard em desenvolvimento')),
+    );
   }
 }

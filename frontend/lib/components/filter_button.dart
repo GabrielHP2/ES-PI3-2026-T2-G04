@@ -35,7 +35,7 @@ class FilterButton extends StatelessWidget {
         children: [
           Container(
             padding: EdgeInsets.all(3),
-            margin: EdgeInsets.only(right: 10),
+            margin: EdgeInsets.only(right: 8),
             decoration: BoxDecoration(
               color: iconBackgroundColor,
               borderRadius: BorderRadius.all(Radius.circular(20)),

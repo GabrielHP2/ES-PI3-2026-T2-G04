@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/components/home_navbar.dart';
 import 'package:frontend/models/startup.dart';
 import 'package:frontend/components/filter_button.dart';
 import 'package:frontend/controllers/catalogo_controller.dart';
-import 'package:frontend/pages/dashboard_page.dart';
 
 class CatalogoPage extends StatefulWidget {
   const CatalogoPage({super.key});
@@ -13,7 +11,6 @@ class CatalogoPage extends StatefulWidget {
 }
 
 class _CatalogoPageState extends State<CatalogoPage> {
-  int _currentIndex = 0;
   final Startup startupExemplo = Startup(
     name: 'VizioAI',
     description: 'O futuro da acessibilidade na navegação na internet',
@@ -58,8 +55,6 @@ class _CatalogoPageState extends State<CatalogoPage> {
         title: const Text('Catalogo de Startups'),
         backgroundColor: Colors.white,
         automaticallyImplyLeading: false,
-        elevation: 2,
-        shadowColor: Colors.black,
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 24),
@@ -72,7 +67,7 @@ class _CatalogoPageState extends State<CatalogoPage> {
               height: 48,
               margin: EdgeInsets.only(bottom: 10),
               child: ListView(
-                padding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                padding: EdgeInsets.symmetric(horizontal: 0, vertical: 2),
                 scrollDirection: Axis.horizontal,
                 children: [
                   FilterButton(
@@ -84,7 +79,7 @@ class _CatalogoPageState extends State<CatalogoPage> {
                   ),
                   const SizedBox(width: 8),
                   FilterButton(
-                    data: 'Em Desenvolvimento',
+                    data: 'Desenvolvimento',
                     isPressed: _selectedFilter == StartupState.development,
                     onPressed: () => _toggleFilter(StartupState.development),
                     icon: Icons.science,
@@ -92,7 +87,7 @@ class _CatalogoPageState extends State<CatalogoPage> {
                   ),
                   const SizedBox(width: 8),
                   FilterButton(
-                    data: 'Em Expansão',
+                    data: 'Expansão',
                     isPressed: _selectedFilter == StartupState.expansion,
                     onPressed: () => _toggleFilter(StartupState.expansion),
                     icon: Icons.public,
@@ -183,25 +178,6 @@ class _CatalogoPageState extends State<CatalogoPage> {
             ),
           ],
         ),
-      ),
-      bottomNavigationBar: HomeNavbar(
-        currentIndex: _currentIndex,
-        onIndexChanged: (int index) {
-          if (index == _currentIndex) return;
-          setState(() {
-            _currentIndex = index;
-          });
-          if (index == 1) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => DashboardPage()),
-            );
-          } else if (index != 0) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Pagina ainda não foi implementada')),
-            );
-          }
-        },
       ),
     );
   }
