@@ -16,15 +16,6 @@ class _LoginPageState extends State<LoginPage> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
 
-  void _showSnack(String message, {Color? backgroundColor}) {
-    if (!mounted) return;
-    final messenger = ScaffoldMessenger.of(context);
-    messenger.hideCurrentSnackBar();
-    messenger.showSnackBar(
-      SnackBar(content: Text(message), backgroundColor: backgroundColor),
-    );
-  }
-
   @override
   void dispose() {
     _emailController.dispose();
@@ -97,9 +88,8 @@ class _LoginPageState extends State<LoginPage> {
               SizedBox(height: 12),
               ElevatedButton(
                 onPressed: () async {
-                  /*
-
-                  */
+                  final navigator = Navigator.of(context);
+                  final messenger = ScaffoldMessenger.of(context);
 
                   //login
                   try {
@@ -107,24 +97,27 @@ class _LoginPageState extends State<LoginPage> {
                       email: _emailController.text.trim(),
                       password: _passwordController.text.trim(),
                     ); //checa e-mail e senha
-                    _showSnack('Login feito com sucesso');
-                    Navigator.pushAndRemoveUntil(
-                      context,
+
+                    messenger.hideCurrentSnackBar();
+                    messenger.showSnackBar(
+                      const SnackBar(content: Text('Login feito com sucesso')),
+                    );
+                    navigator.pushAndRemoveUntil(
                       MaterialPageRoute(builder: (_) => const HomeShell()),
                       (route) => false,
                     );
-                    /*
-                    await cred.user?.reload();
-                    
-                    final user = FirebaseAuth.instance.currentUser;
-                    if (user == null || !user.emailVerified) {
-                      await user?.sendEmailVerification();
-                      return;
-                    }
-                    */
+                  } on FirebaseAuthMultiFactorException catch (error) {
+                    if (!mounted) return;
+
+                    navigator.push(
+                      MaterialPageRoute(
+                        builder: (_) =>
+                            Autenticacao2FAPage(resolver: error.resolver),
+                      ),
+                    );
                   } on FirebaseAuthException catch (error) {
                     //casos de erro
-                    if (!context.mounted) return;
+                    if (!mounted) return;
                     String mensagemErro =
                         "Erro ao fazer login: $error, Error Code: ${error.code}";
                     if (error.code == 'user-not-found') {
@@ -136,14 +129,18 @@ class _LoginPageState extends State<LoginPage> {
                     } else if (error.code == 'invalid-credential') {
                       mensagemErro = "Credenciais Inválidas";
                     }
-                    _showSnack(mensagemErro);
+                    messenger.hideCurrentSnackBar();
+                    messenger.showSnackBar(
+                      SnackBar(content: Text(mensagemErro)),
+                    );
                   } catch (error) {
-                    if (!context.mounted) return;
+                    if (!mounted) return;
 
                     debugPrint("Erro inesperado login: $error");
-                    ScaffoldMessenger.of(
-                      context,
-                    ).showSnackBar(SnackBar(content: Text(error.toString())));
+                    messenger.hideCurrentSnackBar();
+                    messenger.showSnackBar(
+                      SnackBar(content: Text(error.toString())),
+                    );
                   }
                 },
                 style: ElevatedButton.styleFrom(
