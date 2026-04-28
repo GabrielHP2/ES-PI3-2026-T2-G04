@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/classes/startup.dart';
+import 'package:frontend/models/startup.dart';
 import 'package:frontend/components/filter_button.dart';
 import 'package:frontend/controllers/catalogo_controller.dart';
 

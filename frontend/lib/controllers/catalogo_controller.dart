@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/classes/startup.dart';
+import 'package:frontend/models/startup.dart';
 
 IconData getStartupStateIcon(Startup startup) {
   if (startup.startupState == StartupState.nova) {

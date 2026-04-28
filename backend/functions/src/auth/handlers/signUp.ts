@@ -8,13 +8,41 @@ import { User } from "../types/userType";
 import {
   emailRegex,
   passwordRegex,
-  cpfRegex,
   birthDateRegex,
   phoneNumberRegex,
 } from "../types/regex";
 
 const auth = getAuth();
 const db = getFirestore();
+
+function isValidCpf(cpf: string): boolean {
+  if (!/^\d{11}$/.test(cpf)) {
+    return false;
+  }
+
+  if (/^(\d)\1{10}$/.test(cpf)) {
+    return false;
+  }
+
+  let sum = 0;
+  for (let i = 0; i < 9; i++) {
+    sum += Number(cpf[i]) * (10 - i);
+  }
+  let remainder = sum % 11;
+  const firstDigit = remainder < 2 ? 0 : 11 - remainder;
+  if (Number(cpf[9]) !== firstDigit) {
+    return false;
+  }
+
+  sum = 0;
+  for (let i = 0; i < 10; i++) {
+    sum += Number(cpf[i]) * (11 - i);
+  }
+  remainder = sum % 11;
+  const secondDigit = remainder < 2 ? 0 : 11 - remainder;
+
+  return Number(cpf[10]) === secondDigit;
+}
 
 export const signUp = onRequest(
   { region: "southamerica-east1" },
@@ -38,8 +66,12 @@ export const signUp = onRequest(
         return;
       }
 
+      const normalizedEmail = user.email.trim().toLowerCase();
+      const normalizedCpf = user.cpf.replace(/\D/g, "");
+      const normalizedPhone = user.phoneNumber.trim().replace(/\s+/g, "");
+
       // Faz um teste individual com cada dado pra verificar se ele bate com seu respectivo RegEx
-      if (!emailRegex.test(user.email)) {
+      if (!emailRegex.test(normalizedEmail)) {
         response.status(400).json({ error: "Email inválido" });
         return;
       }
@@ -49,7 +81,7 @@ export const signUp = onRequest(
         return;
       }
 
-      if (!cpfRegex.test(user.cpf)) {
+      if (!isValidCpf(normalizedCpf)) {
         response.status(400).json({ error: "CPF inválido" });
         return;
       }
@@ -59,29 +91,29 @@ export const signUp = onRequest(
         return;
       }
 
-      if (!phoneNumberRegex.test(user.phoneNumber)) {
+      if (!phoneNumberRegex.test(normalizedPhone)) {
         response.status(400).json({ error: "Número de telefone inválido" });
         return;
       }
 
-      // Cria a conta do usuário por meio do authenticator, armazenando email, senha e nº de telefone
       await auth
         .createUser({
-          email: user.email,
+          email: normalizedEmail,
           password: user.password,
-          phoneNumber: user.phoneNumber,
-
-          // Após a criação, retorna no callback as infos do usuário registrado, como seu "uid"
+          phoneNumber: normalizedPhone,
         })
         .then(async (callback) => {
-          // Armazena em um objeto o CPF e data de nascimento
           const data = {
+            uid: callback.uid,
             name: user.name,
-            cpf: user.cpf,
-            data_nascimento: user.birthDate,
+            email: normalizedEmail,
+            cpf: normalizedCpf,
+            phoneNumber: normalizedPhone,
+            birthDate: user.birthDate,
+            createdAt: new Date(),
           };
 
-          // Insere na coleção "usuários" o CPF e data de nascimento, tendo o id do usuário como identificador
+          // Insere na coleção usuarios usando o uid como identificador
           await db.collection("usuarios").doc(callback.uid).set(data);
         });
 

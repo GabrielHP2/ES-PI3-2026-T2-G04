@@ -1,6 +1,9 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend/controllers/cadastro_controller.dart';
+import 'package:frontend/models/user_model.dart';
 import 'package:frontend/pages/login_page.dart';
+import 'package:frontend/services/signup_services.dart';
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({super.key});
@@ -11,7 +14,71 @@ class SignUpPage extends StatefulWidget {
 
 class _SignUpPageState extends State<SignUpPage> {
   final _controller = SigninController();
-  bool _isSubmitting = false;
+  final _signUpService = SignUpService();
+  final _formKey = GlobalKey<FormState>();
+  bool _isLoading = false;
+
+  Future<void> _handleCadastro() async {
+    // Validar o formulário antes de enviar
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
+
+    setState(() => _isLoading = true);
+    UserModel user = UserModel(
+      name: _controller.nameController.text,
+      email: _controller.emailController.text,
+      cpf: _controller.cpfController.text,
+      password: _controller.passwordController.text,
+      phoneNumber: _controller.phoneController.text,
+      birthDate: _controller.birthDateController.text,
+    );
+    try {
+      await _signUpService.signUpUser(user);
+      if (!mounted) return;
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => LoginPage()),
+      );
+    } on FirebaseAuthException catch (e) {
+      if (!mounted) return;
+      String errorMessage = 'Erro ao registrar';
+
+      if (e.code == 'email-already-in-use') {
+        errorMessage = 'Este email já está cadastrado';
+      } else if (e.code == 'weak-password') {
+        errorMessage = 'Senha muito fraca. Use pelo menos 6 caracteres';
+      } else if (e.code == 'invalid-email') {
+        errorMessage = 'Email inválido';
+      } else if (e.code == 'phone-number-already-exists') {
+        errorMessage = 'Este telefone já está cadastrado';
+      } else {
+        errorMessage = e.message ?? 'Erro ao registrar';
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(errorMessage),
+          backgroundColor: Colors.red,
+          duration: const Duration(seconds: 4),
+        ),
+      );
+    } on FirebaseException catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(e.message ?? 'Erro ao registrar')));
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.toString().replaceFirst('Exception: ', ''))),
+      );
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
 
   @override
   void dispose() {
@@ -29,45 +96,6 @@ class _SignUpPageState extends State<SignUpPage> {
     if (picked == null) return;
 
     _controller.setBirthDate(picked);
-  }
-
-  Future<bool> _handleCadastro() async {
-    if (_isSubmitting) return false;
-
-    setState(() {
-      _isSubmitting = true;
-    });
-
-    final isCadastroDone = await _controller.cadastrar();
-    if (!mounted) return false;
-    try {
-      if (!isCadastroDone) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              _controller.errorMessage ?? 'Falha ao cadastrar',
-              style: TextStyle(color: Colors.red),
-            ),
-          ),
-        );
-        return false;
-      }
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Cadastro feito!', style: TextStyle(color: Colors.red)),
-        ),
-      );
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => const LoginPage()),
-      );
-      return true;
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isSubmitting = false;
-        });
-      }
-    }
   }
 
   @override
@@ -105,76 +133,92 @@ class _SignUpPageState extends State<SignUpPage> {
                 ),
               ),
               SizedBox(height: 24),
-              TextField(
-                controller: _controller.emailController,
-                keyboardType: TextInputType.emailAddress,
-                decoration: const InputDecoration(
-                  labelText: 'E-mail',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-              SizedBox(height: 12),
-              TextField(
-                controller: _controller.usernameController,
-                decoration: const InputDecoration(
-                  labelText: 'Nome Completo',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-              SizedBox(height: 12),
-              TextField(
-                onTap: _pickBirthDate,
-                readOnly: true,
-                controller: _controller.birthDateController,
-                decoration: const InputDecoration(
-                  labelText: 'Data de Nascimento',
-                  hintText: 'dd/mm/aaaa',
-                  suffixIcon: Icon(Icons.calendar_today),
-                  border: OutlineInputBorder(),
-                ),
-              ),
-              SizedBox(height: 12),
-              TextField(
-                controller: _controller.phoneController,
-                keyboardType: TextInputType.phone,
-                decoration: const InputDecoration(
-                  labelText: 'Telefone',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-              SizedBox(height: 12),
-              TextField(
-                controller: _controller.cpfController,
-                decoration: const InputDecoration(
-                  labelText: 'CPF',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-              SizedBox(height: 12),
-              TextField(
-                controller: _controller.passwordController,
-                obscureText: true,
-                decoration: const InputDecoration(
-                  labelText: 'Senha',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-              SizedBox(height: 12),
-              ElevatedButton(
-                onPressed: _isSubmitting
-                    ? null
-                    : () {
-                        _handleCadastro();
-                      },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Color(0xFF5759E0),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                ),
-                child: Text(
-                  _isSubmitting ? 'Cadastrando...' : 'Cadastrar-se',
-                  style: const TextStyle(color: Colors.white),
+              Form(
+                key: _formKey,
+                child: Column(
+                  children: [
+                    TextFormField(
+                      controller: _controller.emailController,
+                      keyboardType: TextInputType.emailAddress,
+                      validator: _controller.validateEmail,
+                      decoration: const InputDecoration(
+                        labelText: 'E-mail',
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                    SizedBox(height: 12),
+                    TextFormField(
+                      controller: _controller.nameController,
+                      validator: _controller.validateName,
+                      decoration: const InputDecoration(
+                        labelText: 'Nome Completo',
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                    SizedBox(height: 12),
+                    TextFormField(
+                      onTap: _pickBirthDate,
+                      readOnly: true,
+                      controller: _controller.birthDateController,
+                      validator: _controller.validateBirthDate,
+                      decoration: const InputDecoration(
+                        labelText: 'Data de Nascimento',
+                        hintText: 'dd/mm/aaaa',
+                        suffixIcon: Icon(Icons.calendar_today),
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                    SizedBox(height: 12),
+                    TextFormField(
+                      controller: _controller.phoneController,
+                      keyboardType: TextInputType.phone,
+                      validator: _controller.validatePhone,
+                      decoration: const InputDecoration(
+                        labelText: 'Telefone',
+                        border: OutlineInputBorder(),
+                        hintText: '+55DDDXXXXXXXXX',
+                      ),
+                    ),
+                    SizedBox(height: 12),
+                    TextFormField(
+                      controller: _controller.cpfController,
+                      keyboardType: TextInputType.number,
+                      validator: _controller.validateCPF,
+                      decoration: const InputDecoration(
+                        labelText: 'CPF',
+                        border: OutlineInputBorder(),
+                        hintText: '000.000.000-00',
+                      ),
+                    ),
+                    SizedBox(height: 12),
+                    TextFormField(
+                      controller: _controller.passwordController,
+                      obscureText: true,
+                      validator: _controller.validatePassword,
+                      decoration: const InputDecoration(
+                        labelText: 'Senha',
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                    SizedBox(height: 12),
+                    ElevatedButton(
+                      onPressed: _isLoading
+                          ? null
+                          : () {
+                              _handleCadastro();
+                            },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Color(0xFF5759E0),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                      ),
+                      child: Text(
+                        _isLoading ? 'Cadastrando...' : 'Cadastrar-se',
+                        style: const TextStyle(color: Colors.white),
+                      ),
+                    ),
+                  ],
                 ),
               ),
               Center(
