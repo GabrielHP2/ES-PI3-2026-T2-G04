@@ -1,81 +1,197 @@
 // João Pedro Panza Mainieri - RA: 25006642
 import 'package:flutter/material.dart';
-import 'package:frontend/classes/user.dart';
-import 'package:frontend/services/signup_services.dart';
 
 class SigninController {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
-  final usernameController = TextEditingController();
+  final nameController = TextEditingController();
   final phoneController = TextEditingController();
   final cpfController = TextEditingController();
-
   final birthDateController = TextEditingController();
   DateTime? birthDate;
 
   String? _errorMessage;
   String? get errorMessage => _errorMessage;
 
-  bool _validateEmptyFields() {
-    if (emailController.text.isEmpty ||
-        usernameController.text.isEmpty ||
-        phoneController.text.isEmpty ||
-        cpfController.text.isEmpty ||
-        passwordController.text.isEmpty ||
-        birthDateController.text.isEmpty) {
-      _errorMessage = 'Todos os campos sao obrigatorios';
-      return false;
+  // ========== VALIDADORES PARA TextFormField (retornam String? ou null) ==========
+
+  String? validateName(String? value) {
+    final name = (value ?? nameController.text).trim();
+    if (name.isEmpty) {
+      return 'Nome é obrigatório';
     }
-    return true;
+    if (name.length < 3) {
+      return 'Nome deve ter pelo menos 3 caracteres';
+    }
+    if (!name.contains(' ')) {
+      return 'Insira seu nome completo (nome e sobrenome)';
+    }
+    return null;
   }
 
-  bool _validateEmail() {
-    final emailRegex = RegExp(r'^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$');
-    if (!emailRegex.hasMatch(emailController.text)) {
-      _errorMessage = 'Email inválido';
-      return false;
+  String? validateEmail(String? value) {
+    final email = (value ?? emailController.text).trim().toLowerCase();
+    if (email.isEmpty) {
+      return 'Email é obrigatório';
     }
-
-    return true;
-  }
-
-  bool _validateCPF() {
-    final cpfRegex = RegExp(r'^\d{3}\.\d{3}\.\d{3}-\d{2}$');
-    if (!cpfRegex.hasMatch(cpfController.text)) {
-      _errorMessage = 'CPF deve ser no formato: xxx.xxx.xxx-xx';
-      return false;
-    }
-    return true;
-  }
-
-  bool _validatePhone() {
-    final phoneRegex = RegExp(r'^\+55[1-9]\d{9,10}$');
-    if (!phoneRegex.hasMatch(phoneController.text)) {
-      _errorMessage = 'Telefone deve ter o formato: Ex: +5511987654321';
-      return false;
-    }
-    return true;
-  }
-
-  bool _validatePassword() {
-    final passwordRegex = RegExp(
-      r'^(?=.*\d)(?=.*[A-Z])(?=.*[a-z])(?=.*[^\w\d\s:])([^\s]){8,16}$',
+    // RFC 5322 simplified
+    final emailRegex = RegExp(
+      r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
     );
-    if (!passwordRegex.hasMatch(passwordController.text)) {
-      _errorMessage =
-          'Senha Inválida, a senha deve ter pelo menos: - 8 Caracteres; - 1 Letra maiúscula; - 1 Letra minúscula; - 1 Número; 1 - Caractere especial';
-      return false;
+    if (!emailRegex.hasMatch(email)) {
+      return 'Email inválido';
     }
-    return true;
+    return null;
+  }
+
+  String? validateCPF(String? value) {
+    final cpf = (value ?? cpfController.text).replaceAll(RegExp(r'\D'), '');
+
+    if (cpf.isEmpty) {
+      return 'CPF é obrigatório';
+    }
+    if (cpf.length != 11) {
+      return 'CPF deve ter 11 dígitos';
+    }
+
+    // Verificar se todos os dígitos são iguais
+    if (cpf.split('').toSet().length == 1) {
+      return 'CPF inválido';
+    }
+
+    // Validar primeiro dígito verificador
+    int sum = 0;
+    for (int i = 0; i < 9; i++) {
+      sum += int.parse(cpf[i]) * (10 - i);
+    }
+    int remainder = sum % 11;
+    int firstDigit = remainder < 2 ? 0 : 11 - remainder;
+
+    if (int.parse(cpf[9]) != firstDigit) {
+      return 'CPF inválido';
+    }
+
+    // Validar segundo dígito verificador
+    sum = 0;
+    for (int i = 0; i < 10; i++) {
+      sum += int.parse(cpf[i]) * (11 - i);
+    }
+    remainder = sum % 11;
+    int secondDigit = remainder < 2 ? 0 : 11 - remainder;
+
+    if (int.parse(cpf[10]) != secondDigit) {
+      return 'CPF inválido';
+    }
+
+    return null;
+  }
+
+  String? validatePhone(String? value) {
+    final phone = (value ?? phoneController.text).trim().replaceAll(RegExp(r'\s+'), '');
+
+    if (phone.isEmpty) {
+      return 'Telefone é obrigatório';
+    }
+
+    final phoneRegex = RegExp(r'^\+55[1-9]\d{9,10}$');
+    if (!phoneRegex.hasMatch(phone)) {
+      return 'Telefone inválido. Formato: +5511987654321';
+    }
+
+    return null;
+  }
+
+  String? validatePassword(String? value) {
+    final password = value ?? passwordController.text;
+
+    if (password.isEmpty) {
+      return 'Senha é obrigatória';
+    }
+
+    if (password.length < 8) {
+      return 'Mínimo 8 caracteres';
+    }
+
+    if (password.length > 16) {
+      return 'Máximo 16 caracteres';
+    }
+
+    if (!password.contains(RegExp(r'[A-Z]'))) {
+      return 'Deve conter letra maiúscula';
+    }
+
+    if (!password.contains(RegExp(r'[a-z]'))) {
+      return 'Deve conter letra minúscula';
+    }
+
+    if (!password.contains(RegExp(r'\d'))) {
+      return 'Deve conter número';
+    }
+
+    if (!password.contains(RegExp(r'[!@#$%^&*(),.?":{}|<>]'))) {
+      return 'Deve conter caractere especial';
+    }
+
+    return null;
+  }
+
+  String? validateBirthDate(String? value) {
+    final date = value ?? birthDateController.text;
+
+    if (date.isEmpty) {
+      return 'Data de nascimento é obrigatória';
+    }
+
+    if (birthDate == null) {
+      return 'Selecione uma data válida';
+    }
+
+    final age = DateTime.now().year - birthDate!.year;
+    if (age < 18) {
+      return 'Você deve ter pelo menos 18 anos';
+    }
+
+    return null;
   }
 
   bool validate() {
     _errorMessage = null;
-    if (!_validateEmptyFields()) return false;
-    if (!_validateEmail()) return false;
-    if (!_validateCPF()) return false;
-    if (!_validatePassword()) return false;
-    if (!_validatePhone()) return false;
+
+    final nameError = validateName(null);
+    if (nameError != null) {
+      _errorMessage = nameError;
+      return false;
+    }
+
+    final emailError = validateEmail(null);
+    if (emailError != null) {
+      _errorMessage = emailError;
+      return false;
+    }
+
+    final cpfError = validateCPF(null);
+    if (cpfError != null) {
+      _errorMessage = cpfError;
+      return false;
+    }
+
+    final phoneError = validatePhone(null);
+    if (phoneError != null) {
+      _errorMessage = phoneError;
+      return false;
+    }
+
+    final passwordError = validatePassword(null);
+    if (passwordError != null) {
+      _errorMessage = passwordError;
+      return false;
+    }
+
+    final birthDateError = validateBirthDate(null);
+    if (birthDateError != null) {
+      _errorMessage = birthDateError;
+      return false;
+    }
 
     return true;
   }
@@ -88,39 +204,10 @@ class SigninController {
     birthDateController.text = '$day/$month/$year';
   }
 
-  Future<bool> cadastrar() async {
-    if (!validate()) {
-      return false;
-    }
-    try {
-      final user = SignUpUser(
-        name: usernameController.text,
-        email: emailController.text,
-        cpf: cpfController.text,
-        password: passwordController.text,
-        phoneNumber: phoneController.text,
-        birthDate: birthDateController.text,
-      );
-
-      final result = await SignUpService(user);
-
-      final success = result['success'] == true;
-      if (!success) {
-        _errorMessage = (result['message'] ?? 'Falha ao cadastrar').toString();
-        return false;
-      }
-
-      return true;
-    } catch (_) {
-      _errorMessage = 'Erro inesperado ao cadastrar';
-      return false;
-    }
-  }
-
   void dispose() {
     emailController.dispose();
     passwordController.dispose();
-    usernameController.dispose();
+    nameController.dispose();
     phoneController.dispose();
     cpfController.dispose();
     birthDateController.dispose();

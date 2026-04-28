@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/classes/startup.dart';
+import 'package:frontend/models/startup.dart';
 
 class StartupPage extends StatefulWidget {
   final Startup startup;
