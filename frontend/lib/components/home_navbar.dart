@@ -13,7 +13,7 @@ class HomeNavbar extends StatelessWidget {
         NavigationDestination(icon: Icon(Icons.storage), label: 'Catalogo'),
         NavigationDestination(
           icon: Icon(Icons.trending_up),
-          label: 'DashBoard',
+          label: 'Dashboard',
         ),
         NavigationDestination(icon: Icon(Icons.storefront), label: 'Balcão'),
         NavigationDestination(

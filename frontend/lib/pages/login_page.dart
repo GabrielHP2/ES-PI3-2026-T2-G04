@@ -47,7 +47,7 @@ class _LoginPageState extends State<LoginPage> {
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 32,
-                  color: Color(0xFF5759E0),
+                  color: Colors.indigo,
                 ),
               ),
               SizedBox(height: 6),
@@ -56,7 +56,7 @@ class _LoginPageState extends State<LoginPage> {
                 style: TextStyle(
                   fontWeight: FontWeight.normal,
                   fontSize: 16,
-                  color: Color(0xFF1E1E1E),
+                  color: Colors.black,
                 ),
               ),
               SizedBox(height: 48),
@@ -91,7 +91,7 @@ class _LoginPageState extends State<LoginPage> {
                 child: Text(
                   'Esqueci minha senha',
                   textAlign: TextAlign.center,
-                  style: TextStyle(color: Color(0xFF5759E0), fontSize: 14),
+                  style: TextStyle(color: Colors.indigo, fontSize: 14),
                 ),
               ),
               SizedBox(height: 12),
@@ -147,7 +147,7 @@ class _LoginPageState extends State<LoginPage> {
                   }
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Color(0xFF5759E0),
+                  backgroundColor: Colors.indigo,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
                   ),
@@ -163,7 +163,7 @@ class _LoginPageState extends State<LoginPage> {
                   children: [
                     Text(
                       'Não tem uma conta?',
-                      style: TextStyle(color: Color(0xFF1E1E1E), fontSize: 14),
+                      style: TextStyle(color: Colors.black, fontSize: 14),
                     ),
                     TextButton(
                       onPressed: () {
@@ -175,10 +175,7 @@ class _LoginPageState extends State<LoginPage> {
                       },
                       child: Text(
                         'Cadastre-se',
-                        style: TextStyle(
-                          color: Color(0xFF5759E0),
-                          fontSize: 14,
-                        ),
+                        style: TextStyle(color: Colors.indigo, fontSize: 14),
                       ),
                     ),
                   ],

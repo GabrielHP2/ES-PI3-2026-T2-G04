@@ -119,7 +119,7 @@ class _SignUpPageState extends State<SignUpPage> {
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 28,
-                  color: Color(0xFF5759E0),
+                  color: Colors.indigo,
                 ),
               ),
               SizedBox(height: 6),
@@ -129,7 +129,7 @@ class _SignUpPageState extends State<SignUpPage> {
                 style: TextStyle(
                   fontWeight: FontWeight.normal,
                   fontSize: 12,
-                  color: Color(0xFF1E1E1E),
+                  color: Colors.black,
                 ),
               ),
               SizedBox(height: 24),
@@ -208,7 +208,7 @@ class _SignUpPageState extends State<SignUpPage> {
                               _handleCadastro();
                             },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Color(0xFF5759E0),
+                        backgroundColor: Colors.indigo,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(16),
                         ),
@@ -227,7 +227,7 @@ class _SignUpPageState extends State<SignUpPage> {
                   children: [
                     Text(
                       'Já tem uma conta?',
-                      style: TextStyle(color: Color(0xFF1E1E1E), fontSize: 14),
+                      style: TextStyle(color: Colors.black, fontSize: 14),
                     ),
                     TextButton(
                       onPressed: () {
@@ -239,10 +239,7 @@ class _SignUpPageState extends State<SignUpPage> {
                       },
                       child: Text(
                         'Fazer log-in',
-                        style: TextStyle(
-                          color: Color(0xFF5759E0),
-                          fontSize: 14,
-                        ),
+                        style: TextStyle(color: Colors.indigo, fontSize: 14),
                       ),
                     ),
                   ],
