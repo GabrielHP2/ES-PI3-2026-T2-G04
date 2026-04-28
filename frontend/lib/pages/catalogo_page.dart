@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/classes/startup.dart';
+import 'package:frontend/models/startup.dart';
 import 'package:frontend/components/filter_button.dart';
 import 'package:frontend/controllers/catalogo_controller.dart';
 
@@ -55,11 +55,9 @@ class _CatalogoPageState extends State<CatalogoPage> {
         title: const Text('Catalogo de Startups'),
         backgroundColor: Colors.white,
         automaticallyImplyLeading: false,
-        elevation: 2,
-        shadowColor: Colors.black,
       ),
       body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 24),
+        padding: const EdgeInsets.fromLTRB(12, 16, 12, 0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -69,7 +67,7 @@ class _CatalogoPageState extends State<CatalogoPage> {
               height: 48,
               margin: EdgeInsets.only(bottom: 10),
               child: ListView(
-                padding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                padding: EdgeInsets.symmetric(horizontal: 0, vertical: 2),
                 scrollDirection: Axis.horizontal,
                 children: [
                   FilterButton(
@@ -81,7 +79,7 @@ class _CatalogoPageState extends State<CatalogoPage> {
                   ),
                   const SizedBox(width: 8),
                   FilterButton(
-                    data: 'Em Desenvolvimento',
+                    data: 'Desenvolvimento',
                     isPressed: _selectedFilter == StartupState.development,
                     onPressed: () => _toggleFilter(StartupState.development),
                     icon: Icons.science,
@@ -89,7 +87,7 @@ class _CatalogoPageState extends State<CatalogoPage> {
                   ),
                   const SizedBox(width: 8),
                   FilterButton(
-                    data: 'Em Expansão',
+                    data: 'Expansão',
                     isPressed: _selectedFilter == StartupState.expansion,
                     onPressed: () => _toggleFilter(StartupState.expansion),
                     icon: Icons.public,

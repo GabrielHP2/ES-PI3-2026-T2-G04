@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/pages/auth_2fa.dart';
 import 'package:frontend/pages/cadastro_page.dart';
+import 'package:frontend/pages/home_shell.dart';
 import 'package:frontend/pages/recuperar_senha.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:frontend/pages/catalogo_page.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -47,7 +47,7 @@ class _LoginPageState extends State<LoginPage> {
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 32,
-                  color: Color(0xFF5759E0),
+                  color: Colors.indigo,
                 ),
               ),
               SizedBox(height: 6),
@@ -56,7 +56,7 @@ class _LoginPageState extends State<LoginPage> {
                 style: TextStyle(
                   fontWeight: FontWeight.normal,
                   fontSize: 16,
-                  color: Color(0xFF1E1E1E),
+                  color: Colors.black,
                 ),
               ),
               SizedBox(height: 48),
@@ -91,7 +91,7 @@ class _LoginPageState extends State<LoginPage> {
                 child: Text(
                   'Esqueci minha senha',
                   textAlign: TextAlign.center,
-                  style: TextStyle(color: Color(0xFF5759E0), fontSize: 14),
+                  style: TextStyle(color: Colors.indigo, fontSize: 14),
                 ),
               ),
               SizedBox(height: 12),
@@ -107,29 +107,23 @@ class _LoginPageState extends State<LoginPage> {
                       email: _emailController.text.trim(),
                       password: _passwordController.text.trim(),
                     ); //checa e-mail e senha
-                    Future<void> iniciar2FA() async {
-                      final user = FirebaseAuth.instance.currentUser;
-                      final phone = user!.phoneNumber;
-                      await FirebaseAuth.instance.verifyPhoneNumber(phoneNumber: phone!,verificationCompleted: (credential)
-                       async {
-                          // Para caso de android: 
-                          await FirebaseAuth.instance.signInWithCredential(credential);
-                        },
-                        verificationFailed: (FirebaseAuthException e) {
-                          if (e.code == 'invalid-phone-number') {
-                            print('The provided phone number is not valid.');
-                          }
-                        },
-                        codeSent: (String verificationId, int? resendToken) {
-                          Navigator.push(context,MaterialPageRoute(builder: (_) => Autenticacao2FAPage(verificationId: verificationId,),
-                            ),
-                          );
-                        },
-                        codeAutoRetrievalTimeout: (verificationId) {},
-                      );
+
+                    _showSnack('Login feito com sucesso');
+                    Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(builder: (_) => const HomeShell()),
+                      (route) => false,
+                    );
+                    /*
+                    await cred.user?.reload();
+                    
+                    final user = FirebaseAuth.instance.currentUser;
+                    if (user == null || !user.emailVerified) {
+                      await user?.sendEmailVerification();
+                      return;
                     }
                     await iniciar2FA();
-                    
+                    */
                   } on FirebaseAuthException catch (error) {
                     //casos de erro
                     if (!context.mounted) return;
@@ -155,7 +149,7 @@ class _LoginPageState extends State<LoginPage> {
                   }
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Color(0xFF5759E0),
+                  backgroundColor: Colors.indigo,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
                   ),
@@ -171,7 +165,7 @@ class _LoginPageState extends State<LoginPage> {
                   children: [
                     Text(
                       'Não tem uma conta?',
-                      style: TextStyle(color: Color(0xFF1E1E1E), fontSize: 14),
+                      style: TextStyle(color: Colors.black, fontSize: 14),
                     ),
                     TextButton(
                       onPressed: () {
@@ -183,10 +177,7 @@ class _LoginPageState extends State<LoginPage> {
                       },
                       child: Text(
                         'Cadastre-se',
-                        style: TextStyle(
-                          color: Color(0xFF5759E0),
-                          fontSize: 14,
-                        ),
+                        style: TextStyle(color: Colors.indigo, fontSize: 14),
                       ),
                     ),
                   ],
