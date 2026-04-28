@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'firebase_options.dart';
-import 'pages/catalogo_page.dart';
+import 'pages/home_shell.dart';
 import 'pages/login_page.dart';
 
 void main() async {
@@ -59,7 +59,7 @@ class AuthGate extends StatelessWidget {
         }
 
         if (snapshot.hasData) {
-          return CatalogoPage();
+          return const HomeShell();
         }
 
         return const LoginPage();
