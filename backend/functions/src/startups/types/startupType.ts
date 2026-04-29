@@ -34,7 +34,7 @@ export interface Startup {
   last_price: number;
   short_description: string;
   details: StartupDetails;
-  //metrics: StartupMetrics;
+  //metrics: StartupMetrics; //Vamos usar depois, quando tivermos implementando o balcão de negociações
   created_at: Timestamp;
   updated_at: Timestamp;
 }
