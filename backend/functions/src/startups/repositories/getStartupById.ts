@@ -1,12 +1,11 @@
-import { getFirestore } from "firebase-admin/firestore";
+import { db } from "../shared/firebase";
 
 //Importar tipos necessários
 import { Startup } from "../types/startupType";
 
-const db = getFirestore();
 const startupCol = db.collection("startups");
 
-export async function getStartupDetailsById(id: string): Promise<Startup> {
+export async function getStartupById(id: string): Promise<Startup> {
   const snapshot = await startupCol.doc(id).get();
 
   if (!snapshot.exists) {
