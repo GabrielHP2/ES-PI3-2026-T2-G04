@@ -22,6 +22,7 @@ class _CatalogoPageState extends State<CatalogoPage> {
     issuedTokens: 1000,
     investors_count: 55,
     startupState: StartupState.nova,
+    tokenName: 'FNOVA',
   );
   final Startup startupExemplo1 = Startup(
     name: 'Vizio AI',
@@ -33,6 +34,7 @@ class _CatalogoPageState extends State<CatalogoPage> {
     issuedTokens: 1000,
     investors_count: 22,
     startupState: StartupState.development,
+    tokenName: 'VZAI',
   );
 
   final List<Startup> _startups = [];

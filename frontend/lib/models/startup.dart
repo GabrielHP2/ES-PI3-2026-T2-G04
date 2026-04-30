@@ -11,6 +11,7 @@ class Startup {
   final int issuedTokens;
   final int investors_count;
   final StartupState startupState;
+  final String tokenName;
 
   Startup({
     required this.name,
@@ -21,5 +22,6 @@ class Startup {
     required this.issuedTokens,
     required this.investors_count,
     required this.startupState,
+    required this.tokenName,
   });
 }
