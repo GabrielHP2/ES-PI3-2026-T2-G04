@@ -61,7 +61,11 @@ class _PaginaDetalhadaState extends State<PaginaDetalhada> {
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
               child: Row(
                 children: [
-                  const Icon(Icons.arrow_back),
+                  IconButton(icon: const Icon(Icons.arrow_back),
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+),
                   const SizedBox(width: 10),
                   const Expanded(
                     child: Text(
@@ -93,9 +97,29 @@ class _PaginaDetalhadaState extends State<PaginaDetalhada> {
               padding: const EdgeInsets.symmetric(horizontal: 30),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: const [
-                  Icon(Icons.attach_money),
-                  Icon(Icons.visibility_off),
+                children:[
+                  IconButton(
+                    icon: const Icon(Icons.attach_money),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => PaginaDetalhada(),//tem que trocar para a tela real 
+                        ),
+                      );
+                    },
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.visibility_off),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => PaginaDetalhada(),//tem que trocar para a tela real
+                        ),
+                      );
+                    },
+                  ),
                 ],
               ),
             ),
@@ -127,42 +151,33 @@ class _PaginaDetalhadaState extends State<PaginaDetalhada> {
                   children: const [
                     Text(
                       'Sobre a startup',
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      style: TextStyle(color:Colors.black, fontSize: 16, fontWeight: FontWeight.bold),
                     ),
-                    SizedBox(height: 8),
-                    Text(
-                      'Essa startup atua no setor de tecnologia financeira, oferecendo soluções modernas para pagamentos digitais e gestão financeira.',
+                    SizedBox(height: 2),
+                    Text('Essa startup atua no setor de tecnologia financeira, oferecendo soluções modernas para pagamentos digitais e gestão financeira.',),
+                    SizedBox(height: 12),
+                    Text('Equipe',
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                     ),
-
-                    SizedBox(height: 16),
-
-                    Text(
-                      'Equipe',
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                    ),
-                    SizedBox(height: 8),
+                    SizedBox(height: 2),
                     Text(
                       'A equipe é formada por desenvolvedores, designers e especialistas em negócios com experiência no mercado.',
                     ),
-
-                    SizedBox(height: 16),
-
+                    SizedBox(height: 12),
                     Text(
                       'Produto',
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      style: TextStyle(color:Colors.black, fontSize: 16, fontWeight: FontWeight.bold),
                     ),
-                    SizedBox(height: 8),
+                    SizedBox(height: 2),
                     Text(
                       'O principal produto é uma plataforma digital que facilita transações e análise financeira em tempo real.',
                     ),
-
-                    SizedBox(height: 16),
-
+                    SizedBox(height: 12),
                     Text(
                       'Mercado',
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      style: TextStyle(color:Colors.black, fontSize: 16, fontWeight: FontWeight.bold),
                     ),
-                    SizedBox(height: 8),
+                    SizedBox(height: 2),
                     Text(
                       'A empresa atua em um mercado em crescimento, com foco em inovação e experiência do usuário.',
                     ),
