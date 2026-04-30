@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/components/startup_card.dart';
 import 'package:frontend/models/startup.dart';
 import 'package:frontend/components/filter_button.dart';
-import 'package:frontend/controllers/catalogo_controller.dart';
+import 'package:frontend/pages/detalhada_page.dart';
 
 class CatalogoPage extends StatefulWidget {
   const CatalogoPage({super.key});
@@ -12,11 +13,14 @@ class CatalogoPage extends StatefulWidget {
 
 class _CatalogoPageState extends State<CatalogoPage> {
   final Startup startupExemplo = Startup(
-    name: 'VizioAI',
-    description: 'O futuro da acessibilidade na navegação na internet',
+    name: 'FinNova',
+    icon: Icons.savings,
+    tags: ['Fintech', 'AI'],
+    shortDescription:
+        'Plataforma de gestão financeira pessoal com IA para análise de gastos e metas de investimento.',
     contributedCapital: 15000.00,
     issuedTokens: 1000,
-    startupState: .nova,
+    startupState: .development,
   );
   final List<Startup> _startups = [];
 
@@ -44,10 +48,6 @@ class _CatalogoPageState extends State<CatalogoPage> {
     _startups.add(startupExemplo);
   }
 
-  //Future<void> _navigateToStartup() async { // Função para ir para pagina de startup
-  //
-  //}
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -57,7 +57,7 @@ class _CatalogoPageState extends State<CatalogoPage> {
         automaticallyImplyLeading: false,
       ),
       body: Padding(
-        padding: const EdgeInsets.fromLTRB(12, 16, 12, 0),
+        padding: const EdgeInsets.fromLTRB(16, 16, 0, 0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -83,7 +83,7 @@ class _CatalogoPageState extends State<CatalogoPage> {
                     isPressed: _selectedFilter == StartupState.development,
                     onPressed: () => _toggleFilter(StartupState.development),
                     icon: Icons.science,
-                    iconBackgroundColor: Color(0xFFF77F43),
+                    iconBackgroundColor: Colors.deepOrangeAccent,
                   ),
                   const SizedBox(width: 8),
                   FilterButton(
@@ -91,7 +91,7 @@ class _CatalogoPageState extends State<CatalogoPage> {
                     isPressed: _selectedFilter == StartupState.expansion,
                     onPressed: () => _toggleFilter(StartupState.expansion),
                     icon: Icons.public,
-                    iconBackgroundColor: Color(0xFF5759E0),
+                    iconBackgroundColor: Colors.indigo,
                   ),
                 ],
               ),
@@ -104,74 +104,21 @@ class _CatalogoPageState extends State<CatalogoPage> {
                         textAlign: TextAlign.center,
                       ),
                     )
-                  : ListView.builder(
+                  : ListView.separated(
+                      padding: EdgeInsets.only(right: 16),
                       itemCount: _startups.length,
+                      separatorBuilder: (context, index) =>
+                          const SizedBox(height: 16),
                       itemBuilder: (context, index) {
-                        final startup = _startups[index];
-                        return Card(
-                          color: const Color(0xFFFFFFFF),
-                          elevation: 2,
-                          margin: EdgeInsets.only(bottom: 10),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20),
-                            side: const BorderSide(
-                              color: Color(0xFFCACACA),
-                              width: 1,
+                        final Startup startup = _startups[index];
+                        return GestureDetector(
+                          onTap: () => Navigator.of(context).push(
+                            MaterialPageRoute<void>(
+                              builder: (context) =>
+                                  PaginaDetalhada(startup: startup),
                             ),
                           ),
-                          child: Padding(
-                            padding: const EdgeInsets.fromLTRB(16, 16, 0, 16),
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  flex: 3,
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        startup.name,
-                                        style: TextStyle(
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                      ),
-                                      SizedBox(height: 8),
-                                      Text(startup.description),
-                                      Text(
-                                        'Tokens emitidos: ${startup.issuedTokens}',
-                                      ),
-                                    ],
-                                  ),
-                                ),
-
-                                Expanded(
-                                  flex: 1,
-                                  child: Container(
-                                    alignment: .centerLeft,
-                                    padding: EdgeInsets.only(
-                                      left: 15,
-                                      top: 2,
-                                      right: 0,
-                                      bottom: 2,
-                                    ),
-                                    height: 35,
-                                    decoration: BoxDecoration(
-                                      color: Color(0xff7AE058),
-                                      borderRadius: BorderRadius.only(
-                                        topLeft: Radius.circular(20),
-                                        bottomLeft: Radius.circular(20),
-                                      ),
-                                    ),
-                                    child: Icon(
-                                      getStartupStateIcon(startup),
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
+                          child: StartupCard(startup: startup),
                         );
                       },
                     ),

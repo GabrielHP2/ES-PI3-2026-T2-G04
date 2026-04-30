@@ -1,28 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/models/startup.dart';
 
-class PaginaDetalhada extends StatefulWidget{
-  @override 
-  State<PaginaDetalhada> createState()=> _PaginaDetalhadaState();
+class PaginaDetalhada extends StatefulWidget {
+  final Startup startup;
+  const PaginaDetalhada({super.key, required this.startup});
+
+  @override
+  State<PaginaDetalhada> createState() => _PaginaDetalhadaState();
 }
 
-class _PaginaDetalhadaState extends State<PaginaDetalhada> { 
-  Widget _buildPlaceholderLine({double width = double.infinity}) {
-    return Container(
-      margin: const EdgeInsets.symmetric(vertical: 6),
-      height: 6,
-      width: width,
-      decoration: BoxDecoration(
-        color: Colors.black,
-        borderRadius: BorderRadius.circular(4),
-      ),
-    );
-  }
-
+class _PaginaDetalhadaState extends State<PaginaDetalhada> {
   Widget _buildVideoPlaceholder() {
     return GestureDetector(
       onTap: () {
-        // player video 
+        // player video
       },
       child: Container(
         margin: const EdgeInsets.all(16),
@@ -33,11 +24,7 @@ class _PaginaDetalhadaState extends State<PaginaDetalhada> {
           borderRadius: BorderRadius.circular(16),
         ),
         child: const Center(
-          child: Icon(
-            Icons.play_arrow,
-            size: 50,
-            color: Colors.black54,
-          ),
+          child: Icon(Icons.play_arrow, size: 50, color: Colors.black54),
         ),
       ),
     );
@@ -46,13 +33,6 @@ class _PaginaDetalhadaState extends State<PaginaDetalhada> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      bottomNavigationBar: BottomNavigationBar(
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.list), label: ''),
-          BottomNavigationBarItem(icon: Icon(Icons.pie_chart), label: ''),
-          BottomNavigationBarItem(icon: Icon(Icons.account_balance), label: ''),
-        ],
-      ),
       body: SafeArea(
         child: Column(
           children: [
@@ -61,11 +41,12 @@ class _PaginaDetalhadaState extends State<PaginaDetalhada> {
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
               child: Row(
                 children: [
-                  IconButton(icon: const Icon(Icons.arrow_back),
+                  IconButton(
+                    icon: const Icon(Icons.arrow_back),
                     onPressed: () {
                       Navigator.pop(context);
                     },
-),
+                  ),
                   const SizedBox(width: 10),
                   const Expanded(
                     child: Text(
@@ -75,7 +56,9 @@ class _PaginaDetalhadaState extends State<PaginaDetalhada> {
                   ),
                   Container(
                     padding: const EdgeInsets.symmetric(
-                        horizontal: 10, vertical: 6),
+                      horizontal: 10,
+                      vertical: 6,
+                    ),
                     decoration: BoxDecoration(
                       color: Colors.green,
                       borderRadius: BorderRadius.circular(20),
@@ -84,7 +67,7 @@ class _PaginaDetalhadaState extends State<PaginaDetalhada> {
                       'Em operação',
                       style: TextStyle(color: Colors.white, fontSize: 12),
                     ),
-                  )
+                  ),
                 ],
               ),
             ),
@@ -92,53 +75,7 @@ class _PaginaDetalhadaState extends State<PaginaDetalhada> {
             // VIDEO PLACEHOLDER
             _buildVideoPlaceholder(),
 
-            // ACTIONS
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 30),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children:[
-                  IconButton(
-                    icon: const Icon(Icons.attach_money),
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => PaginaDetalhada(),//tem que trocar para a tela real 
-                        ),
-                      );
-                    },
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.visibility_off),
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => PaginaDetalhada(),//tem que trocar para a tela real
-                        ),
-                      );
-                    },
-                  ),
-                ],
-              ),
-            ),
-
             const Divider(),
-
-            // ICON MENU
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 30),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: const [
-                  Icon(Icons.menu_book),
-                  Icon(Icons.groups),
-                  Icon(Icons.chat_bubble_outline),
-                  Icon(Icons.list),
-                ],
-              ),
-            ),
 
             const SizedBox(height: 10),
 
@@ -151,13 +88,23 @@ class _PaginaDetalhadaState extends State<PaginaDetalhada> {
                   children: const [
                     Text(
                       'Sobre a startup',
-                      style: TextStyle(color:Colors.black, fontSize: 16, fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                     SizedBox(height: 2),
-                    Text('Essa startup atua no setor de tecnologia financeira, oferecendo soluções modernas para pagamentos digitais e gestão financeira.',),
+                    Text(
+                      'Essa startup atua no setor de tecnologia financeira, oferecendo soluções modernas para pagamentos digitais e gestão financeira.',
+                    ),
                     SizedBox(height: 12),
-                    Text('Equipe',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    Text(
+                      'Equipe',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                     SizedBox(height: 2),
                     Text(
@@ -166,7 +113,11 @@ class _PaginaDetalhadaState extends State<PaginaDetalhada> {
                     SizedBox(height: 12),
                     Text(
                       'Produto',
-                      style: TextStyle(color:Colors.black, fontSize: 16, fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                     SizedBox(height: 2),
                     Text(
@@ -175,7 +126,11 @@ class _PaginaDetalhadaState extends State<PaginaDetalhada> {
                     SizedBox(height: 12),
                     Text(
                       'Mercado',
-                      style: TextStyle(color:Colors.black, fontSize: 16, fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                     SizedBox(height: 2),
                     Text(
