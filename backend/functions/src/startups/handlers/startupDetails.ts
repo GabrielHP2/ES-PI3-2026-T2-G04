@@ -1,5 +1,5 @@
 import { onCall, HttpsError } from "firebase-functions/https";
-import { getStartupById } from "../repositories/getStartupById";
+import { getStartupById } from "../repositories/startupRepositories";
 
 export const getStartupDetails = onCall(async (request) => {
   const startupId = request.data?.id;
