@@ -22,6 +22,7 @@ class _CatalogoPageState extends State<CatalogoPage> {
     issuedTokens: 1000,
     startupState: .development,
   );
+
   final List<Startup> _startups = [];
 
   StartupState? _selectedFilter;
@@ -50,6 +51,11 @@ class _CatalogoPageState extends State<CatalogoPage> {
 
   @override
   Widget build(BuildContext context) {
+    //  Lógica dos filtros
+    final startupsFiltradas = _selectedFilter == null
+        ? _startups
+        : _startups.where((s) => s.startupState == _selectedFilter).toList();
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Catalogo de Startups'),
@@ -61,7 +67,10 @@ class _CatalogoPageState extends State<CatalogoPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Filtros', textAlign: .left),
+            const Text(
+              'Filtros',
+              textAlign: TextAlign.left,
+            ), // Ajustado .left para TextAlign.left
             const SizedBox(height: 6),
             Container(
               height: 48,
@@ -97,7 +106,8 @@ class _CatalogoPageState extends State<CatalogoPage> {
               ),
             ),
             Expanded(
-              child: _startups.isEmpty
+              // Construcao de tela
+              child: startupsFiltradas.isEmpty
                   ? const Center(
                       child: Text(
                         'Nenhuma Startup Disponível',
