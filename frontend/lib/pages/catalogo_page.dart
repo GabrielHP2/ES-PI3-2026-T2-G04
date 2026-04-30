@@ -20,16 +20,18 @@ class _CatalogoPageState extends State<CatalogoPage> {
         'Plataforma de gestão financeira pessoal com IA para análise de gastos e metas de investimento.',
     contributedCapital: 15000.00,
     issuedTokens: 1000,
+    investors_count: 55,
     startupState: StartupState.nova,
   );
   final Startup startupExemplo1 = Startup(
     name: 'Vizio AI',
-    icon: Icons.savings,
-    tags: ['Fintech', 'AI'],
+    icon: Icons.preview,
+    tags: ['Acessibility', 'AI'],
     shortDescription:
         'Plataforma de gestão financeira pessoal com IA para análise de gastos e metas de investimento.',
-    contributedCapital: 15000.00,
+    contributedCapital: 15000,
     issuedTokens: 1000,
+    investors_count: 22,
     startupState: StartupState.development,
   );
 

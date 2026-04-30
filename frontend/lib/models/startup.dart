@@ -9,6 +9,7 @@ class Startup {
   final String shortDescription;
   final double contributedCapital;
   final int issuedTokens;
+  final int investors_count;
   final StartupState startupState;
 
   Startup({
@@ -18,6 +19,7 @@ class Startup {
     required this.shortDescription,
     required this.contributedCapital,
     required this.issuedTokens,
+    required this.investors_count,
     required this.startupState,
   });
 }

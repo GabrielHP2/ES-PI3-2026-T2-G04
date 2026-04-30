@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/models/startup.dart';
 import 'package:frontend/controllers/catalogo_controller.dart';
+import 'package:frontend/services/numberformatter_service.dart';
 
 class StartupCard extends StatelessWidget {
   final Startup startup;
@@ -74,6 +75,23 @@ class StartupCard extends StatelessWidget {
                       height: 1.2,
                       fontWeight: FontWeight.w400,
                     ),
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    mainAxisAlignment: .center,
+                    spacing: 8,
+                    children: [
+                      InfoContainer(
+                        infoText:
+                            'R\$ ${formatter.format(startup.contributedCapital)}',
+                      ),
+                      InfoContainer(
+                        infoText: formatter.format(startup.issuedTokens),
+                      ),
+                      InfoContainer(
+                        infoText: formatter.format(startup.investors_count),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -152,6 +170,41 @@ class _OutlinedTag extends StatelessWidget {
           fontSize: 12,
           fontWeight: FontWeight.w500,
         ),
+      ),
+    );
+  }
+}
+
+class InfoContainer extends StatelessWidget {
+  final String? infoText;
+  const InfoContainer({super.key, required this.infoText});
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        border: Border.all(color: Colors.grey.shade300, width: 1),
+        borderRadius: BorderRadius.all(Radius.circular(20)),
+        boxShadow: [
+          BoxShadow(color: Colors.black26, offset: Offset(0, 2), blurRadius: 1),
+        ],
+      ),
+      width: 100,
+      height: 100,
+      child: Column(
+        crossAxisAlignment: .center,
+        mainAxisAlignment: .center,
+        children: [
+          Text(
+            '$infoText',
+            style: TextStyle(
+              color: Colors.black,
+              fontWeight: .bold,
+              fontSize: 16,
+            ),
+          ),
+          Text('Captado'),
+        ],
       ),
     );
   }
