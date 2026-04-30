@@ -20,7 +20,17 @@ class _CatalogoPageState extends State<CatalogoPage> {
         'Plataforma de gestão financeira pessoal com IA para análise de gastos e metas de investimento.',
     contributedCapital: 15000.00,
     issuedTokens: 1000,
-    startupState: .development,
+    startupState: StartupState.nova,
+  );
+  final Startup startupExemplo1 = Startup(
+    name: 'Vizio AI',
+    icon: Icons.savings,
+    tags: ['Fintech', 'AI'],
+    shortDescription:
+        'Plataforma de gestão financeira pessoal com IA para análise de gastos e metas de investimento.',
+    contributedCapital: 15000.00,
+    issuedTokens: 1000,
+    startupState: StartupState.development,
   );
 
   final List<Startup> _startups = [];
@@ -38,11 +48,11 @@ class _CatalogoPageState extends State<CatalogoPage> {
     super.initState();
     //TODO: Puxa as startups do firestore e coloca na lista através de um for
     _startups.add(startupExemplo);
-    _startups.add(startupExemplo);
-    _startups.add(startupExemplo);
-    _startups.add(startupExemplo);
-    _startups.add(startupExemplo);
-    _startups.add(startupExemplo);
+    _startups.add(startupExemplo1);
+    _startups.add(startupExemplo1);
+    _startups.add(startupExemplo1);
+    _startups.add(startupExemplo1);
+    _startups.add(startupExemplo1);
     _startups.add(startupExemplo);
     _startups.add(startupExemplo);
     _startups.add(startupExemplo);
@@ -116,11 +126,11 @@ class _CatalogoPageState extends State<CatalogoPage> {
                     )
                   : ListView.separated(
                       padding: EdgeInsets.only(right: 16),
-                      itemCount: _startups.length,
+                      itemCount: startupsFiltradas.length,
                       separatorBuilder: (context, index) =>
                           const SizedBox(height: 16),
                       itemBuilder: (context, index) {
-                        final Startup startup = _startups[index];
+                        final Startup startup = startupsFiltradas[index];
                         return GestureDetector(
                           onTap: () => Navigator.of(context).push(
                             MaterialPageRoute<void>(
