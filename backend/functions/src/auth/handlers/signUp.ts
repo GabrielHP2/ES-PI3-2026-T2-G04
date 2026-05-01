@@ -1,4 +1,4 @@
-// Autor: Gabriel Henrique Pacagenlli Pagliato   RA: 25016528
+// Autor: Gabriel Henrique Pacagnelli Pagliato   RA: 25016528
 
 import { getFirestore } from "firebase-admin/firestore";
 import { getAuth } from "firebase-admin/auth";

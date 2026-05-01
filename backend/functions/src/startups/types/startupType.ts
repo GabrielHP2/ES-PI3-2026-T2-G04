@@ -1,10 +1,12 @@
+// João Pedro Panza Mainieri - RA: 25006642
+
 import { Timestamp } from "firebase-admin/firestore";
 
 export type StartupStatus = "ativa" | "inativa" | "encerrada";
 
 export type StartupStage = "nova" | "operacao" | "expansao";
 
-export type StartupVisibilitie = "publica" | "privada";
+export type StartupVisibility = "publica" | "privada";
 
 export interface CorporateMember {
   name: string;
@@ -13,34 +15,40 @@ export interface CorporateMember {
   bio: string;
 }
 
-export interface StartupDetails {
+export interface Startup {
+  name: string;
+  token_symbol: string;
+  icon: string;
+  status: StartupStatus;
+  stage: StartupStage;
+  visibility: StartupVisibility;
+  tags: string[];
+  last_price: number;
+  short_description: string;
   full_description: string;
   executive_summary: string;
   corporate_structure: CorporateMember[];
   pitch_video_url: string;
   website?: string;
   founded_at?: Timestamp | string;
-}
-
-export interface StartupMetrics {
   current_raised: number;
-  tokens_emitidos: number;
+  tokens_issued: number;
   investors_count: number;
+  updated_at: Timestamp;
 }
 
-export interface Startup {
+export interface SimplifiedStartup {
+  
   name: string;
   token_symbol: string;
   icon: string;
-  status: StartupStatus;
-  estagio: StartupStage;
-  visibilitie: StartupVisibilitie;
-  category: string;
-  last_price: number;
+  stage: StartupStage;
+  tags: string[];
   short_description: string;
-  details: StartupDetails;
-  metrics: StartupMetrics;
-  updated_at: Timestamp;
+  corporate_structure: CorporateMember[];
+  current_raised: number;
+  tokens_issued: number;
+  investors_count: number;
 }
 
 export interface StartupPriceHistory {

@@ -1,3 +1,5 @@
+// João Pedro Panza Mainieri - RA: 25006642
+
 import { onCall, HttpsError } from "firebase-functions/https";
 import { getStartupById } from "../repositories/startupRepositories";
 
