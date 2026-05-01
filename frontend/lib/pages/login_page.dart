@@ -86,6 +86,8 @@ class _LoginPageState extends State<LoginPage> {
                   style: TextStyle(color: Colors.indigo, fontSize: 14),
                 ),
               ),
+              //somente para testes, esse botao será removido
+              /*
               ElevatedButton(
                 onPressed: () {
                   Navigator.push(
@@ -97,6 +99,9 @@ class _LoginPageState extends State<LoginPage> {
                 },
                 child: Text('Ir para detalhes'),
               ),
+              */
+              //final botao
+              
               
 
               SizedBox(height: 12),

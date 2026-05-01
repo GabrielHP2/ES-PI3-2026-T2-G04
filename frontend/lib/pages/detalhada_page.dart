@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/models/startup.dart';
 
-class PaginaDetalhadaNaoInvestidor extends StatefulWidget{
-  @override 
-  //const PaginaDetalhadaNaoInvestidor({super.key});
+class PaginaDetalhadaNaoInvestidor extends StatefulWidget{ 
+  final Startup startup;
+  const PaginaDetalhadaNaoInvestidor({super.key, required this.startup});
+
+  @override
   State<PaginaDetalhadaNaoInvestidor> createState()=> _PaginaDetalhadaState();
 }
 
@@ -151,6 +153,7 @@ class _PaginaDetalhadaState extends State<PaginaDetalhadaNaoInvestidor> {
       ),
       child: Row(
         children: [
+
           const SizedBox(width: 10),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
