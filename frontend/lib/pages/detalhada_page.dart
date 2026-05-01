@@ -1,192 +1,203 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/models/startup.dart';
 
-class PaginaDetalhada extends StatefulWidget{
+class PaginaDetalhadaNaoInvestidor extends StatefulWidget{
   @override 
-  State<PaginaDetalhada> createState()=> _PaginaDetalhadaState();
+  //const PaginaDetalhadaNaoInvestidor({super.key});
+  State<PaginaDetalhadaNaoInvestidor> createState()=> _PaginaDetalhadaState();
 }
 
-class _PaginaDetalhadaState extends State<PaginaDetalhada> { 
-  Widget _buildPlaceholderLine({double width = double.infinity}) {
-    return Container(
-      margin: const EdgeInsets.symmetric(vertical: 6),
-      height: 6,
-      width: width,
-      decoration: BoxDecoration(
-        color: Colors.black,
-        borderRadius: BorderRadius.circular(4),
-      ),
-    );
-  }
-
-  Widget _buildVideoPlaceholder() {
-    return GestureDetector(
-      onTap: () {
-        // player video 
-      },
-      child: Container(
-        margin: const EdgeInsets.all(16),
-        height: 180,
-        decoration: BoxDecoration(
-          color: Colors.grey.shade300,
-          border: Border.all(color: Colors.black),
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: const Center(
-          child: Icon(
-            Icons.play_arrow,
-            size: 50,
-            color: Colors.black54,
-          ),
-        ),
-      ),
-    );
-  }
-
+class _PaginaDetalhadaState extends State<PaginaDetalhadaNaoInvestidor> { 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      bottomNavigationBar: BottomNavigationBar(
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.list), label: ''),
-          BottomNavigationBarItem(icon: Icon(Icons.pie_chart), label: ''),
-          BottomNavigationBarItem(icon: Icon(Icons.account_balance), label: ''),
-        ],
+      backgroundColor: Colors.grey[100],
+      appBar: AppBar(
+        elevation: 0,
+        backgroundColor: Colors.white,
+        centerTitle: true,
+        leading: const Icon(Icons.arrow_back, color: Colors.black),
+        title: const Text(
+          "DETALHES",
+          style: TextStyle(color: Colors.black),
+        ),
       ),
-      body: SafeArea(
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // HEADER
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-              child: Row(
+            _header(),
+            const SizedBox(height: 16),
+            _description(),
+            const SizedBox(height: 12),
+            _tags(),
+            const SizedBox(height: 20),
+            _stats(),
+            const SizedBox(height: 20),
+            _sectionCard(
+              title: "Sumário executivo",
+              child: const Text(
+                "Focada no mercado B2C, a FinNova utiliza algoritmos de processamento de linguagem natural para categorizar gastos bancários com precisão de 98%.",
+                style: TextStyle(fontSize: 14),
+              ),
+            ),
+            const SizedBox(height: 16),
+            _sectionCard(
+              title: "Estrutura societária",
+              child: Column(
                 children: [
-                  IconButton(icon: const Icon(Icons.arrow_back),
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-),
-                  const SizedBox(width: 10),
-                  const Expanded(
-                    child: Text(
-                      'NOME DA STARTUP',
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 10, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: Colors.green,
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: const Text(
-                      'Em operação',
-                      style: TextStyle(color: Colors.white, fontSize: 12),
-                    ),
-                  )
+                  _ownerTile("Thiago Mendes", "CEO & Founder", "58%"),
+                  _ownerTile("Thiago Mendes", "CEO & Founder", "58%"),
                 ],
-              ),
-            ),
-
-            // VIDEO PLACEHOLDER
-            _buildVideoPlaceholder(),
-
-            // ACTIONS
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 30),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children:[
-                  IconButton(
-                    icon: const Icon(Icons.attach_money),
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => PaginaDetalhada(),//tem que trocar para a tela real 
-                        ),
-                      );
-                    },
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.visibility_off),
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => PaginaDetalhada(),//tem que trocar para a tela real
-                        ),
-                      );
-                    },
-                  ),
-                ],
-              ),
-            ),
-
-            const Divider(),
-
-            // ICON MENU
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 30),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: const [
-                  Icon(Icons.menu_book),
-                  Icon(Icons.groups),
-                  Icon(Icons.chat_bubble_outline),
-                  Icon(Icons.list),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 10),
-
-            // CONTENT
-            Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: const [
-                    Text(
-                      'Sobre a startup',
-                      style: TextStyle(color:Colors.black, fontSize: 16, fontWeight: FontWeight.bold),
-                    ),
-                    SizedBox(height: 2),
-                    Text('Essa startup atua no setor de tecnologia financeira, oferecendo soluções modernas para pagamentos digitais e gestão financeira.',),
-                    SizedBox(height: 12),
-                    Text('Equipe',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                    ),
-                    SizedBox(height: 2),
-                    Text(
-                      'A equipe é formada por desenvolvedores, designers e especialistas em negócios com experiência no mercado.',
-                    ),
-                    SizedBox(height: 12),
-                    Text(
-                      'Produto',
-                      style: TextStyle(color:Colors.black, fontSize: 16, fontWeight: FontWeight.bold),
-                    ),
-                    SizedBox(height: 2),
-                    Text(
-                      'O principal produto é uma plataforma digital que facilita transações e análise financeira em tempo real.',
-                    ),
-                    SizedBox(height: 12),
-                    Text(
-                      'Mercado',
-                      style: TextStyle(color:Colors.black, fontSize: 16, fontWeight: FontWeight.bold),
-                    ),
-                    SizedBox(height: 2),
-                    Text(
-                      'A empresa atua em um mercado em crescimento, com foco em inovação e experiência do usuário.',
-                    ),
-                  ],
-                ),
               ),
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _header() {
+    return Row(
+      children: [
+        const Icon(Icons.account_balance, size: 36, color: Colors.indigo),
+        const SizedBox(width: 10),
+        const Text(
+          "FinNova",
+          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(width: 8),
+        Text(
+          "\$FNOVA",
+          style: TextStyle(
+            color: Colors.grey[600],
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const Spacer(),
+        const CircleAvatar(
+          backgroundColor: Colors.orange,
+          child: Icon(Icons.bubble_chart, color: Colors.white),
+        )
+      ],
+    );
+  }
+
+  Widget _description() {
+    return const Text(
+      "FinNova é uma plataforma que ajuda usuários a gerenciar finanças pessoais com análises baseadas em IA, sugestões de orçamento e metas de investimento automatizadas. Integra contas bancárias, cartões e investimentos para fornecer uma visão consolidada e recomendações personalizadas.",
+      style: TextStyle(fontSize: 14),
+    );
+  }
+
+  Widget _tags() {
+    final tags = ["Fintech", "Gestão financeira", "IA"];
+
+    return Wrap(
+      spacing: 8,
+      children: tags
+          .map(
+            (tag) => Chip(
+              label: Text(tag),
+              shape: StadiumBorder(
+                side: BorderSide(color: Colors.indigo.shade200),
+              ),
+            ),
+          )
+          .toList(),
+    );
+  }
+
+  Widget _stats() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: const [
+        _StatCard(title: "R\$ 280k", subtitle: "Captado"),
+        _StatCard(title: "95.0K", subtitle: "Tokens"),
+        _StatCard(title: "1.2K", subtitle: "Investidores"),
+      ],
+    );
+  }
+
+  Widget _sectionCard({required String title, required Widget child}) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.grey[200],
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title,
+              style: const TextStyle(
+                  fontWeight: FontWeight.bold, color: Colors.grey)),
+          const SizedBox(height: 10),
+          child,
+        ],
+      ),
+    );
+  }
+
+  Widget _ownerTile(String name, String role, String percent) {
+    return Container(
+      margin: const EdgeInsets.only(top: 10),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Row(
+        children: [
+          const SizedBox(width: 10),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(name, style: const TextStyle(fontWeight: FontWeight.bold)),
+              Text(role, style: TextStyle(color: Colors.grey[600])),
+            ],
+          ),
+          const Spacer(),
+          Text(
+            percent,
+            style: const TextStyle(
+              color: Colors.indigo,
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+            ),
+          )
+        ],
+      ),
+    );
+  }
+}
+
+class _StatCard extends StatelessWidget {
+  final String title;
+  final String subtitle;
+
+  const _StatCard({required this.title, required this.subtitle});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 100,
+      height: 80,
+      decoration: BoxDecoration(
+        color: Colors.grey[200],
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(title,
+              style:
+                  const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+          const SizedBox(height: 4),
+          Text(subtitle, style: const TextStyle(fontSize: 12)),
+        ],
       ),
     );
   }
