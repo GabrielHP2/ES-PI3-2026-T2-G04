@@ -27,7 +27,7 @@ class _CatalogoPageState extends State<CatalogoPage> {
     //  Lógica dos filtros
     final startupsFiltradas = _selectedFilter == null
         ? _startups
-        : _startups.where((s) => s.estagio == _selectedFilter).toList();
+        : _startups.where((s) => s.stage == _selectedFilter).toList();
 
     return Scaffold(
       appBar: AppBar(

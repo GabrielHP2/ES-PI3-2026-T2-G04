@@ -2,9 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 // ENUMS
-
-//Useri factory para facilitar transformar o retorno do firestore
-
 enum StartupStatus { ativa, inativa, encerrada }
 
 enum StartupStage { nova, operacao, expansao }
@@ -41,34 +38,69 @@ class CorporateMember {
   };
 }
 
-class StartupDetails {
+class Startup {
+  final String name;
+  final String tokenSymbol;
+  final IconData icon;
+  final StartupStatus status;
+  final StartupStage stage;
+  final StartupVisibility visibility;
+  final List<String> tags;
+  final double lastPrice;
+  final String shortDescription;
   final String fullDescription;
   final String executiveSummary;
   final List<CorporateMember> corporateStructure;
   final String pitchVideoUrl;
   final String? website;
   final DateTime? foundedAt;
+  final double currentRaised;
+  final double tokensIssued;
+  final int investorsCount;
+  final DateTime updatedAt;
 
-  StartupDetails({
+  Startup({
+    required this.name,
+    required this.tokenSymbol,
+    required this.icon,
+    required this.status,
+    required this.stage,
+    required this.visibility,
+    required this.tags,
+    required this.lastPrice,
+    required this.shortDescription,
     required this.fullDescription,
     required this.executiveSummary,
     required this.corporateStructure,
     required this.pitchVideoUrl,
     this.website,
     this.foundedAt,
+    required this.currentRaised,
+    required this.tokensIssued,
+    required this.investorsCount,
+    required this.updatedAt,
   });
 
-  factory StartupDetails.fromMap(Map<String, dynamic> map) {
-    DateTime? parsedDate;
-    if (map['founded_at'] != null) {
-      if (map['founded_at'] is Timestamp) {
-        parsedDate = (map['founded_at'] as Timestamp).toDate();
-      } else if (map['founded_at'] is String) {
-        parsedDate = DateTime.tryParse(map['founded_at']);
-      }
-    }
-
-    return StartupDetails(
+  factory Startup.fromMap(Map<String, dynamic> map) {
+    return Startup(
+      name: map['name'] ?? '',
+      tokenSymbol: map['token_symbol'] ?? '',
+      icon: _parseIcon(map['icon']),
+      status: StartupStatus.values.firstWhere(
+        (e) => e.name == map['status'],
+        orElse: () => StartupStatus.inativa,
+      ),
+      stage: StartupStage.values.firstWhere(
+        (e) => e.name == map['stage'],
+        orElse: () => StartupStage.nova,
+      ),
+      visibility: StartupVisibility.values.firstWhere(
+        (e) => e.name == map['visibility'],
+        orElse: () => StartupVisibility.privada,
+      ),
+      tags: List<String>.from(map['tags'] ?? []),
+      lastPrice: (map['last_price'] as num? ?? 0).toDouble(),
+      shortDescription: map['short_description'] ?? '',
       fullDescription: map['full_description'] ?? '',
       executiveSummary: map['executive_summary'] ?? '',
       corporateStructure: (map['corporate_structure'] as List? ?? [])
@@ -76,128 +108,113 @@ class StartupDetails {
           .toList(),
       pitchVideoUrl: map['pitch_video_url'] ?? '',
       website: map['website'],
-      foundedAt: parsedDate,
-    );
-  }
-
-  Map<String, dynamic> toMap() => {
-    'full_description': fullDescription,
-    'executive_summary': executiveSummary,
-    'corporate_structure': corporateStructure.map((e) => e.toMap()).toList(),
-    'pitch_video_url': pitchVideoUrl,
-    'website': website,
-    'founded_at': foundedAt != null ? Timestamp.fromDate(foundedAt!) : null,
-  };
-}
-
-class StartupMetrics {
-  final double currentRaised;
-  final double tokensEmitidos;
-  final int investorsCount;
-
-  StartupMetrics({
-    required this.currentRaised,
-    required this.tokensEmitidos,
-    required this.investorsCount,
-  });
-
-  factory StartupMetrics.fromMap(Map<String, dynamic> map) {
-    return StartupMetrics(
+      foundedAt: _parseDate(map['founded_at']),
       currentRaised: (map['current_raised'] as num? ?? 0).toDouble(),
-      tokensEmitidos: (map['tokens_emitidos'] as num? ?? 0).toDouble(),
+      tokensIssued: (map['tokens_issued'] as num? ?? 0).toDouble(),
       investorsCount: map['investors_count'] as int? ?? 0,
-    );
-  }
-
-  Map<String, dynamic> toMap() => {
-    'current_raised': currentRaised,
-    'tokens_emitidos': tokensEmitidos,
-    'investors_count': investorsCount,
-  };
-}
-
-class Startup {
-  final String name;
-  final String tokenSymbol;
-  final IconData icon; // Agora como IconData
-  final StartupStatus status;
-  final StartupStage estagio;
-  final StartupVisibility visibility;
-  final String category;
-  final double lastPrice;
-  final String shortDescription;
-  final StartupDetails details;
-  final StartupMetrics metrics;
-  final DateTime updatedAt;
-  final List<String> tags;
-
-  Startup({
-    required this.name,
-    required this.tokenSymbol,
-    required this.icon,
-    required this.status,
-    required this.estagio,
-    required this.visibility,
-    required this.category,
-    required this.lastPrice,
-    required this.shortDescription,
-    required this.details,
-    required this.metrics,
-    required this.updatedAt,
-    required this.tags,
-  });
-
-  factory Startup.fromMap(Map<String, dynamic> map) {
-    return Startup(
-      name: map['name'] ?? '',
-      tokenSymbol: map['token_symbol'] ?? '',
-      icon: IconData(
-        map['icon'] as int? ?? Icons.help_outline.codePoint,
-        fontFamily: 'MaterialIcons',
-      ),
-      status: StartupStatus.values.firstWhere(
-        (e) => e.name == map['status'],
-        orElse: () => StartupStatus.inativa,
-      ),
-      estagio: StartupStage.values.firstWhere(
-        (e) => e.name == map['estagio'],
-        orElse: () => StartupStage.nova,
-      ),
-      visibility: StartupVisibility.values.firstWhere(
-        (e) =>
-            e.name ==
-            map['visibilitie'], // Mapeando de 'visibilitie' (TS) para 'visibility'
-        orElse: () => StartupVisibility.privada,
-      ),
-      category: map['category'] ?? '',
-      lastPrice: (map['last_price'] as num? ?? 0).toDouble(),
-      shortDescription: map['short_description'] ?? '',
-      details: StartupDetails.fromMap(
-        map['details'] as Map<String, dynamic>? ?? {},
-      ),
-      metrics: StartupMetrics.fromMap(
-        map['metrics'] as Map<String, dynamic>? ?? {},
-      ),
-      updatedAt: map['updated_at'] is Timestamp
-          ? (map['updated_at'] as Timestamp).toDate()
-          : DateTime.tryParse(map['updated_at']?.toString() ?? '') ??
-                DateTime.now(),
-      tags: map['tags'] as List<String>,
+      updatedAt: _parseDate(map['updated_at']) ?? DateTime.now(),
     );
   }
 
   Map<String, dynamic> toMap() => {
     'name': name,
-    'token_symbol': tokenSymbol,
+    'tokenSymbol': tokenSymbol,
     'icon': icon.codePoint,
     'status': status.name,
-    'estagio': estagio.name,
-    'visibilitie': visibility.name, // Mantendo 'visibilitie' para o banco
-    'category': category,
-    'last_price': lastPrice,
-    'short_description': shortDescription,
-    'details': details.toMap(),
-    'metrics': metrics.toMap(),
-    'updated_at': Timestamp.fromDate(updatedAt),
+    'stage': stage.name,
+    'visibility': visibility.name,
+    'tags': tags,
+    'lastPrice': lastPrice,
+    'shortDescription': shortDescription,
+    'fullDescription': fullDescription,
+    'executiveSummary': executiveSummary,
+    'corporateStructure': corporateStructure.map((e) => e.toMap()).toList(),
+    'pitchVideoUrl': pitchVideoUrl,
+    'website': website,
+    'foundedAt': foundedAt != null ? Timestamp.fromDate(foundedAt!) : null,
+    'currentRaised': currentRaised,
+    'tokensIssued': tokensIssued,
+    'investorsCount': investorsCount,
+    'updatedAt': Timestamp.fromDate(updatedAt),
+  };
+
+  static DateTime? _parseDate(dynamic value) {
+    if (value is Timestamp) return value.toDate();
+    if (value is String) return DateTime.tryParse(value);
+    return null;
+  }
+
+  static IconData _parseIcon(dynamic value) {
+    if (value is int) return IconData(value, fontFamily: 'MaterialIcons');
+    if (value is String) {
+      final code = int.tryParse(value);
+      if (code != null) return IconData(code, fontFamily: 'MaterialIcons');
+    }
+    return Icons.help_outline;
+  }
+}
+
+class SimplifiedStartup {
+  final String name;
+  final String tokenSymbol;
+  final IconData icon;
+  final StartupStage stage;
+  final List<String> tags;
+  final String shortDescription;
+  final List<CorporateMember> corporateStructure;
+  final double currentRaised;
+  final double tokensIssued;
+  final int investorsCount;
+
+  SimplifiedStartup({
+    required this.name,
+    required this.tokenSymbol,
+    required this.icon,
+    required this.stage,
+    required this.tags,
+    required this.shortDescription,
+    required this.corporateStructure,
+    required this.currentRaised,
+    required this.tokensIssued,
+    required this.investorsCount,
+  });
+
+  factory SimplifiedStartup.fromMap(Map<String, dynamic> map) {
+    return SimplifiedStartup(
+      name: map['name'] ?? '',
+      tokenSymbol: map['token_symbol'] ?? '',
+      icon: Startup._parseIcon(map['icon']),
+      stage: StartupStage.values.firstWhere(
+        (e) => e.name == map['stage'],
+        orElse: () => StartupStage.nova,
+      ),
+      tags: List<String>.from(map['tags'] ?? []),
+      shortDescription: map['short_description'] ?? '',
+      corporateStructure: (map['corporate_structure'] as List? ?? [])
+          .map((e) => CorporateMember.fromMap(e as Map<String, dynamic>))
+          .toList(),
+      currentRaised: (map['current_raised'] as num? ?? 0).toDouble(),
+      tokensIssued: (map['tokensissued'] as num? ?? 0).toDouble(),
+      investorsCount: map['investors_count'] as int? ?? 0,
+    );
+  }
+}
+
+class StartupPriceHistory {
+  final double price;
+  final DateTime timestamp;
+
+  StartupPriceHistory({required this.price, required this.timestamp});
+
+  factory StartupPriceHistory.fromMap(Map<String, dynamic> map) {
+    return StartupPriceHistory(
+      price: (map['price'] as num? ?? 0).toDouble(),
+      timestamp: (map['timestamp'] as Timestamp).toDate(),
+    );
+  }
+
+  Map<String, dynamic> toMap() => {
+    'price': price,
+    'timestamp': Timestamp.fromDate(timestamp),
   };
 }

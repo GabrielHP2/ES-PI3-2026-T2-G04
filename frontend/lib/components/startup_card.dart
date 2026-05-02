@@ -85,19 +85,15 @@ class StartupCard extends StatelessWidget {
                     children: [
                       StartupInfoContainer(
                         infoText:
-                            'R\$ ${formatter.format(startup.metrics.currentRaised)}',
+                            'R\$ ${formatter.format(startup.currentRaised)}',
                         subText: 'CAPTADO',
                       ),
                       StartupInfoContainer(
-                        infoText: formatter.format(
-                          startup.metrics.tokensEmitidos,
-                        ),
+                        infoText: formatter.format(startup.tokensIssued),
                         subText: 'TOKENS',
                       ),
                       StartupInfoContainer(
-                        infoText: formatter.format(
-                          startup.metrics.investorsCount,
-                        ),
+                        infoText: formatter.format(startup.investorsCount),
                         subText: 'INVESTIDORES',
                       ),
                     ],

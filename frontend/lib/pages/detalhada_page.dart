@@ -97,15 +97,15 @@ class _PaginaDetalhadaState extends State<PaginaDetalhada> {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         StartupInfoContainer(
-          infoText: 'R\$ ${formatter.format(startup.metrics.currentRaised)}',
+          infoText: 'R\$ ${formatter.format(startup.currentRaised)}',
           subText: 'CAPTADO',
         ),
         StartupInfoContainer(
-          infoText: formatter.format(startup.metrics.tokensEmitidos),
+          infoText: formatter.format(startup.tokensIssued),
           subText: 'TOKENS',
         ),
         StartupInfoContainer(
-          infoText: formatter.format(startup.metrics.investorsCount),
+          infoText: formatter.format(startup.investorsCount),
           subText: 'INVESTIDORES',
         ),
       ],
@@ -165,36 +165,6 @@ class _PaginaDetalhadaState extends State<PaginaDetalhada> {
               fontSize: 16,
             ),
           ),
-        ],
-      ),
-    );
-  }
-}
-
-class _StatCard extends StatelessWidget {
-  final String title;
-  final String subtitle;
-
-  const _StatCard({required this.title, required this.subtitle});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 100,
-      height: 80,
-      decoration: BoxDecoration(
-        color: Colors.grey[200],
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-            title,
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-          ),
-          const SizedBox(height: 4),
-          Text(subtitle, style: const TextStyle(fontSize: 12)),
         ],
       ),
     );
