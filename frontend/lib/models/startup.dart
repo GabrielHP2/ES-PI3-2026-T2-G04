@@ -39,6 +39,7 @@ class CorporateMember {
 }
 
 class Startup {
+  final String id;
   final String name;
   final String tokenSymbol;
   final IconData icon;
@@ -60,6 +61,7 @@ class Startup {
   final DateTime updatedAt;
 
   Startup({
+    required this.id,
     required this.name,
     required this.tokenSymbol,
     required this.icon,
@@ -83,6 +85,7 @@ class Startup {
 
   factory Startup.fromMap(Map<String, dynamic> map) {
     return Startup(
+      id: (map['id'] ?? '').toString(),
       name: map['name'] ?? '',
       tokenSymbol: map['token_symbol'] ?? '',
       icon: _parseIcon(map['icon']),
@@ -104,7 +107,7 @@ class Startup {
       fullDescription: map['full_description'] ?? '',
       executiveSummary: map['executive_summary'] ?? '',
       corporateStructure: (map['corporate_structure'] as List? ?? [])
-          .map((e) => CorporateMember.fromMap(e as Map<String, dynamic>))
+          .map((e) => CorporateMember.fromMap(Map<String, dynamic>.from(e)))
           .toList(),
       pitchVideoUrl: map['pitch_video_url'] ?? '',
       website: map['website'],
@@ -146,15 +149,21 @@ class Startup {
 
   static IconData _parseIcon(dynamic value) {
     if (value is int) return IconData(value, fontFamily: 'MaterialIcons');
+
     if (value is String) {
-      final code = int.tryParse(value);
+      // Remove common prefixes like '0x' or '#' so int.tryParse(..., radix: 16) can read it
+      final cleanValue = value.replaceAll('0x', '').replaceAll('#', '');
+      final code = int.tryParse(cleanValue, radix: 16);
+
       if (code != null) return IconData(code, fontFamily: 'MaterialIcons');
     }
+
     return Icons.help_outline;
   }
 }
 
 class SimplifiedStartup {
+  final String id;
   final String name;
   final String tokenSymbol;
   final IconData icon;
@@ -167,6 +176,7 @@ class SimplifiedStartup {
   final int investorsCount;
 
   SimplifiedStartup({
+    required this.id,
     required this.name,
     required this.tokenSymbol,
     required this.icon,
@@ -181,6 +191,7 @@ class SimplifiedStartup {
 
   factory SimplifiedStartup.fromMap(Map<String, dynamic> map) {
     return SimplifiedStartup(
+      id: (map['id'] ?? '').toString(),
       name: map['name'] ?? '',
       tokenSymbol: map['token_symbol'] ?? '',
       icon: Startup._parseIcon(map['icon']),
@@ -191,10 +202,10 @@ class SimplifiedStartup {
       tags: List<String>.from(map['tags'] ?? []),
       shortDescription: map['short_description'] ?? '',
       corporateStructure: (map['corporate_structure'] as List? ?? [])
-          .map((e) => CorporateMember.fromMap(e as Map<String, dynamic>))
+          .map((e) => CorporateMember.fromMap(Map<String, dynamic>.from(e)))
           .toList(),
       currentRaised: (map['current_raised'] as num? ?? 0).toDouble(),
-      tokensIssued: (map['tokensissued'] as num? ?? 0).toDouble(),
+      tokensIssued: (map['tokens_issued'] as num? ?? 0).toDouble(),
       investorsCount: map['investors_count'] as int? ?? 0,
     );
   }

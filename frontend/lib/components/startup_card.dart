@@ -6,7 +6,7 @@ import 'package:frontend/services/numberformatter_service.dart';
 import 'package:frontend/components/startup_tag.dart';
 
 class StartupCard extends StatelessWidget {
-  final Startup startup;
+  final SimplifiedStartup startup;
 
   const StartupCard({required this.startup, super.key});
 
@@ -57,7 +57,7 @@ class StartupCard extends StatelessWidget {
 
                   // Tags (chips estilo outline)
                   Wrap(
-                    spacing: 16,
+                    spacing: 6,
                     runSpacing: 8,
                     children: startup.tags
                         .map((t) => StartupTag(label: t))
@@ -107,8 +107,8 @@ class StartupCard extends StatelessWidget {
               top: 0,
               right: 32,
               child: _Ribbon(
-                icon: getStartupStateIcon(startup),
-                color: getStartupStateColor(startup),
+                icon: getStartupStateIcon(startup.stage),
+                color: getStartupStateColor(startup.stage),
               ),
             ),
           ],

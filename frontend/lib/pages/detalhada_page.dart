@@ -4,19 +4,36 @@ import 'package:frontend/components/startup_tag.dart';
 import 'package:frontend/controllers/startup_controller.dart';
 import 'package:frontend/models/startup.dart';
 import 'package:frontend/services/numberformatter_service.dart';
+import 'package:frontend/services/startup_services.dart';
 
 class PaginaDetalhada extends StatefulWidget {
-  final Startup startup;
-  const PaginaDetalhada({super.key, required this.startup});
+  final String startupId;
+  const PaginaDetalhada({super.key, required this.startupId});
 
   @override
   State<PaginaDetalhada> createState() => _PaginaDetalhadaState();
 }
 
 class _PaginaDetalhadaState extends State<PaginaDetalhada> {
+  Startup? _startup;
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchStartups();
+  }
+
+  Future<void> _fetchStartups() async {
+    final result = await callStartupDetail(widget.startupId);
+    setState(() {
+      _startup = result;
+      _isLoading = false;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    final startup = widget.startup;
     return Scaffold(
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
@@ -25,40 +42,44 @@ class _PaginaDetalhadaState extends State<PaginaDetalhada> {
         centerTitle: true,
         title: const Text("DETALHES", style: TextStyle(color: Colors.black)),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _header(startup),
-            const SizedBox(height: 16),
-            _description(startup),
-            const SizedBox(height: 12),
-            Wrap(
-              spacing: 16,
-              runSpacing: 8,
-              children: startup.tags.map((t) => StartupTag(label: t)).toList(),
-            ),
-            const SizedBox(height: 20),
-            _stats(startup),
-            const SizedBox(height: 20),
-            _sectionCard(
-              title: "Sumário executivo",
-              child: Text(
-                startup.shortDescription,
-                style: TextStyle(fontSize: 14),
-              ),
-            ),
-            const SizedBox(height: 16),
-            /*
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : SingleChildScrollView(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _header(_startup!),
+                  const SizedBox(height: 16),
+                  _description(_startup!),
+                  const SizedBox(height: 12),
+                  Wrap(
+                    spacing: 4,
+                    runSpacing: 8,
+                    children: _startup!.tags
+                        .map((t) => StartupTag(label: t))
+                        .toList(),
+                  ),
+                  const SizedBox(height: 20),
+                  _stats(_startup!),
+                  const SizedBox(height: 20),
+                  _sectionCard(
+                    title: "Sumário executivo",
+                    child: Text(
+                      _startup!.shortDescription,
+                      style: TextStyle(fontSize: 14),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  /*
             _sectionCard(
               title: "Estrutura societária",
               child: Wrap(children: [startup.],),
             ),
             */
-          ],
-        ),
-      ),
+                ],
+              ),
+            ),
     );
   }
 
@@ -81,8 +102,11 @@ class _PaginaDetalhadaState extends State<PaginaDetalhada> {
         ),
         const Spacer(),
         CircleAvatar(
-          backgroundColor: getStartupStateColor(startup),
-          child: Icon(getStartupStateIcon(startup), color: Colors.white),
+          backgroundColor: getStartupStateColor(_startup!.stage),
+          child: Icon(
+            getStartupStateIcon(_startup!.stage),
+            color: Colors.white,
+          ),
         ),
       ],
     );

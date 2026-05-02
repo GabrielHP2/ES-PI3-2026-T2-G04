@@ -1,20 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/models/startup.dart';
 
-IconData getStartupStateIcon(Startup startup) {
-  if (startup.stage == StartupStage.nova) {
+IconData getStartupStateIcon(StartupStage startupStage) {
+  if (startupStage == StartupStage.nova) {
     return Icons.lightbulb;
-  } else if (startup.stage == StartupStage.expansao) {
+  } else if (startupStage == StartupStage.expansao) {
     return Icons.public;
   } else {
     return Icons.science;
   }
 }
 
-Color getStartupStateColor(Startup startup) {
-  if (startup.stage == StartupStage.nova) {
+Color getStartupStateColor(StartupStage startupStage) {
+  if (startupStage == StartupStage.nova) {
     return const Color(0xff7AE058);
-  } else if (startup.stage == StartupStage.expansao) {
+  } else if (startupStage == StartupStage.expansao) {
     return Colors.indigo;
   } else {
     return Colors.deepOrangeAccent;
