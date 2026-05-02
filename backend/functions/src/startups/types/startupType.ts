@@ -31,7 +31,7 @@ export interface StartupMetrics {
 export interface Startup {
   name: string;
   token_symbol: string;
-  icon: string;
+  icon: number;
   status: StartupStatus;
   estagio: StartupStage;
   visibilitie: StartupVisibilitie;

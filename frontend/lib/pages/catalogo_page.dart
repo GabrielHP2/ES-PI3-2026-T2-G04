@@ -12,55 +12,14 @@ class CatalogoPage extends StatefulWidget {
 }
 
 class _CatalogoPageState extends State<CatalogoPage> {
-  final Startup startupExemplo = Startup(
-    name: 'FinNova',
-    icon: Icons.savings,
-    tags: ['Fintech', 'AI'],
-    shortDescription:
-        'Plataforma de gestão financeira pessoal com IA para análise de gastos e metas de investimento.',
-    contributedCapital: 15000.00,
-    issuedTokens: 1000,
-    investors_count: 55,
-    startupState: StartupState.nova,
-    tokenName: 'FNOVA',
-  );
-  final Startup startupExemplo1 = Startup(
-    name: 'Vizio AI',
-    icon: Icons.preview,
-    tags: ['Acessibility', 'AI'],
-    shortDescription:
-        'Plataforma de gestão financeira pessoal com IA para análise de gastos e metas de investimento.',
-    contributedCapital: 15000,
-    issuedTokens: 1000,
-    investors_count: 22,
-    startupState: StartupState.development,
-    tokenName: 'VZAI',
-  );
-
   final List<Startup> _startups = [];
 
-  StartupState? _selectedFilter;
+  StartupStage? _selectedFilter;
 
-  void _toggleFilter(StartupState filter) {
+  void _toggleFilter(StartupStage filter) {
     setState(() {
       _selectedFilter = _selectedFilter == filter ? null : filter;
     });
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    //TODO: Puxa as startups do firestore e coloca na lista através de um for
-    _startups.add(startupExemplo);
-    _startups.add(startupExemplo1);
-    _startups.add(startupExemplo1);
-    _startups.add(startupExemplo1);
-    _startups.add(startupExemplo1);
-    _startups.add(startupExemplo1);
-    _startups.add(startupExemplo);
-    _startups.add(startupExemplo);
-    _startups.add(startupExemplo);
-    _startups.add(startupExemplo);
   }
 
   @override
@@ -68,7 +27,7 @@ class _CatalogoPageState extends State<CatalogoPage> {
     //  Lógica dos filtros
     final startupsFiltradas = _selectedFilter == null
         ? _startups
-        : _startups.where((s) => s.startupState == _selectedFilter).toList();
+        : _startups.where((s) => s.estagio == _selectedFilter).toList();
 
     return Scaffold(
       appBar: AppBar(
@@ -95,24 +54,24 @@ class _CatalogoPageState extends State<CatalogoPage> {
                 children: [
                   FilterButton(
                     data: 'Nova',
-                    isPressed: _selectedFilter == StartupState.nova,
-                    onPressed: () => _toggleFilter(StartupState.nova),
+                    isPressed: _selectedFilter == StartupStage.nova,
+                    onPressed: () => _toggleFilter(StartupStage.nova),
                     icon: Icons.lightbulb,
                     iconBackgroundColor: Color(0xff7AE058),
                   ),
                   const SizedBox(width: 8),
                   FilterButton(
-                    data: 'Desenvolvimento',
-                    isPressed: _selectedFilter == StartupState.development,
-                    onPressed: () => _toggleFilter(StartupState.development),
+                    data: 'Em operação',
+                    isPressed: _selectedFilter == StartupStage.operacao,
+                    onPressed: () => _toggleFilter(StartupStage.operacao),
                     icon: Icons.science,
                     iconBackgroundColor: Colors.deepOrangeAccent,
                   ),
                   const SizedBox(width: 8),
                   FilterButton(
-                    data: 'Expansão',
-                    isPressed: _selectedFilter == StartupState.expansion,
-                    onPressed: () => _toggleFilter(StartupState.expansion),
+                    data: 'Em expansão',
+                    isPressed: _selectedFilter == StartupStage.expansao,
+                    onPressed: () => _toggleFilter(StartupStage.expansao),
                     icon: Icons.public,
                     iconBackgroundColor: Colors.indigo,
                   ),
@@ -139,7 +98,7 @@ class _CatalogoPageState extends State<CatalogoPage> {
                           onTap: () => Navigator.of(context).push(
                             MaterialPageRoute<void>(
                               builder: (context) =>
-                                  PaginaDetalhadaNaoInvestidor(startup: startup),
+                                  PaginaDetalhada(startup: startup),
                             ),
                           ),
                           child: StartupCard(startup: startup),

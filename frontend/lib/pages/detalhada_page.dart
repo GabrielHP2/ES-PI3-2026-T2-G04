@@ -1,123 +1,113 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/components/startup_info_container.dart';
+import 'package:frontend/components/startup_tag.dart';
+import 'package:frontend/controllers/startup_controller.dart';
 import 'package:frontend/models/startup.dart';
+import 'package:frontend/services/numberformatter_service.dart';
 
-class PaginaDetalhadaNaoInvestidor extends StatefulWidget{ 
+class PaginaDetalhada extends StatefulWidget {
   final Startup startup;
-  const PaginaDetalhadaNaoInvestidor({super.key, required this.startup});
+  const PaginaDetalhada({super.key, required this.startup});
 
   @override
-  State<PaginaDetalhadaNaoInvestidor> createState()=> _PaginaDetalhadaState();
+  State<PaginaDetalhada> createState() => _PaginaDetalhadaState();
 }
 
-class _PaginaDetalhadaState extends State<PaginaDetalhadaNaoInvestidor> { 
+class _PaginaDetalhadaState extends State<PaginaDetalhada> {
   @override
   Widget build(BuildContext context) {
+    final startup = widget.startup;
     return Scaffold(
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
         elevation: 0,
         backgroundColor: Colors.white,
         centerTitle: true,
-        leading: const Icon(Icons.arrow_back, color: Colors.black),
-        title: const Text(
-          "DETALHES",
-          style: TextStyle(color: Colors.black),
-        ),
+        title: const Text("DETALHES", style: TextStyle(color: Colors.black)),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _header(),
+            _header(startup),
             const SizedBox(height: 16),
-            _description(),
+            _description(startup),
             const SizedBox(height: 12),
-            _tags(),
+            Wrap(
+              spacing: 16,
+              runSpacing: 8,
+              children: startup.tags.map((t) => StartupTag(label: t)).toList(),
+            ),
             const SizedBox(height: 20),
-            _stats(),
+            _stats(startup),
             const SizedBox(height: 20),
             _sectionCard(
               title: "Sumário executivo",
-              child: const Text(
-                "Focada no mercado B2C, a FinNova utiliza algoritmos de processamento de linguagem natural para categorizar gastos bancários com precisão de 98%.",
+              child: Text(
+                startup.shortDescription,
                 style: TextStyle(fontSize: 14),
               ),
             ),
             const SizedBox(height: 16),
+            /*
             _sectionCard(
               title: "Estrutura societária",
-              child: Column(
-                children: [
-                  _ownerTile("Thiago Mendes", "CEO & Founder", "58%"),
-                  _ownerTile("Thiago Mendes", "CEO & Founder", "58%"),
-                ],
-              ),
+              child: Wrap(children: [startup.],),
             ),
+            */
           ],
         ),
       ),
     );
   }
 
-  Widget _header() {
+  Widget _header(Startup startup) {
     return Row(
       children: [
-        const Icon(Icons.account_balance, size: 36, color: Colors.indigo),
+        Icon(startup.icon, size: 36, color: Colors.indigo),
         const SizedBox(width: 10),
-        const Text(
-          "FinNova",
+        Text(
+          startup.name,
           style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
         ),
         const SizedBox(width: 8),
         Text(
-          "\$FNOVA",
+          startup.tokenSymbol,
           style: TextStyle(
             color: Colors.grey[600],
             fontWeight: FontWeight.bold,
           ),
         ),
         const Spacer(),
-        const CircleAvatar(
-          backgroundColor: Colors.orange,
-          child: Icon(Icons.bubble_chart, color: Colors.white),
-        )
+        CircleAvatar(
+          backgroundColor: getStartupStateColor(startup),
+          child: Icon(getStartupStateIcon(startup), color: Colors.white),
+        ),
       ],
     );
   }
 
-  Widget _description() {
-    return const Text(
-      "FinNova é uma plataforma que ajuda usuários a gerenciar finanças pessoais com análises baseadas em IA, sugestões de orçamento e metas de investimento automatizadas. Integra contas bancárias, cartões e investimentos para fornecer uma visão consolidada e recomendações personalizadas.",
-      style: TextStyle(fontSize: 14),
-    );
+  Widget _description(Startup startup) {
+    return Text(startup.shortDescription, style: TextStyle(fontSize: 14));
   }
 
-  Widget _tags() {
-    final tags = ["Fintech", "Gestão financeira", "IA"];
-
-    return Wrap(
-      spacing: 8,
-      children: tags
-          .map(
-            (tag) => Chip(
-              label: Text(tag),
-              shape: StadiumBorder(
-                side: BorderSide(color: Colors.indigo.shade200),
-              ),
-            ),
-          )
-          .toList(),
-    );
-  }
-
-  Widget _stats() {
+  Widget _stats(Startup startup) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: const [
-        _StatCard(title: "R\$ 280k", subtitle: "Captado"),
-        _StatCard(title: "95.0K", subtitle: "Tokens"),
-        _StatCard(title: "1.2K", subtitle: "Investidores"),
+      children: [
+        StartupInfoContainer(
+          infoText: 'R\$ ${formatter.format(startup.metrics.currentRaised)}',
+          subText: 'CAPTADO',
+        ),
+        StartupInfoContainer(
+          infoText: formatter.format(startup.metrics.tokensEmitidos),
+          subText: 'TOKENS',
+        ),
+        StartupInfoContainer(
+          infoText: formatter.format(startup.metrics.investorsCount),
+          subText: 'INVESTIDORES',
+        ),
       ],
     );
   }
@@ -127,15 +117,20 @@ class _PaginaDetalhadaState extends State<PaginaDetalhadaNaoInvestidor> {
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.grey[200],
+        color: Colors.white,
         borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.grey.shade300, width: 1),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title,
-              style: const TextStyle(
-                  fontWeight: FontWeight.bold, color: Colors.grey)),
+          Text(
+            title,
+            style: const TextStyle(
+              fontWeight: FontWeight.bold,
+              color: Colors.grey,
+            ),
+          ),
           const SizedBox(height: 10),
           child,
         ],
@@ -153,7 +148,6 @@ class _PaginaDetalhadaState extends State<PaginaDetalhadaNaoInvestidor> {
       ),
       child: Row(
         children: [
-
           const SizedBox(width: 10),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -170,7 +164,7 @@ class _PaginaDetalhadaState extends State<PaginaDetalhadaNaoInvestidor> {
               fontWeight: FontWeight.bold,
               fontSize: 16,
             ),
-          )
+          ),
         ],
       ),
     );
@@ -195,9 +189,10 @@ class _StatCard extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Text(title,
-              style:
-                  const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+          Text(
+            title,
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+          ),
           const SizedBox(height: 4),
           Text(subtitle, style: const TextStyle(fontSize: 12)),
         ],

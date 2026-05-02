@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/components/startup_info_container.dart';
 import 'package:frontend/models/startup.dart';
-import 'package:frontend/controllers/catalogo_controller.dart';
+import 'package:frontend/controllers/startup_controller.dart';
 import 'package:frontend/services/numberformatter_service.dart';
+import 'package:frontend/components/startup_tag.dart';
 
 class StartupCard extends StatelessWidget {
   final Startup startup;
@@ -58,7 +60,7 @@ class StartupCard extends StatelessWidget {
                     spacing: 16,
                     runSpacing: 8,
                     children: startup.tags
-                        .map((t) => _OutlinedTag(label: t))
+                        .map((t) => StartupTag(label: t))
                         .toList(),
                   ),
 
@@ -81,15 +83,22 @@ class StartupCard extends StatelessWidget {
                     mainAxisAlignment: .center,
                     spacing: 8,
                     children: [
-                      InfoContainer(
+                      StartupInfoContainer(
                         infoText:
-                            'R\$ ${formatter.format(startup.contributedCapital)}',
+                            'R\$ ${formatter.format(startup.metrics.currentRaised)}',
+                        subText: 'CAPTADO',
                       ),
-                      InfoContainer(
-                        infoText: formatter.format(startup.issuedTokens),
+                      StartupInfoContainer(
+                        infoText: formatter.format(
+                          startup.metrics.tokensEmitidos,
+                        ),
+                        subText: 'TOKENS',
                       ),
-                      InfoContainer(
-                        infoText: formatter.format(startup.investors_count),
+                      StartupInfoContainer(
+                        infoText: formatter.format(
+                          startup.metrics.investorsCount,
+                        ),
+                        subText: 'INVESTIDORES',
                       ),
                     ],
                   ),
@@ -144,66 +153,6 @@ class _Ribbon extends StatelessWidget {
               ),
             ),
           ),
-        ],
-      ),
-    );
-  }
-}
-
-class _OutlinedTag extends StatelessWidget {
-  final String label;
-  const _OutlinedTag({required this.label});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(30),
-        border: Border.all(color: Colors.indigo, width: 1),
-      ),
-      child: Text(
-        label,
-        style: const TextStyle(
-          color: Color(0xFF4A51E0),
-          fontSize: 12,
-          fontWeight: FontWeight.w500,
-        ),
-      ),
-    );
-  }
-}
-
-class InfoContainer extends StatelessWidget {
-  final String? infoText;
-  const InfoContainer({super.key, required this.infoText});
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border.all(color: Colors.grey.shade300, width: 1),
-        borderRadius: BorderRadius.all(Radius.circular(20)),
-        boxShadow: [
-          BoxShadow(color: Colors.black26, offset: Offset(0, 2), blurRadius: 1),
-        ],
-      ),
-      width: 100,
-      height: 100,
-      child: Column(
-        crossAxisAlignment: .center,
-        mainAxisAlignment: .center,
-        children: [
-          Text(
-            '$infoText',
-            style: TextStyle(
-              color: Colors.black,
-              fontWeight: .bold,
-              fontSize: 16,
-            ),
-          ),
-          Text('Captado'),
         ],
       ),
     );
