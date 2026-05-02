@@ -71,12 +71,17 @@ class _PaginaDetalhadaState extends State<PaginaDetalhada> {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  /*
-            _sectionCard(
-              title: "Estrutura societária",
-              child: Wrap(children: [startup.],),
-            ),
-            */
+
+                  _sectionCard(
+                    title: "Estrutura societária",
+                    child: Wrap(
+                      children: _startup!.corporateStructure
+                          .map(
+                            (s) => _ownerTile(s.name, s.role, s.equityPercent),
+                          )
+                          .toList(),
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -162,17 +167,20 @@ class _PaginaDetalhadaState extends State<PaginaDetalhada> {
     );
   }
 
-  Widget _ownerTile(String name, String role, String percent) {
+  Widget _ownerTile(String name, String role, double percent) {
     return Container(
       margin: const EdgeInsets.only(top: 10),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Colors.grey.shade300, width: 1),
+        boxShadow: [
+          BoxShadow(color: Colors.black26, offset: Offset(0, 2), blurRadius: 1),
+        ],
       ),
       child: Row(
         children: [
-          const SizedBox(width: 10),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -182,7 +190,7 @@ class _PaginaDetalhadaState extends State<PaginaDetalhada> {
           ),
           const Spacer(),
           Text(
-            percent,
+            '$percent%',
             style: const TextStyle(
               color: Colors.indigo,
               fontWeight: FontWeight.bold,
