@@ -16,6 +16,7 @@ export interface CorporateMember {
 }
 
 export interface Startup {
+  id: string;
   name: string;
   token_symbol: string;
   icon: string;
@@ -38,7 +39,7 @@ export interface Startup {
 }
 
 export interface SimplifiedStartup {
-  
+  id: string;
   name: string;
   token_symbol: string;
   icon: string;

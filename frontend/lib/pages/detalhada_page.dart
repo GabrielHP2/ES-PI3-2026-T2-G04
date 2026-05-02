@@ -1,0 +1,196 @@
+import 'package:flutter/material.dart';
+import 'package:frontend/components/startup_info_container.dart';
+import 'package:frontend/components/startup_tag.dart';
+import 'package:frontend/controllers/startup_controller.dart';
+import 'package:frontend/models/startup.dart';
+import 'package:frontend/services/numberformatter_service.dart';
+import 'package:frontend/services/startup_services.dart';
+
+class PaginaDetalhada extends StatefulWidget {
+  final String startupId;
+  const PaginaDetalhada({super.key, required this.startupId});
+
+  @override
+  State<PaginaDetalhada> createState() => _PaginaDetalhadaState();
+}
+
+class _PaginaDetalhadaState extends State<PaginaDetalhada> {
+  Startup? _startup;
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchStartups();
+  }
+
+  Future<void> _fetchStartups() async {
+    final result = await callStartupDetail(widget.startupId);
+    setState(() {
+      _startup = result;
+      _isLoading = false;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.grey[100],
+      appBar: AppBar(
+        elevation: 0,
+        backgroundColor: Colors.white,
+        centerTitle: true,
+        title: const Text("DETALHES", style: TextStyle(color: Colors.black)),
+      ),
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : SingleChildScrollView(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _header(_startup!),
+                  const SizedBox(height: 16),
+                  _description(_startup!),
+                  const SizedBox(height: 12),
+                  Wrap(
+                    spacing: 4,
+                    runSpacing: 8,
+                    children: _startup!.tags
+                        .map((t) => StartupTag(label: t))
+                        .toList(),
+                  ),
+                  const SizedBox(height: 20),
+                  _stats(_startup!),
+                  const SizedBox(height: 20),
+                  _sectionCard(
+                    title: "Sumário executivo",
+                    child: Text(
+                      _startup!.shortDescription,
+                      style: TextStyle(fontSize: 14),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  /*
+            _sectionCard(
+              title: "Estrutura societária",
+              child: Wrap(children: [startup.],),
+            ),
+            */
+                ],
+              ),
+            ),
+    );
+  }
+
+  Widget _header(Startup startup) {
+    return Row(
+      children: [
+        Icon(startup.icon, size: 36, color: Colors.indigo),
+        const SizedBox(width: 10),
+        Text(
+          startup.name,
+          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(width: 8),
+        Text(
+          startup.tokenSymbol,
+          style: TextStyle(
+            color: Colors.grey[600],
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const Spacer(),
+        CircleAvatar(
+          backgroundColor: getStartupStateColor(_startup!.stage),
+          child: Icon(
+            getStartupStateIcon(_startup!.stage),
+            color: Colors.white,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _description(Startup startup) {
+    return Text(startup.shortDescription, style: TextStyle(fontSize: 14));
+  }
+
+  Widget _stats(Startup startup) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        StartupInfoContainer(
+          infoText: 'R\$ ${formatter.format(startup.currentRaised)}',
+          subText: 'CAPTADO',
+        ),
+        StartupInfoContainer(
+          infoText: formatter.format(startup.tokensIssued),
+          subText: 'TOKENS',
+        ),
+        StartupInfoContainer(
+          infoText: formatter.format(startup.investorsCount),
+          subText: 'INVESTIDORES',
+        ),
+      ],
+    );
+  }
+
+  Widget _sectionCard({required String title, required Widget child}) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.grey.shade300, width: 1),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: const TextStyle(
+              fontWeight: FontWeight.bold,
+              color: Colors.grey,
+            ),
+          ),
+          const SizedBox(height: 10),
+          child,
+        ],
+      ),
+    );
+  }
+
+  Widget _ownerTile(String name, String role, String percent) {
+    return Container(
+      margin: const EdgeInsets.only(top: 10),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Row(
+        children: [
+          const SizedBox(width: 10),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(name, style: const TextStyle(fontWeight: FontWeight.bold)),
+              Text(role, style: TextStyle(color: Colors.grey[600])),
+            ],
+          ),
+          const Spacer(),
+          Text(
+            percent,
+            style: const TextStyle(
+              color: Colors.indigo,
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}

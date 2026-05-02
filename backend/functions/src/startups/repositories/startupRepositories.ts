@@ -14,7 +14,10 @@ export async function getStartupById(id: string): Promise<Startup> {
     throw new Error(`Startup com id: "${id}" não encontrada`);
   }
 
-  const startupData = snapshot.data() as Startup;
+  const startupData = {
+    id: snapshot.id,
+    ...(snapshot.data() as Omit<Startup, "id">),
+  } as Startup;
   return startupData;
 }
 
@@ -229,6 +232,7 @@ export async function seedDemoStartups() {
     batch.set(
       startupRef,
       {
+        id,
         ...data,
         createdt: FieldValue.serverTimestamp(),
         updatedAt: FieldValue.serverTimestamp(),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/pages/auth_2fa.dart';
 import 'package:frontend/pages/cadastro_page.dart';
+//import 'package:frontend/pages/detalhada_page.dart';
 import 'package:frontend/pages/home_shell.dart';
 import 'package:frontend/pages/recuperar_senha.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -85,6 +86,22 @@ class _LoginPageState extends State<LoginPage> {
                   style: TextStyle(color: Colors.indigo, fontSize: 14),
                 ),
               ),
+
+              //somente para testes, esse botao será removido
+              /*
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => PaginaDetalhadaNaoInvestidor(),
+                    ),
+                  );
+                },
+                child: Text('Ir para detalhes'),
+              ),
+              */
+              //final botao
               SizedBox(height: 12),
               ElevatedButton(
                 onPressed: () async {
