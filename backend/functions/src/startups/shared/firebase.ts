@@ -1,3 +1,5 @@
+// João Pedro Panza Mainieri - RA: 25006642
+
 import { getAuth } from "firebase-admin/auth";
 
 import { getApps, initializeApp } from "firebase-admin/app";

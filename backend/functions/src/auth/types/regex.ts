@@ -1,4 +1,4 @@
-// Autor: Gabriel Henrique Pacagenlli Pagliato   RA: 25016528
+// Autor: Gabriel Henrique Pacagnelli Pagliato   RA: 25016528
 
 // Deve ter formato local@dominio.tld, com letras/numeros e ._%+- antes do @, dominio valido depois do @ e sufixo com pelo menos 2 letras.
 export const emailRegex: RegExp = RegExp(
