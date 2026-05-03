@@ -38,5 +38,27 @@
     "providers": {
       "emailPassword": true
     }
+  },
+
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "mescla-invest-fff3b",
+          "appId": "1:852506302403:android:089566f595a4a050854f76",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "mescla-invest-fff3b",
+          "configurations": {
+            "android": "1:852506302403:android:089566f595a4a050854f76",
+            "ios": "1:852506302403:ios:cc4e2b3f831cbc5c854f76",
+            "web": "1:852506302403:web:0e30526e839516af854f76"
+          }
+        }
+      }
+    }
   }
 }
