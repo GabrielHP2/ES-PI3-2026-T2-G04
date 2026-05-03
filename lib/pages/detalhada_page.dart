@@ -99,7 +99,7 @@ class _PaginaDetalhadaState extends State<PaginaDetalhada> {
         ),
         const SizedBox(width: 8),
         Text(
-          startup.tokenSymbol,
+          '\$${startup.tokenSymbol}',
           style: TextStyle(
             color: Colors.grey[600],
             fontWeight: FontWeight.bold,
