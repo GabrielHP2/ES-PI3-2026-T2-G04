@@ -233,8 +233,8 @@ class _PaginaDetalhadaState extends State<PaginaDetalhada> {
       builder: (context) {
         return DraggableScrollableSheet(
           expand: false,
-          initialChildSize: 0.5,
-          minChildSize: 0.3,
+          initialChildSize: 0.3,
+          minChildSize: 0.2,
           maxChildSize: 0.5,
           builder: (context, scrollController) {
             return SingleChildScrollView(
