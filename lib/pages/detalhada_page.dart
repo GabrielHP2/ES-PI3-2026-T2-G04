@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/components/questions_section.dart';
 import 'package:frontend/components/startup_info_container.dart';
 import 'package:frontend/components/startup_tag.dart';
 import 'package:frontend/controllers/startup_controller.dart';
@@ -80,6 +81,11 @@ class _PaginaDetalhadaState extends State<PaginaDetalhada> {
                           .toList(),
                     ),
                   ),
+                  const SizedBox(height: 16),
+                  _sectionCard(
+                    title: 'Perguntas e respostas públicas',
+                    child: QuestionsSection(),
+                  ),
                 ],
               ),
             ),
@@ -147,6 +153,9 @@ class _PaginaDetalhadaState extends State<PaginaDetalhada> {
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: Colors.grey.shade300, width: 1),
+        boxShadow: [
+          BoxShadow(color: Colors.black26, offset: Offset(0, 2), blurRadius: 1),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
