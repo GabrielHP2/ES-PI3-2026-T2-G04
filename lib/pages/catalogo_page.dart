@@ -47,7 +47,6 @@ class _CatalogoPageState extends State<CatalogoPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Catalogo de Startups'),
-        backgroundColor: Colors.white,
         automaticallyImplyLeading: false,
       ),
       body: _isLoading

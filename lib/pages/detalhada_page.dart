@@ -8,6 +8,7 @@ import 'package:frontend/services/startup_services.dart';
 
 class PaginaDetalhada extends StatefulWidget {
   final String startupId;
+
   const PaginaDetalhada({super.key, required this.startupId});
 
   @override
@@ -38,7 +39,6 @@ class _PaginaDetalhadaState extends State<PaginaDetalhada> {
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
         elevation: 0,
-        backgroundColor: Colors.white,
         centerTitle: true,
         title: const Text("DETALHES", style: TextStyle(color: Colors.black)),
       ),
@@ -76,9 +76,7 @@ class _PaginaDetalhadaState extends State<PaginaDetalhada> {
                     title: "Estrutura societária",
                     child: Wrap(
                       children: _startup!.corporateStructure
-                          .map(
-                            (s) => _ownerTile(s.name, s.role, s.equityPercent),
-                          )
+                          .map((s) => _ownerTile(s))
                           .toList(),
                     ),
                   ),
@@ -167,38 +165,162 @@ class _PaginaDetalhadaState extends State<PaginaDetalhada> {
     );
   }
 
-  Widget _ownerTile(String name, String role, double percent) {
-    return Container(
-      margin: const EdgeInsets.only(top: 10),
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.grey.shade300, width: 1),
-        boxShadow: [
-          BoxShadow(color: Colors.black26, offset: Offset(0, 2), blurRadius: 1),
-        ],
-      ),
-      child: Row(
-        children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(name, style: const TextStyle(fontWeight: FontWeight.bold)),
-              Text(role, style: TextStyle(color: Colors.grey[600])),
-            ],
-          ),
-          const Spacer(),
-          Text(
-            '$percent%',
-            style: const TextStyle(
-              color: Colors.indigo,
-              fontWeight: FontWeight.bold,
-              fontSize: 16,
+  Widget _ownerTile(CorporateMember member) {
+    return GestureDetector(
+      onTap: () => _showPartnerPresentation(member),
+      child: Container(
+        margin: const EdgeInsets.only(top: 10),
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: Colors.grey.shade300, width: 1),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black26,
+              offset: Offset(0, 2),
+              blurRadius: 1,
             ),
-          ),
-        ],
+          ],
+        ),
+        child: Row(
+          children: [
+            CircleAvatar(
+              backgroundColor: Colors.indigo,
+              radius: 16,
+              child: Text(
+                _initials(member.name),
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 12,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+            SizedBox(width: 10),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  member.name,
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+                Text(member.role, style: TextStyle(color: Colors.grey[600])),
+              ],
+            ),
+            const Spacer(),
+            Text(
+              '${member.equityPercent}%',
+              style: const TextStyle(
+                color: Colors.indigo,
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+              ),
+            ),
+          ],
+        ),
       ),
     );
+  }
+
+  void _showPartnerPresentation(CorporateMember member) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (context) {
+        return DraggableScrollableSheet(
+          expand: false,
+          initialChildSize: 0.3,
+          minChildSize: 0.2,
+          maxChildSize: 0.5,
+          builder: (context, scrollController) {
+            return SingleChildScrollView(
+              controller: scrollController,
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Center(
+                    child: Container(
+                      width: 40,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: Colors.grey[300],
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      CircleAvatar(
+                        backgroundColor: Colors.indigo,
+                        radius: 28,
+                        child: Text(
+                          _initials(member.name),
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              member.name,
+                              style: const TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              member.role,
+                              style: TextStyle(color: Colors.grey[600]),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Text(
+                        '${member.equityPercent}%',
+                        style: const TextStyle(
+                          color: Colors.indigo,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  const Text(
+                    'Apresentação',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    member.bio.isNotEmpty
+                        ? member.bio
+                        : 'Sem apresentação disponível.',
+                    style: const TextStyle(fontSize: 14),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  String _initials(String name) {
+    final parts = name.split(' ');
+    if (parts.length == 1) return parts.first.substring(0, 1).toUpperCase();
+    return (parts.first.substring(0, 1) + parts.last.substring(0, 1))
+        .toUpperCase();
   }
 }
