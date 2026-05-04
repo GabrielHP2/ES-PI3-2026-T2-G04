@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/components/questions_section.dart';
 import 'package:frontend/components/startup_info_container.dart';
 import 'package:frontend/components/startup_tag.dart';
 import 'package:frontend/controllers/startup_controller.dart';
@@ -8,6 +9,7 @@ import 'package:frontend/services/startup_services.dart';
 
 class PaginaDetalhada extends StatefulWidget {
   final String startupId;
+
   const PaginaDetalhada({super.key, required this.startupId});
 
   @override
@@ -81,6 +83,11 @@ class _PaginaDetalhadaState extends State<PaginaDetalhada> {
                           )
                           .toList(),
                     ),
+                  ),
+                  const SizedBox(height: 16),
+                  _sectionCard(
+                    title: 'Perguntas e respostas públicas',
+                    child: QuestionsSection(),
                   ),
                 ],
               ),

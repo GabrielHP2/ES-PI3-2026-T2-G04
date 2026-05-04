@@ -6,6 +6,7 @@ class Question {
   String? answerText;
   Timestamp? answeredAt;
   String? answeredById;
+  String? answeredByName;
   Timestamp createdAt;
   bool isAnswered;
   bool isPublic;
@@ -19,6 +20,7 @@ class Question {
     required this.createdAt,
     this.answeredAt,
     this.answerText,
+    this.answeredByName,
     required this.isAnswered,
     this.answeredById,
     required this.isPublic,
