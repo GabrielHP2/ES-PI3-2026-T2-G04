@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/pages/wallet_deposit_page.dart';
 
 class WalletPage extends StatefulWidget {
   const WalletPage({super.key});
@@ -81,7 +82,11 @@ class _WalletPageState extends State<WalletPage> {
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 ElevatedButton(
-                  onPressed: () {},
+                  onPressed: () => Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => WalletDepositPage(),
+                    ),
+                  ),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.indigo,
                   ),
