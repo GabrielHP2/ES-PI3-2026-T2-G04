@@ -49,6 +49,13 @@ class _QuestionsSectionState extends State<QuestionsSection> {
     super.initState();
     questions.add(questionExemple1);
     questions.add(questionExemple2);
+    questions.add(questionExemple1);
+    questions.add(questionExemple2);
+    questions.add(questionExemple1);
+    questions.add(questionExemple2);
+    questions.add(questionExemple1);
+    questions.add(questionExemple2);
+    questions.add(questionExemple2);
   }
 
   Future<void> _submitQuestion() async {
@@ -60,13 +67,20 @@ class _QuestionsSectionState extends State<QuestionsSection> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        questions.isNotEmpty
-            ? Column(
-                children: questions
-                    .map((question) => QuestionCard(question: question))
-                    .toList(),
-              )
-            : const Center(child: Text('Nenhuma pergunta registrada')),
+        SizedBox(
+          height: 400,
+          child: questions.isNotEmpty
+              ? ListView.separated(
+                  itemBuilder: (context, index) {
+                    final Question question = questions[index];
+                    return QuestionCard(question: question);
+                  },
+                  separatorBuilder: (context, index) =>
+                      const SizedBox(height: 16),
+                  itemCount: questions.length,
+                )
+              : const Center(child: Text('Nenhuma pergunta registrada')),
+        ),
         TextField(
           maxLength: 180,
           decoration: InputDecoration(
@@ -121,22 +135,26 @@ class QuestionCard extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    Text.rich(
-                      TextSpan(
-                        text: 'Pergunta de: ',
-                        style: TextStyle(
-                          color: Colors.indigo,
-                          fontWeight: .bold,
-                        ),
-                        children: <TextSpan>[
-                          TextSpan(
-                            text: question.userName,
-                            style: TextStyle(
-                              fontWeight: .bold,
-                              color: Colors.black,
-                            ),
+                    Flexible(
+                      child: Text.rich(
+                        TextSpan(
+                          text: 'Pergunta de: ',
+                          style: TextStyle(
+                            color: Colors.indigo,
+                            fontWeight: .bold,
                           ),
-                        ],
+                          children: <TextSpan>[
+                            TextSpan(
+                              text: question.userName,
+                              style: TextStyle(
+                                fontWeight: .bold,
+                                color: Colors.black,
+                              ),
+                            ),
+                          ],
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                   ],
@@ -168,26 +186,29 @@ class QuestionCard extends StatelessWidget {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: .start,
-                    spacing: 8,
                     children: [
                       Row(
                         children: [
-                          Text.rich(
-                            TextSpan(
-                              text: 'Resposta de: ',
-                              style: TextStyle(
-                                color: Colors.indigo,
-                                fontWeight: .bold,
-                              ),
-                              children: <TextSpan>[
-                                TextSpan(
-                                  text: question.answeredByName,
-                                  style: TextStyle(
-                                    fontWeight: .bold,
-                                    color: Colors.black,
-                                  ),
+                          Flexible(
+                            child: Text.rich(
+                              TextSpan(
+                                text: 'Resposta de: ',
+                                style: TextStyle(
+                                  color: Colors.indigo,
+                                  fontWeight: .bold,
                                 ),
-                              ],
+                                children: <TextSpan>[
+                                  TextSpan(
+                                    text: question.answeredByName,
+                                    style: TextStyle(
+                                      fontWeight: .bold,
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
                         ],
@@ -208,7 +229,6 @@ class QuestionCard extends StatelessWidget {
                   ),
                 ),
         ),
-        SizedBox(height: 16),
       ],
     );
   }
