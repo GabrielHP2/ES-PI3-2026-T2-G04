@@ -6,6 +6,7 @@ import 'package:frontend/controllers/startup_controller.dart';
 import 'package:frontend/models/startup.dart';
 import 'package:frontend/services/numberformatter_service.dart';
 import 'package:frontend/services/startup_services.dart';
+import 'package:video_player/video_player.dart';
 
 class PaginaDetalhada extends StatefulWidget {
   final String startupId;
@@ -86,6 +87,8 @@ class _PaginaDetalhadaState extends State<PaginaDetalhada> {
                     title: 'Perguntas e respostas públicas',
                     child: QuestionsSection(),
                   ),
+                  const SizedBox(height: 16),
+                  _videosShow(_startup!),
                 ],
               ),
             ),
@@ -232,6 +235,44 @@ class _PaginaDetalhadaState extends State<PaginaDetalhada> {
     );
   }
 
+  Widget _videosShow(Startup startup) {
+    if (startup.pitchVideoUrl.isEmpty) return SizedBox();
+    
+    return _sectionCard(
+      title: "Vídeo demonstrativo",
+      child: GestureDetector(
+        onTap: () => _openVideoPlayer(startup.pitchVideoUrl),
+        child: Container(
+          height: 140,
+          width: double.infinity,
+          decoration: BoxDecoration(
+            color: Colors.black,
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              // fundo escuro (placeholder)
+              Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12),
+                  color: Colors.black87,
+                ),
+              ),
+
+              // botão play
+              const Icon(
+                Icons.play_circle_fill,
+                color: Colors.white,
+                size: 50,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   void _showPartnerPresentation(CorporateMember member) {
     showModalBottomSheet(
       context: context,
@@ -325,6 +366,53 @@ class _PaginaDetalhadaState extends State<PaginaDetalhada> {
       },
     );
   }
+
+  void _openVideoPlayer(String url) {
+  final controller = VideoPlayerController.network(url);
+
+  showModalBottomSheet(
+    context: context,
+    isScrollControlled: true,
+    backgroundColor: Colors.black,
+    builder: (_) {
+      return FutureBuilder(
+        future: controller.initialize(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return const SizedBox(
+              height: 300,
+              child: Center(child: CircularProgressIndicator()),
+            );
+          }
+
+          controller.play();
+
+          return AspectRatio(
+            aspectRatio: controller.value.aspectRatio,
+            child: Stack(
+              alignment: Alignment.bottomCenter,
+              children: [
+                VideoPlayer(controller),
+                VideoProgressIndicator(controller, allowScrubbing: true),
+                Positioned(
+                  top: 10,
+                  right: 10,
+                  child: IconButton(
+                    icon: const Icon(Icons.close, color: Colors.white),
+                    onPressed: () {
+                      controller.dispose();
+                      Navigator.pop(context);
+                    },
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
+      );
+    },
+  );
+}
 
   String _initials(String name) {
     final parts = name.split(' ');
