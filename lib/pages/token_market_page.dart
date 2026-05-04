@@ -30,7 +30,7 @@ class TokenMarketPage extends StatelessWidget {
                 const Text('Seu saldo:', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
                 Row(
                   children: [
-                    const Text('R\$150,00', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                    const Text('R\$0,00', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                     const SizedBox(width: 8),
                     Container(
                       padding: const EdgeInsets.all(6),
