@@ -112,6 +112,18 @@ class _WalletPageState extends State<WalletPage> {
                 ),
               ],
             ),
+            SizedBox(height: 16),
+            SizedBox(
+              width: double.infinity,
+              child: Text(
+                'Histórico de transações',
+                textAlign: .start,
+                style: TextStyle(fontWeight: .w500, fontSize: 16),
+              ),
+            ),
+            Divider(),
+            SizedBox(height: 16),
+            //Aqui vai ter uma lista de transações feitas pelo usuário;
           ],
         ),
       ),
