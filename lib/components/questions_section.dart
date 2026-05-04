@@ -2,8 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend/models/question.dart';
 
-enum QuestionSectionType { public, private }
-
 class QuestionsSection extends StatefulWidget {
   const QuestionsSection({super.key});
 
