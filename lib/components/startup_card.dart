@@ -72,7 +72,7 @@ class StartupCard extends StatelessWidget {
                         ? '${startup.shortDescription.substring(0, 100)}...'
                         : startup.shortDescription,
                     style: const TextStyle(
-                      fontSize: 16,
+                      fontSize: 14,
                       color: Colors.black,
                       height: 1.2,
                       fontWeight: FontWeight.w400,
@@ -121,6 +121,7 @@ class StartupCard extends StatelessWidget {
 class _Ribbon extends StatelessWidget {
   final IconData icon;
   final Color color;
+
   const _Ribbon({this.icon = Icons.business_center, required this.color});
 
   @override

@@ -3,11 +3,13 @@ import 'package:flutter/material.dart';
 class StartupInfoContainer extends StatelessWidget {
   final String? infoText;
   final String? subText;
+
   const StartupInfoContainer({
     super.key,
     required this.infoText,
     required this.subText,
   });
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -20,7 +22,7 @@ class StartupInfoContainer extends StatelessWidget {
         ],
       ),
       width: 100,
-      height: 100,
+      height: 94,
       child: Column(
         crossAxisAlignment: .center,
         mainAxisAlignment: .center,
@@ -37,8 +39,8 @@ class StartupInfoContainer extends StatelessWidget {
             '$subText',
             style: TextStyle(
               color: Colors.black,
-              fontWeight: .w300,
-              fontSize: 12,
+              fontWeight: .w400,
+              fontSize: 10,
             ),
           ),
         ],
