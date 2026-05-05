@@ -4,14 +4,14 @@ import * as logger from "firebase-functions/logger";
 import { onCall, HttpsError } from "firebase-functions/https";
 
 const db = getFirestore();
-interface PriceHistory {
+interface PriceHistory{
   id: string;      
   price: number; 
   timestamp: Timestamp; 
-}
+};
 
 export const tokensCatalog = onCall(async (request) =>{
-    // 1. Busca pelo campo "id" dentro do documento
+  
     const querySnap = await db
       .collection("startups")
       .select("name",
