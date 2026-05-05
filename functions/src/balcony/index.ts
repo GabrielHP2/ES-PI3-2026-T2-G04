@@ -1,7 +1,5 @@
 // Lucas Leonel - RA: 25015188
-import { getFirestore } from "firebase-admin/firestore";
-import { doc, getDoc, collection, getDocs } from "firebase/firestore";
-import { Timestamp } from "firebase/firestore";
+import { getFirestore, Timestamp } from "firebase-admin/firestore";
 
 const db = getFirestore();
 // Tipos
@@ -19,11 +17,13 @@ interface StartupSummary {
   price_history: PriceHistory[];
 }
 
-async function getStartupSummaryById(startupId: string): Promise<StartupSummary | null> {
+async function getStartupById(startupId: string): Promise<StartupSummary | null> {
   try {
-    const startupsRef = doc(db, "startups");
-    const q = query(startupsRef, where("id", "==", startupId));
-    const querySnap = await getDocs(q);
+    // 1. Busca pelo campo "id" dentro do documento
+    const querySnap = await db
+      .collection("startups")
+      .where("id", "==", startupId)
+      .get();
 
     if (querySnap.empty) {
       console.warn(`Startup "${startupId}" não encontrada.`);
@@ -33,14 +33,17 @@ async function getStartupSummaryById(startupId: string): Promise<StartupSummary 
     const startupDoc = querySnap.docs[0];
     const { name, token_symbol, last_price } = startupDoc.data();
 
-    // 2. Busca a subcoleção price_history usando o doc ID real do Firestore
-    const priceHistorySnap = await getDocs(
-      collection(db, "startups", startupDoc.id, "price_history")
-    );
+    // Busca a subcoleção price_history
+    const priceHistorySnap = await db
+      .collection("startups")
+      .doc(startupDoc.id)
+      .collection("price_history")
+      .get();
 
     const priceHistory: PriceHistory[] = priceHistorySnap.docs.map((doc) => ({
       id: doc.id,
       ...(doc.data() as Omit<PriceHistory, "id">),
+      //por ser sub collection precisa dos pontin
     }));
 
     return {
@@ -55,3 +58,12 @@ async function getStartupSummaryById(startupId: string): Promise<StartupSummary 
     throw error;
   }
 }
+
+// Uso
+const [agroSense, eduFlex, finNova, logiChain, saudeAi] = await Promise.all([
+  getStartupById("agor-sense"), // corrigido: "agor-sense" -> "agro-sense"
+  getStartupById("edu-flex"),
+  getStartupById("fin-nova"),
+  getStartupById("logi-chain"),
+  getStartupById("saude-ai"),
+]);
