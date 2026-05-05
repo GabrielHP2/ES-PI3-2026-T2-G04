@@ -18,7 +18,7 @@ export const getQuestions = onCall(async (request) => {
     // Pega no corpo da requisição o ID da startup e a visibilidade das perguntas
     const { startupId, visibility } = request.data as {startupId: string, visibility: boolean};
 
-    if (!startupId || !visibility) {
+    if (!startupId || typeof visibility !== "boolean" ) {
 
         logger.error("Error from getQuestions: Falha ao identificar a startup");
         throw new HttpsError("not-found", "Falha ao identificar a startup");

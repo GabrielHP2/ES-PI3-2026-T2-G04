@@ -10,7 +10,7 @@ import { isInvestor } from "../repositories/isInvestor";
 
 export const sendQuestion = onCall(async (request) => {
 
-    
+    // Decodifica o token do usuário e verifica se ele tem um id válido
     if (!request.auth) {
     
         logger.error("Error from sendQuestion: Usuário não autenticado");
