@@ -65,7 +65,7 @@ class _PaginaDetalhadaState extends State<PaginaDetalhada> {
                   const SizedBox(height: 20),
                   _stats(_startup!),
                   const SizedBox(height: 20),
-                  _sectionCard(
+                  sectionCard(
                     title: "Sumário executivo",
                     child: Text(
                       _startup!.shortDescription,
@@ -74,7 +74,7 @@ class _PaginaDetalhadaState extends State<PaginaDetalhada> {
                   ),
                   const SizedBox(height: 16),
 
-                  _sectionCard(
+                  sectionCard(
                     title: "Estrutura societária",
                     child: Wrap(
                       children: _startup!.corporateStructure
@@ -83,7 +83,7 @@ class _PaginaDetalhadaState extends State<PaginaDetalhada> {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  _sectionCard(
+                  sectionCard(
                     title: 'Perguntas e respostas públicas',
                     child: QuestionsSection(),
                   ),
@@ -148,7 +148,7 @@ class _PaginaDetalhadaState extends State<PaginaDetalhada> {
     );
   }
 
-  Widget _sectionCard({required String title, required Widget child}) {
+  Widget sectionCard({required String title, required Widget child}) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
