@@ -70,7 +70,7 @@ class _TrasactionCardState extends State<TransactionCard> {
             flex: 3,
             child: Center(
               child: Text(
-                'R\$ ${formatter.format(_transaction.amountBRL)}',
+                moneyFormatter.format(_transaction.amountBRL),
                 style: TextStyle(
                   color: _transaction.type == TransactionType.expense
                       ? Colors.red

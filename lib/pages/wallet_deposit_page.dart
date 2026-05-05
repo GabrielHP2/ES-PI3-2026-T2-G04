@@ -27,7 +27,7 @@ class _WalletDepositPageState extends State<WalletDepositPage> {
     super.initState();
     controller.addListener(() {
       setState(() {
-        _isEnabled = (_isValid && controller.numberValue > 1.00);
+        _isEnabled = (_isValid && controller.numberValue >= 1.00);
       });
     });
   }
@@ -81,7 +81,7 @@ class _WalletDepositPageState extends State<WalletDepositPage> {
                   setState(() {
                     _isValid = true;
                     _paymentMethod = method;
-                    _isEnabled = (_isValid && controller.numberValue > 1.00);
+                    _isEnabled = (_isValid && controller.numberValue >= 1.00);
                   });
                 }
               },

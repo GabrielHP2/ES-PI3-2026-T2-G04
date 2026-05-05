@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:extended_masked_text/extended_masked_text.dart';
+import 'package:frontend/services/numberformatter_service.dart';
 
 class WalletWithdrawPage extends StatefulWidget {
   const WalletWithdrawPage({super.key});
 
   @override
-  State<WalletWithdrawPage> createState() => WalletWithdrawPageState();
+  State<WalletWithdrawPage> createState() => _WalletWithdrawPageState();
 }
 
-class WalletWithdrawPageState extends State<WalletWithdrawPage> {
+class _WalletWithdrawPageState extends State<WalletWithdrawPage> {
   final controller = MoneyMaskedTextController(
     //Para fazer o input da quantidade de dinheiro estilo pix de bancos
     leftSymbol: 'R\$ ',
@@ -29,50 +30,55 @@ class WalletWithdrawPageState extends State<WalletWithdrawPage> {
   }
 
   @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('SACAR')),
+      appBar: AppBar(title: const Text('SACAR')),
       body: Padding(
-        padding: EdgeInsetsGeometry.all(16),
+        padding: const EdgeInsets.all(16),
         child: Column(
           children: [
             TextField(
               controller: controller,
               keyboardType: TextInputType.number,
-              style: TextStyle(fontSize: 40, fontWeight: .bold),
-              decoration: InputDecoration(
+              style: const TextStyle(fontSize: 40, fontWeight: FontWeight.bold),
+              decoration: const InputDecoration(
                 hintText: 'R\$ 0,00',
                 contentPadding: EdgeInsets.symmetric(horizontal: 16),
               ),
             ),
             controller.numberValue < 1
-                ? Text(
+                ? const Text(
                     'O valor mínimo de saque é de R\$ 1,00',
                     style: TextStyle(color: Colors.red),
                   )
-                : SizedBox(),
-            SizedBox(height: 32),
-
+                : const SizedBox(),
+            const SizedBox(height: 32),
             _isEnabled
                 ? Text(
-                    'Sacando: R\$ ${controller.numberValue} da sua carteira',
-                    style: TextStyle(fontSize: 16, fontWeight: .w500),
-                    //textAlign: .center,
+                    'Sacando: ${moneyFormatter.format(controller.numberValue)} da sua carteira',
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                    ),
                   )
-                : SizedBox(height: 0),
-            SizedBox(height: 16),
+                : const SizedBox(height: 0),
+            const SizedBox(height: 16),
             ElevatedButton(
               onPressed: () {
-                //Retirar saldo da carteira do usuário
                 !_isEnabled ? null : Navigator.of(context).pop();
               },
-
               style: ElevatedButton.styleFrom(
                 backgroundColor: _isEnabled
                     ? Colors.indigo
                     : Colors.grey.shade400,
               ),
-              child: Text('SACAR', style: TextStyle(color: Colors.white)),
+              child: const Text('SACAR', style: TextStyle(color: Colors.white)),
             ),
           ],
         ),
