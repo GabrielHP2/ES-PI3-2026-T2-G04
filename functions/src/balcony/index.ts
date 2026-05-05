@@ -59,11 +59,11 @@ async function getStartupById(startupId: string): Promise<StartupSummary | null>
   }
 }
 
-// Uso
+/* Uso antes integração 
 const [agorSense, eduFlex, finNova, logiChain, saudeAi] = await Promise.all([
   getStartupById("agor-sense"),
   getStartupById("edu-flex"),
   getStartupById("fin-nova"),
   getStartupById("logi-chain"),
   getStartupById("saude-ai"),
-]);
+]);*/
