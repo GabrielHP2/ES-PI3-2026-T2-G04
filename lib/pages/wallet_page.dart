@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/components/transaction_card.dart';
+import 'package:frontend/models/transactions.dart';
 import 'package:frontend/pages/wallet_deposit_page.dart';
 import 'package:frontend/pages/wallet_withdraw_page.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class WalletPage extends StatefulWidget {
   const WalletPage({super.key});
@@ -10,17 +13,40 @@ class WalletPage extends StatefulWidget {
 }
 
 class _WalletPageState extends State<WalletPage> {
+  final TransactionModel demoTransaction = TransactionModel(
+    amountBRL: 200,
+    createdAt: Timestamp.now(),
+    description: 'Compra de tokens \$FNOVA',
+    type: TransactionType.expense,
+    userId: 'jp',
+  );
+  final TransactionModel demoTransaction1 = TransactionModel(
+    amountBRL: 40000,
+    createdAt: Timestamp.now(),
+    description: 'Venda de tokens \$FNOVA',
+    type: TransactionType.income,
+    userId: 'jp',
+  );
+  final List<TransactionModel> _transactions = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _transactions.add(demoTransaction);
+    _transactions.add(demoTransaction1);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text('CARTEIRA')),
       body: Padding(
-        padding: EdgeInsetsGeometry.all(16),
+        padding: EdgeInsets.all(16),
         child: Column(
           children: [
             Container(
               width: double.infinity,
-              padding: EdgeInsetsGeometry.all(16),
+              padding: EdgeInsets.all(16),
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(16),
@@ -93,7 +119,10 @@ class _WalletPageState extends State<WalletPage> {
                   ),
                   child: const Text(
                     'DEPOSITAR',
-                    style: TextStyle(color: Colors.white, fontWeight: .bold),
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
                 ElevatedButton(
@@ -107,7 +136,10 @@ class _WalletPageState extends State<WalletPage> {
                   ),
                   child: const Text(
                     '    SACAR    ',
-                    style: TextStyle(color: Colors.white, fontWeight: .bold),
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ],
@@ -117,13 +149,21 @@ class _WalletPageState extends State<WalletPage> {
               width: double.infinity,
               child: Text(
                 'Histórico de transações',
-                textAlign: .start,
-                style: TextStyle(fontWeight: .w500, fontSize: 16),
+                textAlign: TextAlign.start,
+                style: TextStyle(fontWeight: FontWeight.w500, fontSize: 16),
               ),
             ),
             Divider(),
             SizedBox(height: 16),
-            //Aqui vai ter uma lista de transações feitas pelo usuário;
+            Expanded(
+              child: ListView.separated(
+                itemCount: _transactions.length,
+                padding: EdgeInsets.zero,
+                separatorBuilder: (context, index) => SizedBox(height: 12),
+                itemBuilder: (context, index) =>
+                    TransactionCard(transaction: _transactions[index]),
+              ),
+            ),
           ],
         ),
       ),
