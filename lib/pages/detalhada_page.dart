@@ -237,8 +237,8 @@ class _PaginaDetalhadaState extends State<PaginaDetalhada> {
 
   Widget _videosShow(Startup startup) {
     if (startup.pitchVideoUrl.isEmpty) return SizedBox();
-    
-    return _sectionCard(
+
+    return sectionCard(
       title: "Vídeo demonstrativo",
       child: GestureDetector(
         onTap: () => _openVideoPlayer(startup.pitchVideoUrl),
@@ -261,11 +261,7 @@ class _PaginaDetalhadaState extends State<PaginaDetalhada> {
               ),
 
               // botão play
-              const Icon(
-                Icons.play_circle_fill,
-                color: Colors.white,
-                size: 50,
-              ),
+              const Icon(Icons.play_circle_fill, color: Colors.white, size: 50),
             ],
           ),
         ),
@@ -368,51 +364,51 @@ class _PaginaDetalhadaState extends State<PaginaDetalhada> {
   }
 
   void _openVideoPlayer(String url) {
-  final controller = VideoPlayerController.network(url);
+    final controller = VideoPlayerController.network(url);
 
-  showModalBottomSheet(
-    context: context,
-    isScrollControlled: true,
-    backgroundColor: Colors.black,
-    builder: (_) {
-      return FutureBuilder(
-        future: controller.initialize(),
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) {
-            return const SizedBox(
-              height: 300,
-              child: Center(child: CircularProgressIndicator()),
-            );
-          }
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.black,
+      builder: (_) {
+        return FutureBuilder(
+          future: controller.initialize(),
+          builder: (context, snapshot) {
+            if (!snapshot.hasData) {
+              return const SizedBox(
+                height: 300,
+                child: Center(child: CircularProgressIndicator()),
+              );
+            }
 
-          controller.play();
+            controller.play();
 
-          return AspectRatio(
-            aspectRatio: controller.value.aspectRatio,
-            child: Stack(
-              alignment: Alignment.bottomCenter,
-              children: [
-                VideoPlayer(controller),
-                VideoProgressIndicator(controller, allowScrubbing: true),
-                Positioned(
-                  top: 10,
-                  right: 10,
-                  child: IconButton(
-                    icon: const Icon(Icons.close, color: Colors.white),
-                    onPressed: () {
-                      controller.dispose();
-                      Navigator.pop(context);
-                    },
+            return AspectRatio(
+              aspectRatio: controller.value.aspectRatio,
+              child: Stack(
+                alignment: Alignment.bottomCenter,
+                children: [
+                  VideoPlayer(controller),
+                  VideoProgressIndicator(controller, allowScrubbing: true),
+                  Positioned(
+                    top: 10,
+                    right: 10,
+                    child: IconButton(
+                      icon: const Icon(Icons.close, color: Colors.white),
+                      onPressed: () {
+                        controller.dispose();
+                        Navigator.pop(context);
+                      },
+                    ),
                   ),
-                ),
-              ],
-            ),
-          );
-        },
-      );
-    },
-  );
-}
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
 
   String _initials(String name) {
     final parts = name.split(' ');
