@@ -1,17 +1,8 @@
 import {db} from "../../startups/shared/firebase";
-import {
-  CreateOrderDTO,
-  Order,
-  OrderStatus,
-  OrderType,
-} from "../types/orderType";
+import {CreateOrderDTO, Order, OrderStatus, OrderType} from "../types/orderType";
 import {logger} from "firebase-functions/v2";
 import {HttpsError} from "firebase-functions/v2/https";
-import {
-  Timestamp,
-  DocumentReference,
-  DocumentData,
-} from "firebase-admin/firestore";
+import {DocumentData, DocumentReference, Timestamp} from "firebase-admin/firestore";
 
 const orderCollection = db.collection("orders");
 
@@ -161,11 +152,17 @@ export async function createOrder(
 
 export async function updateOrder(
   orderId: string,
-  quantityFilledNow: number,
+  quantityFilledNow?: number,
   status?: OrderStatus,
-): Promise<unknown> {
+): Promise<void> {
   try {
     const docRef = orderCollection.doc(orderId);
+
+    if (status === undefined && quantityFilledNow === undefined) {
+      throw new Error(
+        "invalid-argument: Nenhuma instrução foi passada como argumento",
+      );
+    }
 
     // Cancellation can be applied immediately without a transaction
     if (status && status === OrderStatus.cancelled) {
@@ -173,7 +170,7 @@ export async function updateOrder(
         status: OrderStatus.cancelled,
         updatedAt: Timestamp.now(),
       });
-      return undefined;
+      return;
     }
 
     // Use a transaction to avoid race conditions when updating quantity_filled
@@ -185,8 +182,15 @@ export async function updateOrder(
         );
       }
 
+
       const orderData = doc.data() as CreateOrderDTO;
-      const newFilled = orderData.quantity_filled + quantityFilledNow;
+      if (orderData.status == OrderStatus.cancelled ||
+        orderData.status == OrderStatus.filled) {
+        throw new Error(
+          "invalid-argument: Esta ordem ja foi fechada",
+        );
+      }
+      const newFilled = orderData.quantity_filled + (quantityFilledNow ?? 0);
 
       if (newFilled > orderData.quantity) {
         throw new Error(
@@ -208,10 +212,13 @@ export async function updateOrder(
         updatedAt: Timestamp.now(),
       });
     });
+  } catch (e: unknown) {
+    logger.error("Error in updateOrder:", e);
 
-    return undefined;
-  } catch (e) {
-    logger.error(e);
-    return undefined;
+    if (e instanceof Error) {
+      throw new HttpsError("failed-precondition", e.message);
+    }
+
+    throw new HttpsError("internal", "Erro desconhecido ao atualizar ordem");
   }
 }

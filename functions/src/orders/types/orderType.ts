@@ -1,11 +1,15 @@
 import {Timestamp} from "firebase-admin/firestore";
 
 export enum OrderStatus {
-  open, partially, filled, cancelled
+  open = "open",
+  partially = "partially",
+  filled = "filled",
+  cancelled = "cancelled",
 }
 
 export enum OrderType {
-  buy, sell
+  buy = "buy",
+  sell = "sell",
 }
 
 export interface Order {
@@ -23,3 +27,9 @@ export interface Order {
 }
 
 export type CreateOrderDTO = Omit<Order, "id">;
+
+export interface UpdateOrderDTO {
+  orderId: string;
+  quantityFilledNow?: number;
+  status?: OrderStatus;
+}
