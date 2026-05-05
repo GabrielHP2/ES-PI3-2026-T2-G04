@@ -22,31 +22,15 @@ class TokenCard extends StatefulWidget {
 }
 
 class _TokenCardState extends State<TokenCard> {
-  // selecao do filtro
-  String _filtroSelecionado = 'Diário';
-
   // dados
-  final Map<String, List<double>> _historicoMock = {
-    'Diário': [49.5, 49.8, 50.1, 49.9, 50.0],
-    'Semanal': [45.0, 47.2, 46.5, 48.0, 50.0],
-    'Mensal': [40.0, 42.0, 41.0, 45.0, 48.0, 50.0],
-    '6 Meses': [30.0, 35.0, 32.0, 40.0, 45.0, 50.0],
-    'YTD': [25.0, 28.0, 35.0, 42.0, 48.0, 50.0],
-  };
-
-  // funcao de reconstrução do grafico
-  void _mudarFiltro(String novoFiltro) {
-    setState(() {
-      _filtroSelecionado = novoFiltro;
-    });
-  }
+  final List<double> _dadosDiarios = [49.5, 49.8, 50.1, 49.9, 50.0];
 
   @override
   Widget build(BuildContext context) {
     final corVariacao = widget.variacao >= 0 ? const Color(0xff7AE058) : Colors.red;
     
-    // Pega a lista de preços baseada no botão clicado
-    final dadosDoGrafico = _historicoMock[_filtroSelecionado]!;
+    // Pega a lista de preços (apenas diário)
+    final dadosDoGrafico = _dadosDiarios;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
@@ -117,44 +101,6 @@ class _TokenCardState extends State<TokenCard> {
                   ),
                 ],
               ),
-            ),
-          ),
-
-          const SizedBox(height: 16),
-
-          // filtro do tempo
-          SizedBox(
-            height: 30,
-            child: ListView(
-              scrollDirection: Axis.horizontal,
-              children: _historicoMock.keys.map((String nomeFiltro) {
-                final isSelected = _filtroSelecionado == nomeFiltro;
-                
-                return GestureDetector(
-                  onTap: () => _mudarFiltro(nomeFiltro),
-                  child: Container(
-                    margin: const EdgeInsets.only(right: 8),
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: isSelected ? const Color(0xFF5759E0) : Colors.transparent,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                        color: isSelected ? const Color(0xFF5759E0) : Colors.grey.shade300,
-                      ),
-                    ),
-                    child: Center(
-                      child: Text(
-                        nomeFiltro,
-                        style: TextStyle(
-                          color: isSelected ? Colors.white : Colors.grey.shade700,
-                          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                          fontSize: 12,
-                        ),
-                      ),
-                    ),
-                  ),
-                );
-              }).toList(),
             ),
           ),
         ],
