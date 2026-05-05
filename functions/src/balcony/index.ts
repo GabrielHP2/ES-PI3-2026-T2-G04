@@ -1,5 +1,5 @@
 // Lucas Leonel - RA: 25015188
-import { getFirestore, Timestamp } from "firebase-admin/firestore";
+import { getFirestore, Timestamp,QueryDocumentSnapshot, DocumentData } from "firebase-admin/firestore";
 
 const db = getFirestore();
 // Tipos
@@ -40,7 +40,7 @@ async function getStartupById(startupId: string): Promise<StartupSummary | null>
       .collection("price_history")
       .get();
 
-    const priceHistory: PriceHistory[] = priceHistorySnap.docs.map((doc) => ({
+    const priceHistory: PriceHistory[] = priceHistorySnap.docs.map((doc: QueryDocumentSnapshot<DocumentData>) => ({
       id: doc.id,
       ...(doc.data() as Omit<PriceHistory, "id">),
       //por ser sub collection precisa dos pontin
