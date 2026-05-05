@@ -60,8 +60,8 @@ async function getStartupById(startupId: string): Promise<StartupSummary | null>
 }
 
 // Uso
-const [agroSense, eduFlex, finNova, logiChain, saudeAi] = await Promise.all([
-  getStartupById("agor-sense"), // corrigido: "agor-sense" -> "agro-sense"
+const [agorSense, eduFlex, finNova, logiChain, saudeAi] = await Promise.all([
+  getStartupById("agor-sense"),
   getStartupById("edu-flex"),
   getStartupById("fin-nova"),
   getStartupById("logi-chain"),
