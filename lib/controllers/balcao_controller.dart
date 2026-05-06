@@ -1,57 +1,38 @@
-// Gabriel Hespnholeto Maziero 25004669
-import 'dart:convert';
-import 'package:http/http.dart' as http;
+// Gabriel Hespanholeto Maziero 25004669
+
+import 'package:cloud_functions/cloud_functions.dart';
 
 class BalcaoController {
-  final String _baseUrl = 'http://10.0.2.2:3000/api';
-
-  Future<bool> solicitarCompra({required String ticker, required int quantidade}) async {
+  
+  // Busca startups
+  Future<List<dynamic>> buscarTokens() async {
     try {
-      final url = Uri.parse('$_baseUrl/transacao/comprar');
-
-      // jason para o back
-      final body = jsonEncode({
-        'ticker': ticker,
-        'quantidade': quantidade,
-        'tipo': 'COMPRA',
-        'timestamp': DateTime.now().toIso8601String(),
-      });
-
-      // pedido post
-      final response = await http.post(
-        url,
-        headers: {'Content-Type': 'application/json'},
-        body: body,
-      );
-
-      // true se o back responder com sucesso
-      return response.statusCode == 200 || response.statusCode == 201;
+      final HttpsCallable callable = FirebaseFunctions.instance.httpsCallable('NOME DA FUNC');
+      final result = await callable.call();
+      
+      // Conversão
+      return result.data as List<dynamic>; 
     } catch (e) {
-       print('Erro na comunicação com o servidor: $e');
-      return false;
+      print('Erro ao buscar os tokens no FB: $e'); // <-- caso necessario alterar o print !!
+      return [];
     }
   }
 
-  ///  req de venda para o back
-  Future<bool> solicitarVenda({required String ticker, required int quantidade}) async {
+  // Compra de tokens
+  Future<bool> comprarToken(String ticker, int quantidade) async {
     try {
-      final url = Uri.parse('$_baseUrl/transacao/vender');
-
-      final body = jsonEncode({
+      final HttpsCallable callable = FirebaseFunctions.instance.httpsCallable('NOME DA FUNC');
+      
+      // parametros na func
+      await callable.call({
         'ticker': ticker,
         'quantidade': quantidade,
-        'tipo': 'VENDA',
       });
-
-      final response = await http.post(
-        url,
-        headers: {'Content-Type': 'application/json'},
-        body: body,
-      );
-
-      return response.statusCode == 200;
+      
+      return true; // sucesso
     } catch (e) {
-      return false;
+      print('Erro na compra: $e'); // <-- caso necessario alterar o print !!
+      return false; // deu erro
     }
   }
 }
