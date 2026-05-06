@@ -2,50 +2,47 @@
 
 import {onCall, HttpsError} from "firebase-functions/https";
 import {db} from "../shared/firebase";
-import {FieldValue} from "firebase-admin/firestore";
-import * as logger from "firebase-functions/logger";
-
-import {MessageType} from "../types/messageType";
+import {Timestamp} from "firebase-admin/firestore";
 import {isInvestor} from "../repositories/isInvestor";
+import {Question} from "../types/questionType";
 
 export const sendQuestion = onCall(async (request) => {
-  // Decodifica o token do usuário e verifica se ele tem um id válido
-  if (!request.auth) {
-    logger.error("Error from sendQuestion: Usuário não autenticado");
+  if (!request || !request.auth) {
     throw new HttpsError("unauthenticated", "Usuário não autenticado");
   }
 
-  const messageBody = request.data as MessageType;
-
-  if (!messageBody) {
-    logger.error("Error from sendQuestion: Conteúdo da pergunta não encontrado");
-    throw new HttpsError("not-found", "Conteúdo da pergunta não encontrado");
+  // Espera-se que o cliente envie apenas: is_public, question_text, startup_id
+  const body = (request.data as unknown) as Partial<Question>;
+  if (!body || !body.startup_id || typeof body.question_text !== "string") {
+    throw new HttpsError("invalid-argument", "Conteúdo da pergunta incompleto: envie 'startup_id' e 'question_text'");
   }
 
-  // Verifica se a pergunta é privada
-  if (!messageBody.isPublic) {
-    // Caso seja privada, verifica se o usuário é um investidor da startup
-    if (!await isInvestor(messageBody.question.userId, messageBody.startupId)) {
-      logger.error("Error from sendQuestion: O usuário deve ser um investidor");
-      throw new HttpsError("permission-denied", "O usuário deve ser um investidor");
+  // Preenche user_id a partir do auth e aplica valores padrão
+  const userId = request.auth.uid;
+  const toSave = {
+    startup_id: body.startup_id,
+    user_id: userId,
+    is_public: !!body.is_public,
+    question_text: body.question_text,
+    created_at: Timestamp.now(),
+    is_answered: false,
+    status: "active",
+  };
+
+  try {
+    // Se for privada, valida se o usuário é investidor
+    if (!toSave.is_public) {
+      const ok = await isInvestor(userId, toSave.startup_id);
+      if (!ok) {
+        throw new HttpsError("permission-denied", "O usuário deve ser um investidor para enviar perguntas privadas");
+      }
     }
 
-    // Cadastra a pergunta privada no BD no array "private"
-    await db.collection("questions")
-      .doc(messageBody.startupId)
-      .set({private: FieldValue.arrayUnion(messageBody)}, {merge: true});
+    // Adiciona cada pergunta como um documento separado na coleção `questions`.
+    const ref = await db.collection("questions").add(toSave);
 
-    logger.debug("Debug from sendQuestion: Pergunta privada cadastrada");
-  } else {
-    // Cadastra a pergunta pública no BD no array "public"
-    await db.collection("questions")
-      .doc(messageBody.startupId)
-      .set({public: FieldValue.arrayUnion(messageBody)}, {merge: true});
-
-    logger.debug("Debug from sendQuestion: Pergunta pública cadastrada");
+    return {id: ref.id};
+  } catch (err) {
+    throw new HttpsError("data-loss", "Falha ao cadastrar a pergunta - " + err);
   }
-
-  logger.info("Info from sendQuestion: OK");
-
-  return;
 });
