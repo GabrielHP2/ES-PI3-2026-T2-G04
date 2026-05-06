@@ -39,7 +39,10 @@ class _TokenCardState extends State<TokenCard> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFCACACA), width: 1),
+        border: Border.all(color: Colors.grey.shade300, width: 1),
+        boxShadow: [
+          BoxShadow(color: Colors.black26, offset: Offset(0, 2), blurRadius: 1),
+        ],
       ),
       child: Column(
         children: [
