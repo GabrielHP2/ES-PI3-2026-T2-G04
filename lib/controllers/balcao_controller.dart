@@ -5,16 +5,42 @@ import 'package:cloud_functions/cloud_functions.dart';
 
 class BalcaoController {
   
-  // funcão de busca startups
-  Future<List<dynamic>> buscarTokens() async {
+  // Func para busca e processamento das startups
+  Future<List<Map<String, dynamic>>> buscarTokens() async {
     try {
-
+      // Call da API
       final HttpsCallable callable = FirebaseFunctions.instance.httpsCallable('tokensCatalog');
       final result = await callable.call();
       
-      developer.log('Tokens listados com sucesso', name: 'BalcaoController.buscarTokens');
+      final List<dynamic> startupsBrutas = result.data['startups'];
+      List<Map<String, dynamic>> tokensProntosParaTela = [];
+
+      // Traduz do node para flutter
+      for (var startup in startupsBrutas) {
+        double precoAtual = (startup['last_price'] ?? 0).toDouble();
+        double variacaoCalculada = 0.0;
+        
+        List<dynamic> historico = startup['price_history'] ?? [];
+
+        // Calcula se subiu e desceu
+        if (historico.isNotEmpty) {
+          double precoAntigo = (historico.first['price'] ?? precoAtual).toDouble();
+          if (precoAntigo > 0) {
+            variacaoCalculada = ((precoAtual - precoAntigo) / precoAntigo) * 100;
+          }
+        }
+
+        // Monta depois da tradução
+        tokensProntosParaTela.add({
+          'ticker': startup['token_symbol'],
+          'nome': startup['name'],
+          'precoAtual': precoAtual,
+          'variacao': variacaoCalculada,
+        });
+      }
       
-      return result.data['startups'] as List<dynamic>; 
+      developer.log('Tokens processados com sucesso', name: 'BalcaoController.buscarTokens');
+      return tokensProntosParaTela; 
 
     } catch (e, stackTrace) {
       developer.log('Erro ao buscar', name: 'BalcaoController.buscarTokens', error: e, stackTrace: stackTrace);
@@ -22,7 +48,9 @@ class BalcaoController {
     }
   }
 
-// -----------------------------
+  // -----------------------------
 
-    // !!!>>>> AQUI PODE SER A FUNCAO DE COMPRA  <<<<<
+  // !!!>>>> AQUI PODE SER A FUNCAO DE COMPRA  <<<<<
+
+  
 }

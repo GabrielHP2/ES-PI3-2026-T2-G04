@@ -8,6 +8,7 @@ class TokenCard extends StatefulWidget {
   final String nome;
   final double precoAtual;
   final double variacao;
+  final List<double> historicoPrecos; 
 
   const TokenCard({
     super.key,
@@ -15,6 +16,7 @@ class TokenCard extends StatefulWidget {
     required this.nome,
     required this.precoAtual,
     required this.variacao,
+    required this.historicoPrecos, 
   });
 
   @override
@@ -22,15 +24,14 @@ class TokenCard extends StatefulWidget {
 }
 
 class _TokenCardState extends State<TokenCard> {
-  // dados
-  final List<double> _dadosDiarios = [49.5, 49.8, 50.1, 49.9, 50.0]; // hardcode 
-
   @override
   Widget build(BuildContext context) {
     final corVariacao = widget.variacao >= 0 ? const Color(0xff7AE058) : Colors.red;
     
-    // Pega a lista de preços (apenas diário)
-    final dadosDoGrafico = _dadosDiarios;
+    // Caso vir vazio repete o preço atual
+    final dadosDoGrafico = widget.historicoPrecos.isNotEmpty 
+        ? widget.historicoPrecos 
+        : [widget.precoAtual, widget.precoAtual]; 
 
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
@@ -42,7 +43,6 @@ class _TokenCardState extends State<TokenCard> {
       ),
       child: Column(
         children: [
-          // info token
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -68,7 +68,6 @@ class _TokenCardState extends State<TokenCard> {
           
           const SizedBox(height: 16),
 
-          // ---> grafico <---
           SizedBox(
             height: 60, 
             child: LineChart(
@@ -108,7 +107,6 @@ class _TokenCardState extends State<TokenCard> {
     );
   }
 
-  // converte double 
   List<FlSpot> _gerarPontosDoGrafico(List<double> dados) {
     return dados.asMap().entries.map((entry) {
       return FlSpot(entry.key.toDouble(), entry.value);

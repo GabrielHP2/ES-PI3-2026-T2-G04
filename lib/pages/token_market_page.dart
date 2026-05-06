@@ -1,10 +1,19 @@
-// Gabriel Hespnholeto Maziero 25004669
+// Gabriel Hespanholeto Maziero 25004669
 
 import 'package:flutter/material.dart';
-import '../components/token_balcao.dart'; // 
+import '../components/token_balcao.dart'; 
+import '../controllers/balcao_controller.dart';
 
-class TokenMarketPage extends StatelessWidget {
+class TokenMarketPage extends StatefulWidget {
   const TokenMarketPage({super.key});
+
+  @override
+  State<TokenMarketPage> createState() => _TokenMarketPageState();
+}
+
+class _TokenMarketPageState extends State<TokenMarketPage> {
+  // instancia do controller, comunica com controller
+  final BalcaoController _controller = BalcaoController();
 
   @override
   Widget build(BuildContext context) {
@@ -30,6 +39,7 @@ class TokenMarketPage extends StatelessWidget {
                 const Text('Seu saldo:', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
                 Row(
                   children: [
+                    // O saldo ainda está hardcoded, isso mudará quando vocês integrarem a tabela de Usuários
                     const Text('R\$0,00', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                     const SizedBox(width: 8),
                     Container(
@@ -45,23 +55,47 @@ class TokenMarketPage extends StatelessWidget {
             const Text('Tokens de startups', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
             const SizedBox(height: 16),
 
-            // lista tokens
+            // API
             Expanded(
-              child: ListView(
-                children: const [
-                  TokenCard(
-                    ticker: '\$FNOVA',
-                    nome: 'FinNova',
-                    precoAtual: 50.00,
-                    variacao: 10.0,
-                  ),
-                  TokenCard(
-                    ticker: '\$AGROX',
-                    nome: 'AgroTech',
-                    precoAtual: 22.50,
-                    variacao: -3.5,
-                  ),
-                ],
+              child: FutureBuilder<List<Map<String, dynamic>>>(
+                // REQUISICAO
+                future: _controller.buscarTokens(), 
+                builder: (context, snapshot) {
+                  
+                  // RESPOSTA
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(
+                      child: CircularProgressIndicator(color: Color(0xFF5759E0)),
+                    );
+                  }
+
+                  // Se falhar
+                  if (snapshot.hasError || !snapshot.hasData || snapshot.data!.isEmpty) {
+                    return const Center(
+                      child: Text(
+                        'Sem Tokens disponíveis.',
+                        style: TextStyle(color: Colors.grey, fontSize: 16),
+                      ),
+                    );
+                  }
+
+                  // SUCESSO, e obtem a lista
+                  final tokens = snapshot.data!;
+
+                  return ListView.builder(
+                    itemCount: tokens.length,
+                    itemBuilder: (context, index) {
+                      final token = tokens[index];
+                      return TokenCard(
+                        ticker: token['ticker'],
+                        nome: token['nome'],
+                        precoAtual: token['precoAtual'],
+                        variacao: token['variacao'],
+                        historicoPrecos: token['historico']
+                      );
+                    },
+                  );
+                },
               ),
             ),
           ],
