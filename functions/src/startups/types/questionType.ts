@@ -1,6 +1,6 @@
-import {Timestamp} from "firebase-admin/firestore";
+import { Timestamp } from "firebase-admin/firestore";
 
-enum QuestionStatus {
+export enum QuestionStatus {
   active = "active",
   deleted = "deleted",
 }
@@ -18,3 +18,13 @@ export interface Question {
   user_id: string;
   user_name: string;
 }
+
+export interface QuestionInfo {
+  startup_id: string;
+  is_public: boolean;
+}
+
+export type CreateQuestionDTO = Omit<
+  Question,
+  "id" | "answered_at" | "answered_by_name" | "answer_text"
+>;

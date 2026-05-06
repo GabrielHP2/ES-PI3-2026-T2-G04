@@ -87,7 +87,10 @@ class _PaginaDetalhadaState extends State<PaginaDetalhada> {
                   const SizedBox(height: 16),
                   sectionCard(
                     title: 'Perguntas e respostas públicas',
-                    child: QuestionsSection(),
+                    child: QuestionsSection(
+                      startupId: widget.startupId,
+                      isPublic: true,
+                    ),
                   ),
                   const SizedBox(height: 16),
                   _videosShow(_startup!),
