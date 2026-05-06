@@ -1,56 +1,84 @@
 // Lucas Leonel - RA: 25015188
-import { getFirestore, Timestamp,QueryDocumentSnapshot, DocumentData } from "firebase-admin/firestore";
+import { getFirestore, Timestamp, QueryDocumentSnapshot, DocumentData } from "firebase-admin/firestore";
 import * as logger from "firebase-functions/logger";
 import { onCall, HttpsError } from "firebase-functions/https";
 
 const db = getFirestore();
-interface PriceHistory{
-  id: string;      
-  price: number; 
-  timestamp: Timestamp; 
-};
 
-export const tokensCatalog = onCall(async (request) =>{
-  
-    const querySnap = await db
-      .collection("startups")
-      .select("name",
-        "token_symbol",
-        "last_price",
-        "current_raised",
-        )
-      .where("id","==",request.data.id)
-      .get();
+interface PriceHistory {
+  id: string;
+  price: number;
+  timestamp: Timestamp;
+}
 
-    if (querySnap.empty) {
-    logger.error(
-      "Error from tokensCatalog: Falha ao buscar dados das startups",
-    );
+//função para pegar o price_history
+async function getPriceHistory(startupDocId: string): Promise<PriceHistory[]> {
+  const snap = await db
+    .collection("startups")
+    .doc(startupDocId)
+    .collection("price_history")
+    .get();
+
+  return snap.docs.map((doc: QueryDocumentSnapshot<DocumentData>) => ({
+    id: doc.id,
+    ...(doc.data() as Omit<PriceHistory, "id">),
+  }));
+}
+
+//listar todas as startups
+export const tokensCatalog = onCall(async () => {
+  const querySnap = await db
+    .collection("startups")
+    .select("name",
+    "token_symbol", 
+    "last_price", 
+    "current_raised")
+    .get();
+
+  if (querySnap.empty) {
+    logger.error("Error from tokensCatalog: Falha ao buscar dados das startups");
     throw new HttpsError("data-loss", "Falha ao buscar dados das startups");
   }
 
-    const startupDoc = querySnap.docs[0]; //pega o elemento do get
-    const { name, token_symbol, last_price, current_raised } = startupDoc.data();
+  const startups = await Promise.all(
+    querySnap.docs.map(async (startupDoc: QueryDocumentSnapshot<DocumentData>) => {
+      const { name, token_symbol, last_price, current_raised } = startupDoc.data();
+      return {
+        id: startupDoc.id,
+        name,
+        token_symbol,
+        last_price,
+        current_raised,
+        price_history: await getPriceHistory(startupDoc.id),
+      };
+    })
+  );
 
-    // Busca a subcoleção price_history
-    const priceHistorySnap = await db
-      .collection("startups")
-      .doc(startupDoc.id)
-      .collection("price_history")
-      .get();
+  return { startups }; // por conta do promisse.all, o retorno só acontece depois de todas as startups terem sido processadas
+});
 
-    const priceHistory: PriceHistory[] = priceHistorySnap.docs.map((doc: QueryDocumentSnapshot<DocumentData>) => ({
-      id: doc.id,
-      ...(doc.data() as Omit<PriceHistory, "id">),
-      //por ser sub collection precisa dos pontin
-    }));
+// Busca uma startup pelo id
+export const tokensCatalogById = onCall(async (request) => {
+  const querySnap = await db
+    .collection("startups")
+    .select("name", "token_symbol", "last_price", "current_raised")
+    .where("id", "==", request.data.id)
+    .get();
 
-    return {
-      id: request.data.id,
-      name,
-      token_symbol,
-      last_price,
-      current_raised,
-      price_history: priceHistory,
-    };
+  if (querySnap.empty) {
+    logger.error("Error from tokensCatalogById: Falha ao buscar dados da startup");
+    throw new HttpsError("data-loss", "Falha ao buscar dados da startup");
+  }
+
+  const startupDoc = querySnap.docs[0];
+  const { name, token_symbol, last_price, current_raised } = startupDoc.data();
+
+  return {
+    id: request.data.id,
+    name,
+    token_symbol,
+    last_price,
+    current_raised,
+    price_history: await getPriceHistory(startupDoc.id),
+  };
 });
