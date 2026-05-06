@@ -23,7 +23,7 @@ class TokenCard extends StatefulWidget {
 
 class _TokenCardState extends State<TokenCard> {
   // dados
-  final List<double> _dadosDiarios = [49.5, 49.8, 50.1, 49.9, 50.0];
+  final List<double> _dadosDiarios = [49.5, 49.8, 50.1, 49.9, 50.0]; // hardcode 
 
   @override
   Widget build(BuildContext context) {

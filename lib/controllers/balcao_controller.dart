@@ -1,38 +1,28 @@
 // Gabriel Hespanholeto Maziero 25004669
 
+import 'dart:developer' as developer;
 import 'package:cloud_functions/cloud_functions.dart';
 
 class BalcaoController {
   
-  // Busca startups
+  // funcão de busca startups
   Future<List<dynamic>> buscarTokens() async {
     try {
-      final HttpsCallable callable = FirebaseFunctions.instance.httpsCallable('NOME DA FUNC');
+
+      final HttpsCallable callable = FirebaseFunctions.instance.httpsCallable('tokensCatalog');
       final result = await callable.call();
       
-      // Conversão
-      return result.data as List<dynamic>; 
-    } catch (e) {
-      print('Erro ao buscar os tokens no FB: $e'); // <-- caso necessario alterar o print !!
+      developer.log('Tokens listados com sucesso', name: 'BalcaoController.buscarTokens');
+      
+      return result.data['startups'] as List<dynamic>; 
+
+    } catch (e, stackTrace) {
+      developer.log('Erro ao buscar', name: 'BalcaoController.buscarTokens', error: e, stackTrace: stackTrace);
       return [];
     }
   }
 
-  // Compra de tokens
-  Future<bool> comprarToken(String ticker, int quantidade) async {
-    try {
-      final HttpsCallable callable = FirebaseFunctions.instance.httpsCallable('NOME DA FUNC');
-      
-      // parametros na func
-      await callable.call({
-        'ticker': ticker,
-        'quantidade': quantidade,
-      });
-      
-      return true; // sucesso
-    } catch (e) {
-      print('Erro na compra: $e'); // <-- caso necessario alterar o print !!
-      return false; // deu erro
-    }
-  }
+// -----------------------------
+
+    // !!!>>>> AQUI PODE SER A FUNCAO DE COMPRA  <<<<<
 }
