@@ -1,9 +1,9 @@
 // João Pedro Panza Mainieri - RA: 25006642
 
-import { onCall } from "firebase-functions/https";
-import { seedDemoStartups } from "../repositories/startupRepositories";
+import {onCall} from "firebase-functions/v2/https";
+import {seedDemoStartups} from "../repositories/startupRepositories";
 
-export const seedStartupCatalog = onCall(async (request) => {
+export const seedStartupCatalog = onCall(async () => {
   const startupIds = await seedDemoStartups();
 
   return {

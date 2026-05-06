@@ -1,10 +1,10 @@
 // Autor: Gabriel Henrique Pacagnelli Pagliato   RA: 25016528
 
-import { getFirestore } from "firebase-admin/firestore";
-import { getAuth } from "firebase-admin/auth";
-import { onRequest } from "firebase-functions/https";
+import {getFirestore} from "firebase-admin/firestore";
+import {getAuth} from "firebase-admin/auth";
+import {onRequest} from "firebase-functions/v2/https";
 
-import { User } from "../types/userType";
+import {User} from "../types/userType";
 import {
   emailRegex,
   passwordRegex,
@@ -45,7 +45,7 @@ function isValidCpf(cpf: string): boolean {
 }
 
 export const signUp = onRequest(
-  { region: "southamerica-east1" },
+  {region: "southamerica-east1"},
   async (request, response) => {
     try {
       // Recebe os dados vindos do corpo da requisição
@@ -62,7 +62,7 @@ export const signUp = onRequest(
       ) {
         response
           .status(400)
-          .json({ error: "Todos os campos são obrigatórios" });
+          .json({error: "Todos os campos são obrigatórios"});
         return;
       }
 
@@ -72,27 +72,27 @@ export const signUp = onRequest(
 
       // Faz um teste individual com cada dado pra verificar se ele bate com seu respectivo RegEx
       if (!emailRegex.test(normalizedEmail)) {
-        response.status(400).json({ error: "Email inválido" });
+        response.status(400).json({error: "Email inválido"});
         return;
       }
 
       if (!passwordRegex.test(user.password)) {
-        response.status(400).json({ error: "Senha inválida" });
+        response.status(400).json({error: "Senha inválida"});
         return;
       }
 
       if (!isValidCpf(normalizedCpf)) {
-        response.status(400).json({ error: "CPF inválido" });
+        response.status(400).json({error: "CPF inválido"});
         return;
       }
 
       if (!birthDateRegex.test(user.birthDate)) {
-        response.status(400).json({ error: "Data de nascimento inválida" });
+        response.status(400).json({error: "Data de nascimento inválida"});
         return;
       }
 
       if (!phoneNumberRegex.test(normalizedPhone)) {
-        response.status(400).json({ error: "Número de telefone inválido" });
+        response.status(400).json({error: "Número de telefone inválido"});
         return;
       }
 
@@ -117,11 +117,11 @@ export const signUp = onRequest(
           await db.collection("usuarios").doc(callback.uid).set(data);
         });
 
-      response.status(201).json({ message: "Usuário cadastrado" });
+      response.status(201).json({message: "Usuário cadastrado"});
       return;
     } catch (e) {
       console.log("Erro ao realizar cadastro: ", e);
-      response.status(500).json({ error: "Erro ao realizar cadastro" });
+      response.status(500).json({error: "Erro ao realizar cadastro"});
     }
   },
 );

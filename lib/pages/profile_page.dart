@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:frontend/pages/wallet_page.dart';
 import 'package:frontend/services/two_factor_services.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -115,6 +116,14 @@ class _ProfilePageState extends State<ProfilePage> {
                 );
               },
               child: Text('2FA por SMS'),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                Navigator.of(
+                  context,
+                ).push(MaterialPageRoute(builder: (context) => WalletPage()));
+              },
+              child: Text('CARTEIRA'),
             ),
             Text('Pagina de perfil em desenvolvimento'),
           ],
