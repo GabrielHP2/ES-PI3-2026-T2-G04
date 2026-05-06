@@ -6,8 +6,6 @@ import * as logger from "firebase-functions/logger";
 
 import {SimplifiedStartup} from "../types/startupType";
 
-const db = getFirestore();
-
 export const startupCatalog = onCall(async (request) => {
   // Decodifica o token do usuário e verifica se ele tem um id válido
   if (!request.auth) {
