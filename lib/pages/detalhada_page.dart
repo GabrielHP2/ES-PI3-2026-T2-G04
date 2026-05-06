@@ -1,3 +1,5 @@
+// Lucas Leonel - RA: 25015188
+
 import 'package:flutter/material.dart';
 import 'package:frontend/components/questions_section.dart';
 import 'package:frontend/components/startup_info_container.dart';
@@ -6,6 +8,7 @@ import 'package:frontend/controllers/startup_controller.dart';
 import 'package:frontend/models/startup.dart';
 import 'package:frontend/services/numberformatter_service.dart';
 import 'package:frontend/services/startup_services.dart';
+import 'package:video_player/video_player.dart';
 
 class PaginaDetalhada extends StatefulWidget {
   final String startupId;
@@ -64,7 +67,7 @@ class _PaginaDetalhadaState extends State<PaginaDetalhada> {
                   const SizedBox(height: 20),
                   _stats(_startup!),
                   const SizedBox(height: 20),
-                  _sectionCard(
+                  sectionCard(
                     title: "Sumário executivo",
                     child: Text(
                       _startup!.shortDescription,
@@ -73,7 +76,7 @@ class _PaginaDetalhadaState extends State<PaginaDetalhada> {
                   ),
                   const SizedBox(height: 16),
 
-                  _sectionCard(
+                  sectionCard(
                     title: "Estrutura societária",
                     child: Wrap(
                       children: _startup!.corporateStructure
@@ -82,10 +85,12 @@ class _PaginaDetalhadaState extends State<PaginaDetalhada> {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  _sectionCard(
+                  sectionCard(
                     title: 'Perguntas e respostas públicas',
                     child: QuestionsSection(),
                   ),
+                  const SizedBox(height: 16),
+                  _videosShow(_startup!),
                 ],
               ),
             ),
@@ -145,7 +150,7 @@ class _PaginaDetalhadaState extends State<PaginaDetalhada> {
     );
   }
 
-  Widget _sectionCard({required String title, required Widget child}) {
+  Widget sectionCard({required String title, required Widget child}) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
@@ -227,6 +232,40 @@ class _PaginaDetalhadaState extends State<PaginaDetalhada> {
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _videosShow(Startup startup) {
+    if (startup.pitchVideoUrl.isEmpty) return SizedBox();
+
+    return sectionCard(
+      title: "Vídeo demonstrativo",
+      child: GestureDetector(
+        onTap: () => _openVideoPlayer(startup.pitchVideoUrl),
+        child: Container(
+          height: 140,
+          width: double.infinity,
+          decoration: BoxDecoration(
+            color: Colors.black,
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              // fundo escuro (placeholder)
+              Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12),
+                  color: Colors.black87,
+                ),
+              ),
+
+              // botão play
+              const Icon(Icons.play_circle_fill, color: Colors.white, size: 50),
+            ],
+          ),
         ),
       ),
     );
@@ -316,6 +355,53 @@ class _PaginaDetalhadaState extends State<PaginaDetalhada> {
                         ? member.bio
                         : 'Sem apresentação disponível.',
                     style: const TextStyle(fontSize: 14),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  void _openVideoPlayer(String url) {
+    final controller = VideoPlayerController.network(url);
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.black,
+      builder: (_) {
+        return FutureBuilder(
+          future: controller.initialize(),
+          builder: (context, snapshot) {
+            if (!snapshot.hasData) {
+              return const SizedBox(
+                height: 300,
+                child: Center(child: CircularProgressIndicator()),
+              );
+            }
+
+            controller.play();
+
+            return AspectRatio(
+              aspectRatio: controller.value.aspectRatio,
+              child: Stack(
+                alignment: Alignment.bottomCenter,
+                children: [
+                  VideoPlayer(controller),
+                  VideoProgressIndicator(controller, allowScrubbing: true),
+                  Positioned(
+                    top: 10,
+                    right: 10,
+                    child: IconButton(
+                      icon: const Icon(Icons.close, color: Colors.white),
+                      onPressed: () {
+                        controller.dispose();
+                        Navigator.pop(context);
+                      },
+                    ),
                   ),
                 ],
               ),

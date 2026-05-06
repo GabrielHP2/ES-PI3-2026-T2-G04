@@ -1,7 +1,8 @@
+// Lucas Leonel - RA: 25015188
+
 import 'package:flutter/material.dart';
 import 'package:frontend/pages/auth_2fa.dart';
 import 'package:frontend/pages/cadastro_page.dart';
-//import 'package:frontend/pages/detalhada_page.dart';
 import 'package:frontend/pages/home_shell.dart';
 import 'package:frontend/pages/recuperar_senha.dart';
 import 'package:firebase_auth/firebase_auth.dart';
