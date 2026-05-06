@@ -1,10 +1,10 @@
+// Lucas Leonel - RA: 25015188
+// Gabriel Hespanholeto
+// 25004669
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:frontend/pages/home_shell.dart';
-
-// Gabriel Hespanholeto
-// 25004669
 
 class Autenticacao2FAPage extends StatefulWidget {
   final MultiFactorResolver resolver;

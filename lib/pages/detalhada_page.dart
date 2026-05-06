@@ -1,3 +1,5 @@
+// Lucas Leonel - RA: 25015188
+
 import 'package:flutter/material.dart';
 import 'package:frontend/components/questions_section.dart';
 import 'package:frontend/components/startup_info_container.dart';
