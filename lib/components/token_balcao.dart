@@ -8,7 +8,7 @@ class TokenCard extends StatefulWidget {
   final String nome;
   final double precoAtual;
   final double variacao;
-  final List<double> historicoPrecos; 
+  final List<double> historicoPrecos;
 
   const TokenCard({
     super.key,
@@ -16,7 +16,7 @@ class TokenCard extends StatefulWidget {
     required this.nome,
     required this.precoAtual,
     required this.variacao,
-    required this.historicoPrecos, 
+    required this.historicoPrecos,
   });
 
   @override
@@ -26,12 +26,12 @@ class TokenCard extends StatefulWidget {
 class _TokenCardState extends State<TokenCard> {
   @override
   Widget build(BuildContext context) {
-    final corVariacao = widget.variacao >= 0 ? const Color(0xff7AE058) : Colors.red;
-    
+    final corVariacao = widget.variacao >= 0 ? Colors.green : Colors.red;
+
     // Caso vir vazio repete o preço atual
-    final dadosDoGrafico = widget.historicoPrecos.isNotEmpty 
-        ? widget.historicoPrecos 
-        : [widget.precoAtual, widget.precoAtual]; 
+    final dadosDoGrafico = widget.historicoPrecos.isNotEmpty
+        ? widget.historicoPrecos
+        : [widget.precoAtual, widget.precoAtual];
 
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
@@ -49,38 +49,63 @@ class _TokenCardState extends State<TokenCard> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(widget.ticker, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                  Text(widget.nome, style: const TextStyle(fontSize: 14, color: Colors.grey)),
+                  Text(
+                    '\$${widget.ticker}',
+                    style: const TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Text(
+                    widget.nome,
+                    style: const TextStyle(fontSize: 16, color: Colors.grey),
+                  ),
                 ],
               ),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  Text('R\$${widget.precoAtual.toStringAsFixed(2)}', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                   Text(
-                    '${widget.variacao > 0 ? '+' : ''}${widget.variacao.toStringAsFixed(2)}%',
-                    style: TextStyle(fontSize: 14, color: corVariacao, fontWeight: FontWeight.w600),
+                    'R\$${widget.precoAtual.toStringAsFixed(2)}',
+                    style: const TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Text(
+                    '(${widget.variacao > 0 ? '+' : ''}${widget.variacao.toStringAsFixed(2)}%)',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: corVariacao,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ],
               ),
             ],
           ),
-          
+
           const SizedBox(height: 16),
 
           SizedBox(
-            height: 60, 
+            height: 60,
+            width: double.infinity,
             child: LineChart(
               LineChartData(
                 lineTouchData: LineTouchData(
                   enabled: true,
                   touchTooltipData: LineTouchTooltipData(
+                    fitInsideHorizontally: true,
+                    fitInsideVertically: true,
                     getTooltipColor: (touchedSpot) => Colors.black87,
                     getTooltipItems: (touchedSpots) {
                       return touchedSpots.map((spot) {
                         return LineTooltipItem(
                           'R\$ ${spot.y.toStringAsFixed(2)}',
-                          const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                          const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
                         );
                       }).toList();
                     },
@@ -92,7 +117,7 @@ class _TokenCardState extends State<TokenCard> {
                 lineBarsData: [
                   LineChartBarData(
                     spots: _gerarPontosDoGrafico(dadosDoGrafico),
-                    isCurved: true,
+                    isCurved: false,
                     color: corVariacao,
                     barWidth: 2,
                     isStrokeCapRound: true,
