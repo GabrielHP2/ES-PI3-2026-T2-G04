@@ -1,9 +1,9 @@
 // João Pedro Panza Mainieri - RA: 25006642
 
-import { FieldValue } from "firebase-admin/firestore";
-import { Startup } from "../types/startupType";
+import {FieldValue} from "firebase-admin/firestore";
+import {Startup} from "../types/startupType";
 
-import { db } from "../shared/firebase";
+import {db} from "../shared/firebase";
 
 const startupCol = db.collection("startups");
 
@@ -226,7 +226,7 @@ export async function seedDemoStartups() {
   const batch = db.batch();
 
   for (const startup of demoStartups) {
-    const { id, ...data } = startup;
+    const {id, ...data} = startup;
     const startupRef = startupCol.doc(id);
 
     batch.set(
@@ -237,7 +237,7 @@ export async function seedDemoStartups() {
         createdt: FieldValue.serverTimestamp(),
         updatedAt: FieldValue.serverTimestamp(),
       },
-      { merge: true },
+      {merge: true},
     );
   }
 
