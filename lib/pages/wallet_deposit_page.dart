@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:extended_masked_text/extended_masked_text.dart';
+import 'package:frontend/models/wallet.dart';
+import 'package:frontend/services/wallet_services.dart';
 
 enum PaymentMethods { debit, credit, pix, none }
 
@@ -20,6 +22,19 @@ class _WalletDepositPageState extends State<WalletDepositPage> {
   PaymentMethods _paymentMethod = PaymentMethods.none;
   bool _isValid = false;
   bool _isEnabled = false;
+
+  PaymentType _toPaymentType(PaymentMethods method) {
+    switch (method) {
+      case PaymentMethods.credit:
+        return PaymentType.credit;
+      case PaymentMethods.debit:
+        return PaymentType.debit;
+      case PaymentMethods.pix:
+        return PaymentType.pix;
+      case PaymentMethods.none:
+        return PaymentType.none;
+    }
+  }
 
   @override
   void initState() {
@@ -100,11 +115,27 @@ class _WalletDepositPageState extends State<WalletDepositPage> {
                 : SizedBox(height: 0),
             SizedBox(height: 16),
             ElevatedButton(
-              onPressed: () {
-                //Adicionar saldo na carteira do usuário
-                !_isEnabled ? null : Navigator.of(context).pop();
-              },
+              onPressed: !_isEnabled
+                  ? null
+                  : () async {
+                      final result = await callWalletDeposit(
+                        controller.numberValue,
+                        _toPaymentType(_paymentMethod),
+                      );
 
+                      if (!mounted) return;
+
+                      if (result != null) {
+                        Navigator.of(context).pop(result);
+                        return;
+                      }
+
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Não foi possível depositar.'),
+                        ),
+                      );
+                    },
               style: ElevatedButton.styleFrom(
                 backgroundColor: _isEnabled
                     ? Colors.indigo

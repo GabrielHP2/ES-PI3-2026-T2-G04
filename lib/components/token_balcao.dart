@@ -8,6 +8,7 @@ class TokenCard extends StatefulWidget {
   final String nome;
   final double precoAtual;
   final double variacao;
+  final List<double> historicoPrecos;
 
   const TokenCard({
     super.key,
@@ -15,6 +16,7 @@ class TokenCard extends StatefulWidget {
     required this.nome,
     required this.precoAtual,
     required this.variacao,
+    required this.historicoPrecos,
   });
 
   @override
@@ -22,15 +24,14 @@ class TokenCard extends StatefulWidget {
 }
 
 class _TokenCardState extends State<TokenCard> {
-  // dados
-  final List<double> _dadosDiarios = [49.5, 49.8, 50.1, 49.9, 50.0];
-
   @override
   Widget build(BuildContext context) {
-    final corVariacao = widget.variacao >= 0 ? const Color(0xff7AE058) : Colors.red;
-    
-    // Pega a lista de preços (apenas diário)
-    final dadosDoGrafico = _dadosDiarios;
+    final corVariacao = widget.variacao >= 0 ? Colors.green : Colors.red;
+
+    // Caso vir vazio repete o preço atual
+    final dadosDoGrafico = widget.historicoPrecos.isNotEmpty
+        ? widget.historicoPrecos
+        : [widget.precoAtual, widget.precoAtual];
 
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
@@ -38,50 +39,76 @@ class _TokenCardState extends State<TokenCard> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFCACACA), width: 1),
+        border: Border.all(color: Colors.grey.shade300, width: 1),
+        boxShadow: [
+          BoxShadow(color: Colors.black26, offset: Offset(0, 2), blurRadius: 1),
+        ],
       ),
       child: Column(
         children: [
-          // info token
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(widget.ticker, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                  Text(widget.nome, style: const TextStyle(fontSize: 14, color: Colors.grey)),
+                  Text(
+                    '\$${widget.ticker}',
+                    style: const TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Text(
+                    widget.nome,
+                    style: const TextStyle(fontSize: 16, color: Colors.grey),
+                  ),
                 ],
               ),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  Text('R\$${widget.precoAtual.toStringAsFixed(2)}', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                   Text(
-                    '${widget.variacao > 0 ? '+' : ''}${widget.variacao.toStringAsFixed(2)}%',
-                    style: TextStyle(fontSize: 14, color: corVariacao, fontWeight: FontWeight.w600),
+                    'R\$${widget.precoAtual.toStringAsFixed(2)}',
+                    style: const TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Text(
+                    '(${widget.variacao > 0 ? '+' : ''}${widget.variacao.toStringAsFixed(2)}%)',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: corVariacao,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ],
               ),
             ],
           ),
-          
+
           const SizedBox(height: 16),
 
-          // ---> grafico <---
           SizedBox(
-            height: 60, 
+            height: 60,
+            width: double.infinity,
             child: LineChart(
               LineChartData(
                 lineTouchData: LineTouchData(
                   enabled: true,
                   touchTooltipData: LineTouchTooltipData(
+                    fitInsideHorizontally: true,
+                    fitInsideVertically: true,
                     getTooltipColor: (touchedSpot) => Colors.black87,
                     getTooltipItems: (touchedSpots) {
                       return touchedSpots.map((spot) {
                         return LineTooltipItem(
                           'R\$ ${spot.y.toStringAsFixed(2)}',
-                          const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                          const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
                         );
                       }).toList();
                     },
@@ -93,7 +120,7 @@ class _TokenCardState extends State<TokenCard> {
                 lineBarsData: [
                   LineChartBarData(
                     spots: _gerarPontosDoGrafico(dadosDoGrafico),
-                    isCurved: true,
+                    isCurved: false,
                     color: corVariacao,
                     barWidth: 2,
                     isStrokeCapRound: true,
@@ -108,7 +135,6 @@ class _TokenCardState extends State<TokenCard> {
     );
   }
 
-  // converte double 
   List<FlSpot> _gerarPontosDoGrafico(List<double> dados) {
     return dados.asMap().entries.map((entry) {
       return FlSpot(entry.key.toDouble(), entry.value);

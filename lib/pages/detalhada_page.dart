@@ -6,6 +6,7 @@ import 'package:frontend/components/startup_info_container.dart';
 import 'package:frontend/components/startup_tag.dart';
 import 'package:frontend/controllers/startup_controller.dart';
 import 'package:frontend/models/startup.dart';
+import 'package:frontend/services/is_investor_service.dart';
 import 'package:frontend/services/numberformatter_service.dart';
 import 'package:frontend/services/startup_services.dart';
 import 'package:video_player/video_player.dart';
@@ -22,6 +23,8 @@ class PaginaDetalhada extends StatefulWidget {
 class _PaginaDetalhadaState extends State<PaginaDetalhada> {
   Startup? _startup;
   bool _isLoading = true;
+  ScrollController _scrollController = ScrollController();
+  bool _isUserInvestor = false;
 
   @override
   void initState() {
@@ -31,6 +34,7 @@ class _PaginaDetalhadaState extends State<PaginaDetalhada> {
 
   Future<void> _fetchStartups() async {
     final result = await callStartupDetail(widget.startupId);
+    _isUserInvestor = await callIsUserInvestor(widget.startupId);
     setState(() {
       _startup = result;
       _isLoading = false;
@@ -40,6 +44,17 @@ class _PaginaDetalhadaState extends State<PaginaDetalhada> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      floatingActionButton: _isUserInvestor
+          ? FloatingActionButton(
+              backgroundColor: Colors.amber,
+              onPressed: () => _scrollController.animateTo(
+                1050.0,
+                duration: Duration(seconds: 1),
+                curve: Curves.easeInOut,
+              ),
+              child: Icon(Icons.monetization_on),
+            )
+          : SizedBox(),
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
         elevation: 0,
@@ -49,6 +64,7 @@ class _PaginaDetalhadaState extends State<PaginaDetalhada> {
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
+              controller: _scrollController,
               padding: const EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -87,10 +103,52 @@ class _PaginaDetalhadaState extends State<PaginaDetalhada> {
                   const SizedBox(height: 16),
                   sectionCard(
                     title: 'Perguntas e respostas públicas',
-                    child: QuestionsSection(),
+                    child: QuestionsSection(
+                      startupId: widget.startupId,
+                      isPublic: true,
+                    ),
                   ),
                   const SizedBox(height: 16),
                   _videosShow(_startup!),
+                  const SizedBox(height: 16),
+                  _isUserInvestor
+                      ? Column(
+                          children: [
+                            SizedBox(
+                              width: double.infinity,
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    'Área do investidor',
+                                    textAlign: TextAlign.start,
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w500,
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                  Icon(
+                                    Icons.monetization_on,
+                                    color: Colors.amber,
+                                  ),
+                                ],
+                              ),
+                            ),
+
+                            const Divider(),
+                            const SizedBox(height: 16),
+                            sectionCard(
+                              title: 'Perguntas e respostas privadas',
+                              child: QuestionsSection(
+                                startupId: widget.startupId,
+                                isPublic: false,
+                              ),
+                            ),
+                          ],
+                        )
+                      : SizedBox(),
+                  const SizedBox(height: 64),
                 ],
               ),
             ),

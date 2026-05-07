@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:extended_masked_text/extended_masked_text.dart';
 import 'package:frontend/services/numberformatter_service.dart';
+import 'package:frontend/services/wallet_services.dart';
 
 class WalletWithdrawPage extends StatefulWidget {
   const WalletWithdrawPage({super.key});
@@ -17,6 +18,7 @@ class _WalletWithdrawPageState extends State<WalletWithdrawPage> {
     thousandSeparator: '.',
   );
   bool _isEnabled = false;
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -24,7 +26,7 @@ class _WalletWithdrawPageState extends State<WalletWithdrawPage> {
     super.initState();
     controller.addListener(() {
       setState(() {
-        _isEnabled = (controller.numberValue > 1.00);
+        _isEnabled = (controller.numberValue >= 1.00);
       });
     });
   }
@@ -70,9 +72,32 @@ class _WalletWithdrawPageState extends State<WalletWithdrawPage> {
                 : const SizedBox(height: 0),
             const SizedBox(height: 16),
             ElevatedButton(
-              onPressed: () {
-                !_isEnabled ? null : Navigator.of(context).pop();
-              },
+              onPressed: !_isEnabled || _isLoading
+                  ? null
+                  : () async {
+                      setState(() {
+                        _isLoading = true;
+                      });
+
+                      final result = await callWalletWithdraw(
+                        controller.numberValue,
+                      );
+
+                      if (!mounted) return;
+
+                      if (result != null) {
+                        Navigator.of(context).pop(result);
+                        return;
+                      }
+
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Não foi possível sacar.'),
+                        ),
+                      );
+
+                      setState(() => _isLoading = false);
+                    },
               style: ElevatedButton.styleFrom(
                 backgroundColor: _isEnabled
                     ? Colors.indigo

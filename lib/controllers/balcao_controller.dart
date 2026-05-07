@@ -1,57 +1,108 @@
-// Gabriel Hespnholeto Maziero 25004669
-import 'dart:convert';
-import 'package:http/http.dart' as http;
+// Gabriel Hespanholeto Maziero 25004669
+import 'dart:developer' as developer;
+import 'package:cloud_functions/cloud_functions.dart';
 
-class BalcaoController {
-  final String _baseUrl = 'http://10.0.2.2:3000/api';
+final FirebaseFunctions _functions = FirebaseFunctions.instanceFor(
+  region: 'southamerica-east1',
+);
 
-  Future<bool> solicitarCompra({required String ticker, required int quantidade}) async {
-    try {
-      final url = Uri.parse('$_baseUrl/transacao/comprar');
+// Func para busca e processamento das startups
+Future<List<Map<String, dynamic>>> buscarTokens() async {
+  try {
+    // Call da API
+    final HttpsCallable callable = _functions.httpsCallable('tokensCatalog');
+    final result = await callable.call();
+    final List<dynamic> startupsBrutas = result.data['startups'];
+    List<Map<String, dynamic>> tokensProntosParaTela = [];
 
-      // jason para o back
-      final body = jsonEncode({
-        'ticker': ticker,
-        'quantidade': quantidade,
-        'tipo': 'COMPRA',
-        'timestamp': DateTime.now().toIso8601String(),
+    // Traduz do node para flutter
+    for (var startup in startupsBrutas) {
+      double precoAtual = (startup['last_price'] ?? 0).toDouble();
+      double variacaoCalculada = 0.0;
+
+      List<dynamic> historicoRaw = startup['price_history'] ?? [];
+
+      DateTime? parseTimestamp(dynamic value) {
+        if (value is int) {
+          return DateTime.fromMillisecondsSinceEpoch(value);
+        }
+        if (value is num) {
+          return DateTime.fromMillisecondsSinceEpoch(value.toInt());
+        }
+        if (value is DateTime) {
+          return value;
+        }
+        if (value != null && value.runtimeType.toString() == 'Timestamp') {
+          try {
+            final dynamic ts = value;
+            return ts.toDate() as DateTime;
+          } catch (_) {
+            return null;
+          }
+        }
+        return null;
+      }
+
+      final List<Map<String, dynamic>> historicoOrdenado =
+          historicoRaw
+              .whereType<Map>()
+              .map((e) => Map<String, dynamic>.from(e))
+              .toList()
+            ..sort((a, b) {
+              final DateTime? ta = parseTimestamp(a['timestamp']);
+              final DateTime? tb = parseTimestamp(b['timestamp']);
+              if (ta == null && tb == null) return 0;
+              if (ta == null) return -1;
+              if (tb == null) return 1;
+              return ta.compareTo(tb);
+            });
+
+      // Extrai só os preços como List<double>
+      List<double> historico = historicoOrdenado
+          .map((e) => (e['price'] as num).toDouble())
+          .toList();
+
+      // Calcula variação diária: último preço antes do início do dia atual.
+      if (historicoOrdenado.isNotEmpty) {
+        final DateTime now = DateTime.now();
+        final DateTime inicioDoDia = DateTime(now.year, now.month, now.day);
+
+        Map<String, dynamic>? ultimoPrecoDiaAnterior;
+        for (final item in historicoOrdenado) {
+          final DateTime? ts = parseTimestamp(item['timestamp']);
+          if (ts != null && ts.isBefore(inicioDoDia)) {
+            ultimoPrecoDiaAnterior = item;
+          }
+        }
+
+        final double precoBase =
+            ((ultimoPrecoDiaAnterior?['price'] ?? precoAtual) as num)
+                .toDouble();
+
+        if (precoBase > 0) {
+          variacaoCalculada = ((precoAtual - precoBase) / precoBase) * 100;
+        }
+      }
+
+      // Monta depois da tradução
+      tokensProntosParaTela.add({
+        'token_symbol': startup['token_symbol'],
+        'nome': startup['name'],
+        'precoAtual': precoAtual,
+        'variacao': variacaoCalculada,
+        'historico': historico,
       });
-
-      // pedido post
-      final response = await http.post(
-        url,
-        headers: {'Content-Type': 'application/json'},
-        body: body,
-      );
-
-      // true se o back responder com sucesso
-      return response.statusCode == 200 || response.statusCode == 201;
-    } catch (e) {
-       print('Erro na comunicação com o servidor: $e');
-      return false;
     }
-  }
 
-  ///  req de venda para o back
-  Future<bool> solicitarVenda({required String ticker, required int quantidade}) async {
-    try {
-      final url = Uri.parse('$_baseUrl/transacao/vender');
-
-      final body = jsonEncode({
-        'ticker': ticker,
-        'quantidade': quantidade,
-        'tipo': 'VENDA',
-      });
-
-      final response = await http.post(
-        url,
-        headers: {'Content-Type': 'application/json'},
-        body: body,
-      );
-
-      return response.statusCode == 200;
-    } catch (e) {
-      return false;
-    }
+    developer.log(
+      'Tokens processados com sucesso',
+      name: 'BalcaoController.buscarTokens',
+    );
+    return tokensProntosParaTela;
+  } catch (e, stackTrace) {
+    print(
+      'Erro ao buscar name: buscarTokens() error: $e, stackTrace: $stackTrace,',
+    );
+    return [];
   }
 }

@@ -1,64 +1,63 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend/models/question.dart';
+import 'package:frontend/services/question_service.dart';
 
 class QuestionsSection extends StatefulWidget {
-  const QuestionsSection({super.key});
+  final String startupId;
+  final bool isPublic;
+
+  const QuestionsSection({
+    super.key,
+    required this.startupId,
+    required this.isPublic,
+  });
 
   @override
   State<QuestionsSection> createState() => _QuestionsSectionState();
 }
 
 class _QuestionsSectionState extends State<QuestionsSection> {
-  final Question questionExemple1 = Question(
-    createdAt: Timestamp.now(),
-    isAnswered: true,
-    isPublic: true,
-    questionText: 'Qual o market share da startup? ',
-    startupId: 'agor-sense',
-    status: QuestionStatus.active,
-    userId: '0',
-    userName: 'João Pedro Panza Mainieri',
-    answeredAt: Timestamp.now(),
-    answeredById: '1',
-    answeredByName: 'Gabriel Giga',
-    answerText: '2%',
-  );
-  final Question questionExemple2 = Question(
-    createdAt: Timestamp.now(),
-    isAnswered: false,
-    isPublic: true,
-    questionText: 'Qual o market share da startup?',
-    startupId: 'agor-sense',
-    status: QuestionStatus.active,
-    userId: '0',
-    userName: 'João Pedro Panza Mainieri',
-    answeredAt: Timestamp.now(),
-    answeredById: '1',
-    answeredByName: 'Gabriel Giga',
-    answerText: '2%',
-  );
+  List<Question?> _questions = [];
+  bool _isLoading = true;
+  String? _errorMessage;
+  final TextEditingController _controller = TextEditingController();
 
-  final List<Question> questions = [];
+  Future<void> _fetchQuestions(String startupId, bool visibility) async {
+    if (mounted) {
+      setState(() {
+        _isLoading = true;
+        _errorMessage = null;
+      });
+    }
 
-  // Integrar com o service das questions, que chama a function.
+    final result = await callGetQuestions(startupId, visibility);
+
+    if (!mounted) return;
+
+    setState(() {
+      _questions = result;
+      _isLoading = false;
+    });
+  }
+
   @override
   void initState() {
     super.initState();
-    questions.add(questionExemple1);
-    questions.add(questionExemple2);
-    questions.add(questionExemple1);
-    questions.add(questionExemple2);
-    questions.add(questionExemple1);
-    questions.add(questionExemple2);
-    questions.add(questionExemple1);
-    questions.add(questionExemple2);
-    questions.add(questionExemple2);
+    _fetchQuestions(widget.startupId, widget.isPublic);
   }
 
   Future<void> _submitQuestion() async {
-    //Submit logic, call new question function
-    print('submit');
+    await callSendQuestion(widget.startupId, widget.isPublic, _controller.text);
+    await _fetchQuestions(widget.startupId, widget.isPublic);
+    if (!mounted) return;
+    _controller.clear();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
   }
 
   @override
@@ -66,31 +65,54 @@ class _QuestionsSectionState extends State<QuestionsSection> {
     return Column(
       children: [
         SizedBox(
-          height: 400,
-          child: questions.isNotEmpty
-              ? ListView.separated(
-                  itemBuilder: (context, index) {
-                    final Question question = questions[index];
-                    return QuestionCard(question: question);
-                  },
-                  separatorBuilder: (context, index) =>
+          height: 300,
+          child: _isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : _errorMessage != null
+              ? Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(Icons.error_outline, color: Colors.red),
+                      const SizedBox(height: 8),
+                      Text(_errorMessage!),
                       const SizedBox(height: 16),
-                  itemCount: questions.length,
+                      ElevatedButton(
+                        onPressed: () =>
+                            _fetchQuestions(widget.startupId, widget.isPublic),
+                        child: const Text('Tentar novamente'),
+                      ),
+                    ],
+                  ),
                 )
-              : const Center(child: Text('Nenhuma pergunta registrada')),
+              : _questions.isEmpty
+              ? const Center(child: Text('Nenhuma pergunta registrada'))
+              : RefreshIndicator(
+                  onRefresh: () =>
+                      _fetchQuestions(widget.startupId, widget.isPublic),
+                  child: ListView.separated(
+                    itemBuilder: (context, index) {
+                      final Question question = _questions[index]!;
+                      return QuestionCard(question: question);
+                    },
+                    separatorBuilder: (context, index) =>
+                        const SizedBox(height: 16),
+                    itemCount: _questions!.length,
+                  ),
+                ),
         ),
+        SizedBox(height: 16),
         TextField(
           maxLength: 180,
+          controller: _controller,
+          onSubmitted: (value) => _submitQuestion(),
           decoration: InputDecoration(
             labelText: 'Faça sua pergunta',
-
             border: const OutlineInputBorder(
               borderRadius: BorderRadius.all(Radius.circular(25)),
             ),
             suffixIcon: IconButton(
-              onPressed: () {
-                _submitQuestion();
-              },
+              onPressed: () => _isLoading ? null : _submitQuestion(),
               icon: const Icon(Icons.send),
             ),
           ),

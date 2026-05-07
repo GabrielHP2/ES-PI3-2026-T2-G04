@@ -15,7 +15,7 @@ class StartupCard extends StatelessWidget {
     final cardWidth = MediaQuery.of(context).size.width * 0.96;
 
     return Card(
-      elevation: 4,
+      elevation: 2,
       color: Colors.white,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(24),
