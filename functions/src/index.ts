@@ -7,5 +7,6 @@ initializeApp();
 
 export * from "./auth";
 export * from "./startups";
+export * from "./exchange";
 export * from "./orders";
 export * from "./balcony";
