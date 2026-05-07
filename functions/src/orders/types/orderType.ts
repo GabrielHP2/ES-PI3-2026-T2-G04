@@ -1,4 +1,4 @@
-import {Timestamp} from "firebase-admin/firestore";
+import { Timestamp } from "firebase-admin/firestore";
 
 export enum OrderStatus {
   open = "open",
@@ -21,7 +21,7 @@ export interface Order {
   status: OrderStatus;
   token_symbol: string;
   type: OrderType;
-  user_id: string;
+  user_id?: string;
   createdAt: Timestamp;
   updatedAt: Timestamp;
 }
