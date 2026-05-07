@@ -18,24 +18,8 @@ const orderCollection = db.collection("orders");
 //  getAll
 export async function getOrders(): Promise<Order[]> {
   const snapshot = await orderCollection.get();
-  if (snapshot.empty) {
-    logger.error("Error from getOrders: Falha ao buscar dados de ordens");
-    throw new HttpsError("data-loss", "");
-  }
-
-  const orders: Order[] = [];
-
-  for (const doc of snapshot.docs) {
-    const data = doc.data();
-    orders.push({
-      id: doc.id,
-      ...data,
-    } as Order);
-    logger.debug(`Debug from getOrders: ${orders}`);
-  }
-  logger.info("Info from getOrders: OK");
-
-  return orders;
+  if (snapshot.empty) return [];
+  return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }) as Order);
 }
 
 //  getAllByToken
@@ -44,55 +28,16 @@ export async function getOrdersByStartup(startupId: string): Promise<Order[]> {
   const snapshot = await orderCollection
     .where("startup_id", "==", startupId)
     .get();
-  if (snapshot.empty) {
-    logger.error(
-      "Error from getOrdersByStartup: Falha ao buscar ordens de startup",
-    );
-    throw new HttpsError("data-loss", "Falha ao buscar ordens de startup");
-  }
-
-  const orders: Order[] = [];
-
-  for (const doc of snapshot.docs) {
-    const data = doc.data();
-    orders.push({
-      id: doc.id,
-      ...data,
-    } as Order);
-    logger.debug(`Debug from getOrdersByStartup: ${orders}`);
-  }
-  logger.info("Info from getOrdersByStartup: OK");
-
-  return orders;
+  if (snapshot.empty) return [];
+  return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }) as Order);
 }
 
 //  getAllByUser
 
 export async function getOrdersByUser(userId: string): Promise<Order[]> {
-  const snapshot = await db
-    .collection("orders")
-    .where("user_id", "==", userId)
-    .get();
-  if (snapshot.empty) {
-    logger.error(
-      "Error from getOrdersByUser: Falha ao buscar ordens de usuário",
-    );
-    throw new HttpsError("data-loss", "Falha ao buscar ordens de usuário");
-  }
-
-  const orders: Order[] = [];
-
-  for (const doc of snapshot.docs) {
-    const data = doc.data();
-    orders.push({
-      id: doc.id,
-      ...data,
-    } as Order);
-    logger.debug(`Debug from getOrdersByUser: ${orders}`);
-  }
-  logger.info("Info from getOrdersByUser: OK");
-
-  return orders;
+  const snapshot = await orderCollection.where("user_id", "==", userId).get();
+  if (snapshot.empty) return [];
+  return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }) as Order);
 }
 
 //  getAllByUserAndStartup
@@ -105,30 +50,8 @@ export async function getOrdersByUserAndStartup(
     .where("user_id", "==", userId)
     .where("startup_id", "==", startupId)
     .get();
-  if (snapshot.empty) {
-    logger.error(
-      "Error from getOrdersByUserAndStartup: " +
-        "Falha ao buscar ordens de usuário na startup",
-    );
-    throw new HttpsError(
-      "data-loss",
-      "Falha ao buscar ordens de usuário na startup",
-    );
-  }
-
-  const orders: Order[] = [];
-
-  for (const doc of snapshot.docs) {
-    const data = doc.data();
-    orders.push({
-      id: doc.id,
-      ...data,
-    } as Order);
-    logger.debug(`Debug from getOrdersByUserAndStartup: ${orders}`);
-  }
-  logger.info("Info from getOrdersByUserAndStartup: OK");
-
-  return orders;
+  if (snapshot.empty) return [];
+  return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }) as Order);
 }
 
 //  getById
@@ -158,29 +81,16 @@ export async function createOrder(
   return await orderCollection.add(data);
 }
 
-//  updateOrder
-
-export async function updateOrder(
-  orderId: string,
-  quantityFilledNow?: number,
-  status?: OrderStatus,
-): Promise<void> {
+// cancelOrder
+export async function cancelOrder(orderId: string): Promise<void> {
   try {
     const docRef = orderCollection.doc(orderId);
-
-    if (status === undefined && quantityFilledNow === undefined) {
-      throw new Error(
-        "invalid-argument: Nenhuma instrução foi passada como argumento",
-      );
-    }
 
     await db.runTransaction(async (tx) => {
       const doc = await tx.get(docRef);
 
       if (!doc.exists) {
-        throw new Error(
-          "not-found: A ordem não foi encontrada no banco de dados",
-        );
+        throw new HttpsError("not-found", "Ordem não encontrada");
       }
 
       const orderData = doc.data() as CreateOrderDTO;
@@ -189,71 +99,120 @@ export async function updateOrder(
         orderData.status === OrderStatus.cancelled ||
         orderData.status === OrderStatus.filled
       ) {
-        throw new Error("invalid-argument: Esta ordem já foi fechada");
-      }
-
-      if (status === OrderStatus.cancelled) {
-        const uid = orderData.user_id!;
-        const walletRef = db.collection("wallets").doc(uid);
-        const walletSnap = await tx.get(walletRef);
-
-        if (!walletSnap.exists) {
-          throw new HttpsError("not-found", "Carteira não encontrada");
-        }
-
-        const wallet = walletSnap.data()!;
-        const remaining = orderData.quantity - orderData.quantity_filled;
-
-        if (remaining < 0) {
-          throw new Error("invalid-argument: Ordem em estado inconsistente");
-        }
-
-        if (orderData.type === OrderType.buy) {
-          const refund = remaining * orderData.price;
-
-          tx.update(walletRef, {
-            availableBalance: wallet.availableBalance + refund,
-            blockedBalance: wallet.blockedBalance - refund,
-          });
-        }
-
-        if (orderData.type === OrderType.sell) {
-          const holdings: any[] = wallet.holdings ?? [];
-          const holdingIndex = holdings.findIndex(
-            (h) => h.startup_id === orderData.startup_id,
-          );
-
-          if (holdingIndex === -1) {
-            throw new Error("not-found: Holding não encontrada");
-          }
-
-          const holding = holdings[holdingIndex];
-
-          holdings[holdingIndex] = {
-            ...holding,
-            token_balance: holding.token_balance + remaining,
-            blocked_token_balance: holding.blocked_token_balance - remaining,
-          };
-
-          tx.update(walletRef, { holdings });
-        }
-
-        tx.update(docRef, {
-          status: OrderStatus.cancelled,
-          updatedAt: Timestamp.now(),
-        });
-
-        return;
-      }
-
-      const newFilled = orderData.quantity_filled + (quantityFilledNow ?? 0);
-
-      if (newFilled > orderData.quantity) {
-        throw new Error(
-          "invalid-argument: O número de tokens excede o limite disponível",
+        throw new HttpsError(
+          "failed-precondition",
+          "Esta ordem já foi fechada",
         );
       }
 
+      const uid = orderData.user_id!;
+      const walletRef = db.collection("wallets").doc(uid);
+      const walletSnap = await tx.get(walletRef);
+
+      if (!walletSnap.exists) {
+        throw new HttpsError("not-found", "Carteira não encontrada");
+      }
+
+      const wallet = walletSnap.data()!;
+      const remaining = orderData.quantity - orderData.quantity_filled;
+
+      if (remaining < 0) {
+        throw new HttpsError(
+          "failed-precondition",
+          "Ordem em estado inconsistente",
+        );
+      }
+
+      if (orderData.type === OrderType.buy) {
+        const refund = remaining * orderData.price;
+
+        tx.update(walletRef, {
+          availableBalance: wallet.availableBalance + refund,
+          blockedBalance: wallet.blockedBalance - refund,
+        });
+      }
+
+      if (orderData.type === OrderType.sell) {
+        const holdings: any[] = wallet.holdings ?? [];
+        const holdingIndex = holdings.findIndex(
+          (h: any) => h.startup_id === orderData.startup_id,
+        );
+
+        if (holdingIndex === -1) {
+          throw new HttpsError("not-found", "Holding não encontrada");
+        }
+
+        const holding = holdings[holdingIndex];
+
+        holdings[holdingIndex] = {
+          ...holding,
+          token_balance: holding.token_balance + remaining,
+          blocked_token_balance: holding.blocked_token_balance - remaining,
+        };
+
+        tx.update(walletRef, { holdings });
+      }
+
+      tx.update(docRef, {
+        status: OrderStatus.cancelled,
+        updatedAt: Timestamp.now(),
+      });
+    });
+  } catch (e: unknown) {
+    logger.error("Error in cancelOrder:", e);
+    if (e instanceof HttpsError) throw e;
+    if (e instanceof Error)
+      throw new HttpsError("failed-precondition", e.message);
+    throw new HttpsError("internal", "Erro desconhecido ao cancelar ordem");
+  }
+}
+
+// executeOrderExecution
+export async function executeOrderExecution(
+  orderId: string,
+  quantityFilledNow: number,
+): Promise<void> {
+  try {
+    if (quantityFilledNow <= 0) {
+      throw new HttpsError(
+        "invalid-argument",
+        "A quantidade preenchida deve ser maior que zero",
+      );
+    }
+
+    const docRef = orderCollection.doc(orderId);
+
+    await db.runTransaction(async (tx) => {
+      const doc = await tx.get(docRef);
+
+      if (!doc.exists) {
+        throw new HttpsError("not-found", "Ordem não encontrada");
+      }
+
+      const orderData = doc.data() as CreateOrderDTO;
+
+      // Não permite preencher uma ordem já fechada
+      if (
+        orderData.status === OrderStatus.cancelled ||
+        orderData.status === OrderStatus.filled
+      ) {
+        throw new HttpsError(
+          "failed-precondition",
+          "Esta ordem já foi fechada",
+        );
+      }
+
+      const newFilled = orderData.quantity_filled + quantityFilledNow;
+
+      if (newFilled > orderData.quantity) {
+        throw new HttpsError(
+          "invalid-argument",
+          `Quantidade excede o limite: tentou preencher ${quantityFilledNow}, ` +
+            `mas só restam ${orderData.quantity - orderData.quantity_filled} tokens`,
+        );
+      }
+
+      // Se preencheu tudo → filled; senão → partially
       const newStatus =
         newFilled === orderData.quantity
           ? OrderStatus.filled
@@ -266,12 +225,10 @@ export async function updateOrder(
       });
     });
   } catch (e: unknown) {
-    logger.error("Error in updateOrder:", e);
-
+    logger.error("Error in executeOrderExecution:", e);
     if (e instanceof HttpsError) throw e;
     if (e instanceof Error)
       throw new HttpsError("failed-precondition", e.message);
-
-    throw new HttpsError("internal", "Erro desconhecido ao atualizar ordem");
+    throw new HttpsError("internal", "Erro desconhecido ao executar ordem");
   }
 }

@@ -1,22 +1,25 @@
-import {HttpsError, onCall} from "firebase-functions/v2/https";
-import {updateOrder} from "../repositories/ordersRepositories";
-import {UpdateOrderDTO} from "../types/orderType";
-import {logger} from "firebase-functions/v2";
+import { HttpsError, onCall } from "firebase-functions/v2/https";
+import { cancelOrder } from "../repositories/ordersRepositories";
+import { logger } from "firebase-functions/v2";
+import { db } from "../../startups/shared/firebase";
 
 /**
- * Updates an existing order in the system.
+ * Cancel an existing order in the system.
  *
  * Expected request.data structure:
  * data: {
  *   orderId: string,            // ID da ordem para fazer o update
- *   quantityFilledNow: number,  // Quantidade de tokens preenchidos
- *   status: OrderStatus         // "open" | "partially" | "filled" | "cancelled"
  * }
  *
  * Returns: { orderId: string, message: string }
  */
-export const updateOrderCallable = onCall(async (request) => {
-  const order = request.data as UpdateOrderDTO;
+export const cancelOrderCallable = onCall(async (request) => {
+  if (!request.auth) {
+    throw new HttpsError("unauthenticated", "Usuário não autenticado");
+  }
+
+  const uid = request.auth.uid;
+  const order = request.data as { orderId: string };
 
   if (!order) {
     throw new HttpsError("invalid-argument", "Informe uma ordem válida");
@@ -28,17 +31,22 @@ export const updateOrderCallable = onCall(async (request) => {
       "orderId é obrigatório e não pode estar vazio",
     );
   }
+  const orderSnap = await db.collection("orders").doc(order.orderId).get();
+
+  if (!orderSnap.exists) {
+    throw new HttpsError("not-found", "Ordem não encontrada");
+  }
+
+  if (orderSnap.data()?.user_id !== uid) {
+    throw new HttpsError("permission-denied", "Esta ordem não pertence a você");
+  }
 
   try {
-    await updateOrder(
-      order.orderId,
-      order.quantityFilledNow,
-      order.status,
-    );
+    await cancelOrder(order.orderId);
 
     return {
       orderId: order.orderId,
-      message: "Ordem atualizada com sucesso: ",
+      message: "Ordem cancelada com sucesso: ",
     };
   } catch (e: unknown) {
     logger.error(e);
@@ -47,9 +55,6 @@ export const updateOrderCallable = onCall(async (request) => {
       throw e;
     }
 
-    throw new HttpsError(
-      "internal",
-      "Não foi possível atualizar a ordem",
-    );
+    throw new HttpsError("internal", "Não foi possível cancelar a ordem");
   }
 });

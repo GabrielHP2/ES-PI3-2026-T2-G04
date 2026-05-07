@@ -30,6 +30,5 @@ export type CreateOrderDTO = Omit<Order, "id">;
 
 export interface UpdateOrderDTO {
   orderId: string;
-  quantityFilledNow?: number;
-  status?: OrderStatus;
+  quantityFilledNow: number;
 }
