@@ -8,9 +8,10 @@ Future<bool> callIsUserInvestor(String startupId) async {
   try {
     final HttpsCallable callable = _functions.httpsCallable('isUserInvestor');
 
-    final result = await callable.call({'startup_id': startupId});
+    final result = await callable.call({'startupId': startupId});
 
-    return result.data as bool;
+    final isInvestorBool = result.data['isInvestor'];
+    return isInvestorBool;
   } on FirebaseFunctionsException catch (e) {
     print(
       'Erro ao carregar perguntas: code=${e.code}, message=${e.message}, details=${e.details}',
