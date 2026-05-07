@@ -1,3 +1,5 @@
+// Lucas Leonel - RA: 25015188
+
 import 'package:flutter/material.dart';
 import 'package:frontend/components/questions_section.dart';
 import 'package:frontend/components/startup_info_container.dart';
@@ -85,7 +87,10 @@ class _PaginaDetalhadaState extends State<PaginaDetalhada> {
                   const SizedBox(height: 16),
                   sectionCard(
                     title: 'Perguntas e respostas públicas',
-                    child: QuestionsSection(),
+                    child: QuestionsSection(
+                      startupId: widget.startupId,
+                      isPublic: true,
+                    ),
                   ),
                   const SizedBox(height: 16),
                   _videosShow(_startup!),

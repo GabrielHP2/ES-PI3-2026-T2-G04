@@ -1,6 +1,6 @@
 // João Pedro Panza Mainieri - RA: 25006642
 
-import { Timestamp } from "firebase-admin/firestore";
+import {Timestamp} from "firebase-admin/firestore";
 
 export type StartupStatus = "ativa" | "inativa" | "encerrada";
 

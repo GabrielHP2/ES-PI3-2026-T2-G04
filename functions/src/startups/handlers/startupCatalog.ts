@@ -1,12 +1,10 @@
 // Autor: Gabriel Henrique Pacagnelli Pagliato   RA: 25016528
 
-import { getFirestore } from "firebase-admin/firestore";
-import { onCall, HttpsError } from "firebase-functions/https";
+import {db} from "../shared/firebase";
+import {onCall, HttpsError} from "firebase-functions/v2/https";
 import * as logger from "firebase-functions/logger";
 
-import { SimplifiedStartup } from "../types/startupType";
-
-const db = getFirestore();
+import {SimplifiedStartup} from "../types/startupType";
 
 export const startupCatalog = onCall(async (request) => {
   // Decodifica o token do usuário e verifica se ele tem um id válido
@@ -15,7 +13,7 @@ export const startupCatalog = onCall(async (request) => {
     throw new HttpsError("unauthenticated", "Usuário não autenticado");
   }
 
-  // Pega no BD os campos especificados no "select" respeitando os filtros do "where"
+  // Pega no BD os campos do "select" respeitando os filtros do "where"
   const snapshot = await db
     .collection("startups")
     .select(
@@ -42,7 +40,7 @@ export const startupCatalog = onCall(async (request) => {
     throw new HttpsError("data-loss", "Falha ao buscar dados das startups");
   }
 
-  let startups: SimplifiedStartup[] = [];
+  const startups: SimplifiedStartup[] = [];
 
   // Le os dados de cada documento e add ao array de startups
   for (const doc of snapshot.docs) {
