@@ -1,3 +1,5 @@
+//Lucas Leonel - RA: 25015188
+
 import {HttpsError, onCall} from "firebase-functions/v2/https";
 import {db} from "../../startups/shared/firebase";
 import {logger} from "firebase-functions/v2";
@@ -31,7 +33,8 @@ export const listOrders = onCall(async (request) => {
 
         logger.info(`Listadas ${orders.length} ordens`);
 
-        return { orders };
+        return {orders};
+
     } catch (error) {
         logger.error("Erro ao listar ordens:", error);
         throw new HttpsError("internal", "Erro ao listar ordens.");
