@@ -192,13 +192,16 @@ class _WalletPageState extends State<WalletPage> {
                         ? Center(
                             child: Text('Nenhuma transação foi registrada'),
                           )
-                        : ListView.separated(
-                            itemCount: _transactions.length,
-                            padding: EdgeInsets.zero,
-                            separatorBuilder: (context, index) =>
-                                SizedBox(height: 12),
-                            itemBuilder: (context, index) => TransactionCard(
-                              transaction: _transactions[index]!,
+                        : RefreshIndicator(
+                            onRefresh: () => _fetchWallet(),
+                            child: ListView.separated(
+                              itemCount: _transactions.length,
+                              padding: EdgeInsets.zero,
+                              separatorBuilder: (context, index) =>
+                                  SizedBox(height: 12),
+                              itemBuilder: (context, index) => TransactionCard(
+                                transaction: _transactions[index]!,
+                              ),
                             ),
                           ),
                   ),
