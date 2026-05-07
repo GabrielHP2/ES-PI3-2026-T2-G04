@@ -1,55 +1,38 @@
 // Autor: Gabriel Henrique Pacagnelli Pagliato   RA: 25016528
 
-import { onCall, HttpsError } from "firebase-functions/https";
-import { db } from "../shared/firebase";
-import * as logger from "firebase-functions/logger";
+import { onCall, HttpsError } from "firebase-functions/v2/https";
+import { getQuestionsByStartupAndVisibility } from "../repositories/questionsRepositories";
+import { QuestionInfo } from "../types/questionType";
 
-import { MessageType } from "../types/messageType";
-
+/**
+ * Retrieves questions for a specific startup.
+ *
+ * Expected request.data structure:
+ * {
+ *   startup_id: string,     // ID da startup
+ *   is_public: boolean      // Se deve buscar apenas perguntas públicas
+ * }
+ *
+ * Returns: Question[]
+ */
 export const getQuestions = onCall(async (request) => {
+  // Verifica autenticação
+  if (!request || !request.auth) {
+    throw new HttpsError("unauthenticated", "Usuário não autenticado");
+  }
 
-    // Decodifica o token do usuário e verifica se ele tem um id válido
-    if (!request.auth) {
+  const questionInfo = request.data as QuestionInfo;
+  if (!questionInfo.startup_id) {
+    throw new HttpsError("not-found", "Falha ao identificar a startup");
+  }
 
-        logger.error("Error from getQuestions: Usuário não autenticado");
-        throw new HttpsError("unauthenticated", "Usuário não autenticado");
-    }
-
-    // Pega no corpo da requisição o ID da startup e a visibilidade das perguntas
-    const { startupId, visibility } = request.data as {startupId: string, visibility: boolean};
-
-    if (!startupId || typeof visibility !== "boolean" ) {
-
-        logger.error("Error from getQuestions: Falha ao identificar a startup");
-        throw new HttpsError("not-found", "Falha ao identificar a startup");
-    }
-
-    let messages: MessageType[] = [];
-
-    // Busca as perguntas da startup no BD
-    await db.collection("questions")
-    .doc(startupId)
-    .get()
-    .then((snapshot) => {
-
-        if (!snapshot.exists) {
-
-            logger.error("Error from getQuestions: Falha ao buscar as perguntas");
-            throw new HttpsError("data-loss", "Falha ao buscar as perguntas");
-        }
-
-        const data = snapshot.data();
-
-        // Dependendo da visibilidade, retorna as perguntas públicas ou privadas
-        messages = visibility ? data!.public : data!.private;
-
-        logger.info("Info from getQuestions: OK");
-
-        return messages;
-
-    }).catch((err) => {
-
-        logger.error(`Error from getQuestions: Falha ao buscar as perguntas - ${err}`);
-        throw new HttpsError("data-loss", `Falha ao buscar as perguntas - ${err}`);
-    });
+  try {
+    const questions = await getQuestionsByStartupAndVisibility(
+      questionInfo.startup_id,
+      questionInfo.is_public,
+    );
+    return questions;
+  } catch (err) {
+    throw new HttpsError("data-loss", "Falha ao buscar as perguntas - " + err);
+  }
 });
