@@ -54,7 +54,7 @@ class _QuestionsSectionState extends State<QuestionsSection> {
     return Column(
       children: [
         SizedBox(
-          height: 400,
+          height: 300,
           child: _isLoading
               ? const Center(child: CircularProgressIndicator())
               : _errorMessage != null
@@ -76,16 +76,21 @@ class _QuestionsSectionState extends State<QuestionsSection> {
                 )
               : _questions.isEmpty
               ? const Center(child: Text('Nenhuma pergunta registrada'))
-              : ListView.separated(
-                  itemBuilder: (context, index) {
-                    final Question question = _questions[index]!;
-                    return QuestionCard(question: question);
-                  },
-                  separatorBuilder: (context, index) =>
-                      const SizedBox(height: 16),
-                  itemCount: _questions!.length,
+              : RefreshIndicator(
+                  onRefresh: () =>
+                      _fetchQuestions(widget.startupId, widget.isPublic),
+                  child: ListView.separated(
+                    itemBuilder: (context, index) {
+                      final Question question = _questions[index]!;
+                      return QuestionCard(question: question);
+                    },
+                    separatorBuilder: (context, index) =>
+                        const SizedBox(height: 16),
+                    itemCount: _questions!.length,
+                  ),
                 ),
         ),
+        SizedBox(height: 16),
         TextField(
           maxLength: 180,
           controller: _controller,
@@ -96,9 +101,7 @@ class _QuestionsSectionState extends State<QuestionsSection> {
               borderRadius: BorderRadius.all(Radius.circular(25)),
             ),
             suffixIcon: IconButton(
-              onPressed: () {
-                _submitQuestion();
-              },
+              onPressed: () => _isLoading ? null : _submitQuestion(),
               icon: const Icon(Icons.send),
             ),
           ),
