@@ -8,15 +8,19 @@ const db = getFirestore();
 
 // Busca no BD o saldo disponível ou bloqueado do usuário
 export async function getBalance(userId: string): Promise<WalletType> {
-
-    return await db.collection("wallets")
-    .doc(userId)       
+  return await db
+    .collection("wallets")
+    .doc(userId)
     .get()
     .then((snapshot) => {
-        
-        const data = snapshot.data() as WalletType; 
-        
-        // Retorna os saldos disponível e bloqueado do usuário 
+      if (snapshot.exists) {
+        const { availableBalance, blockedBalance } = snapshot.data()!;
+        const data: WalletType = {
+          availableBalance,
+          blockedBalance,
+        } as WalletType;
         return data;
+      }
+      return { availableBalance: 0, blockedBalance: 0 } as WalletType;
     });
 }

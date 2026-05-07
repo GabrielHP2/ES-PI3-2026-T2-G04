@@ -99,9 +99,7 @@ class _TokenMarketPageState extends State<TokenMarketPage> {
                 onRefresh: () => _fetchTokens(),
                 child: _isLoading
                     ? const Center(
-                        child: CircularProgressIndicator(
-                          color: Color(0xFF5759E0),
-                        ),
+                        child: CircularProgressIndicator(color: Colors.indigo),
                       )
                     : _tokens.isEmpty
                     ? const Center(

@@ -24,12 +24,16 @@ class _QuestionsSectionState extends State<QuestionsSection> {
   final TextEditingController _controller = TextEditingController();
 
   Future<void> _fetchQuestions(String startupId, bool visibility) async {
-    setState(() {
-      _isLoading = true;
-      _errorMessage = null;
-    });
+    if (mounted) {
+      setState(() {
+        _isLoading = true;
+        _errorMessage = null;
+      });
+    }
 
     final result = await callGetQuestions(startupId, visibility);
+
+    if (!mounted) return;
 
     setState(() {
       _questions = result;
@@ -46,7 +50,14 @@ class _QuestionsSectionState extends State<QuestionsSection> {
   Future<void> _submitQuestion() async {
     await callSendQuestion(widget.startupId, widget.isPublic, _controller.text);
     await _fetchQuestions(widget.startupId, widget.isPublic);
+    if (!mounted) return;
     _controller.clear();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
   }
 
   @override

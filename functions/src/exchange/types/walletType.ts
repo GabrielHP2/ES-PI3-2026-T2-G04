@@ -9,20 +9,18 @@ export type BalanceType = "available" | "blocked" | "both";
 export type PaymentType = "credit" | "debit" | "pix" | "none";
 
 export interface TransactionModel {
-
-    amountBRL: number,
-    createdAt: Timestamp,
-    description: string,
-    tradeId?: string,
-    type: TransactionType,
-    userId: string,
+  amountBRL: number;
+  createdAt: Timestamp;
+  description: string;
+  tradeId?: string;
+  type: TransactionType;
+  userId: string;
 }
 
 // Type igual ao TransactionModel, mas sem o campo createdAt e com o campo tradeId opcional
-export type TransactionData = Omit<TransactionModel, "createdAt"> & {tradeId?: string}
+export type TransactionData = TransactionModel & { tradeId?: string };
 
 export interface WalletType {
-
-    availableBalance: number,
-    blockedBalance: number, 
+  availableBalance: number;
+  blockedBalance: number;
 }
