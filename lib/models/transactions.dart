@@ -22,7 +22,7 @@ class TransactionModel {
   factory TransactionModel.fromMap(Map<String, dynamic> map) {
     return TransactionModel(
       amountBRL: (map['amountBRL'] as num).toDouble(),
-      createdAt: _parseTimestamp(map['createdAt']) as Timestamp,
+      createdAt: _parseTimestamp(map['createdAt']),
       description: map['description'] as String,
       tradeId: map['tradeId'] as String?,
       type: TransactionType.values.byName(map['type'] as String),

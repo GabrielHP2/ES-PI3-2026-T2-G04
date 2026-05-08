@@ -1,5 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:frontend/models/order_model.dart';
+import 'package:frontend/pages/order_confirmation.dart';
 import 'package:frontend/pages/wallet_page.dart';
 import 'package:frontend/services/two_factor_services.dart';
 
@@ -12,6 +14,18 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   final TextEditingController _passwordController = TextEditingController();
+  final ConfirmOrderModel o = ConfirmOrderModel(
+    startupName: "FinNova",
+    tokenSymbol: "FNOVA",
+    type: OrderType.buy,
+    quantity: 100,
+    price: 5,
+    userName: "João Pedro",
+    userCpf: "400.119.718-94",
+    userBalance: 600,
+    userTokenBalance: 400,
+    userAvgPrice: 4,
+  );
 
   void _showSnack(String message, {Color? backgroundColor}) {
     if (!mounted) return;
@@ -126,6 +140,16 @@ class _ProfilePageState extends State<ProfilePage> {
               child: Text('CARTEIRA'),
             ),
             Text('Pagina de perfil em desenvolvimento'),
+            ElevatedButton(
+              onPressed: () async {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => OrderConfirmationPage(order: o),
+                  ),
+                );
+              },
+              child: Text('TEST NOTA'),
+            ),
           ],
         ),
       ),
