@@ -36,5 +36,5 @@ export interface Holding {
   blockedTokenBalance: number;
   startupId: string;
   tokenSymbol: string;
-  avgPrince: number;
+  avgPrice: number;
 }

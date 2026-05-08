@@ -8,6 +8,7 @@ import {
   TransactionModel,
 } from "../../exchange/types/walletType";
 import { Timestamp } from "firebase-admin/firestore";
+import { StartupPriceHistory } from "../../startups/types/startupType";
 
 export async function matchOrders(startupId: string): Promise<MatchesExecuted> {
   const startupOrders: Order[] = await getOrdersByStartup(startupId);
@@ -156,7 +157,13 @@ async function settleMatch(
     // transferTokens
     const updatedSellerHoldings = sellerWallet.holdings.map((h) =>
       h.startupId === sell.startup_id
-        ? { ...h, blockedTokenBalance: h.blockedTokenBalance - qty }
+        ? {
+            ...h,
+            blockedTokenBalance: h.blockedTokenBalance - qty,
+            avgPrice:
+              (h.tokenBalance * h.avgPrice + qty * price) /
+              (h.tokenBalance + qty),
+          }
         : h,
     );
     tx.update(walletRefSeller, { holdings: updatedSellerHoldings });
@@ -167,7 +174,13 @@ async function settleMatch(
     const updatedBuyerHoldings = buyerHoldingExists
       ? buyerWallet.holdings.map((h) =>
           h.startupId === buy.startup_id
-            ? { ...h, tokenBalance: h.tokenBalance + qty }
+            ? {
+                ...h,
+                tokenBalance: h.tokenBalance + qty,
+                avgPrice:
+                  (h.tokenBalance * h.avgPrice + qty * price) /
+                  (h.tokenBalance + qty),
+              }
             : h,
         )
       : [
@@ -231,5 +244,18 @@ async function settleMatch(
 
     const sellTransactionRef = db.collection("transactions").doc();
     tx.create(sellTransactionRef, sellTransaction);
+
+    //addPriceToPriceHistory
+    const priceHistoryRef = db
+      .collection("startups")
+      .doc(buy.startup_id)
+      .collection("price_history")
+      .doc();
+    const newPriceHistoryEntry: StartupPriceHistory = {
+      price: buy.price,
+      quantity: qty,
+      executed_at: Timestamp.now(),
+    };
+    tx.set(priceHistoryRef, newPriceHistoryEntry);
   });
 }
