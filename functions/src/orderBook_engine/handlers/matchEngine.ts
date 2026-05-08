@@ -3,7 +3,11 @@ import { getOrdersByStartup } from "../../orders/repositories/ordersRepositories
 import { Order, OrderStatus, OrderType } from "../../orders/types/orderType";
 import { MatchesExecuted, MatchOrder } from "../types/matchTypes";
 import { db } from "../../startups/shared/firebase";
-import { TokenWalletType } from "../../exchange/types/walletType";
+import {
+  TokenWalletType,
+  TransactionModel,
+} from "../../exchange/types/walletType";
+import { Timestamp } from "firebase-admin/firestore";
 
 export async function matchOrders(startupId: string): Promise<MatchesExecuted> {
   const startupOrders: Order[] = await getOrdersByStartup(startupId);
@@ -203,5 +207,29 @@ async function settleMatch(
       totalValue,
       executedAt: new Date(),
     });
+
+    const buyTransaction = {
+      amountBRL: totalValue,
+      createdAt: Timestamp.now(),
+      description: `Compra de \$${buy.token_symbol}`,
+      tradeId: tradeRef.id,
+      type: "expense",
+      userId: buy.user_id,
+    } as TransactionModel;
+
+    const buyTransactionRef = db.collection("transactions").doc();
+    tx.create(buyTransactionRef, buyTransaction);
+
+    const sellTransaction = {
+      amountBRL: totalValue,
+      createdAt: Timestamp.now(),
+      description: `Venda de \$${sell.token_symbol}`,
+      tradeId: tradeRef.id,
+      type: "income",
+      userId: sell.user_id,
+    } as TransactionModel;
+
+    const sellTransactionRef = db.collection("transactions").doc();
+    tx.create(sellTransactionRef, sellTransaction);
   });
 }
