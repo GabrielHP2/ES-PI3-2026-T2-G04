@@ -1,3 +1,5 @@
+//Lucas Leonel - RA: 25015188   
+
 import { HttpsError, onCall } from "firebase-functions/v2/https";
 import { db } from "../../startups/shared/firebase";
 import { logger } from "firebase-functions/v2";
@@ -17,20 +19,20 @@ export const getOrdersByStartupBytype = onCall(async (request)=> {
         throw new HttpsError("invalid-argument", "startupId é obrigatório.");
     }
     if (!type || typeof type !== "string"){
-        logger.error("Error from getOrdersByStartupBytype:type é obrigatório");
+        logger.error("Error from getOrdersByStartupBytype: type é obrigatório");
         throw new HttpsError("invalid-argument", "type é obrigatório.");
     }
 
     const valid_types = ["buy" , "sell"];
 
     if (!valid_types.includes(type)) {
-        logger.error("Error from getOrdersByStartupBytype:type inválido");
+        logger.error("Error from getOrdersByStartupBytype: type inválido");
         throw new HttpsError("invalid-argument", "type inválido.");
 }
 
     try{
         const ordersSnapshot = await orderCollection
-        .where("startupId", "==", startupId)
+        .where("startup_id", "==", startupId)
         .where("type", "==", type)
         .orderBy("createdAt", "desc")
         .limit(50)
@@ -39,7 +41,7 @@ export const getOrdersByStartupBytype = onCall(async (request)=> {
         if (ordersSnapshot.empty) {
             return { orders: [] };
         }
-
+        //map puxa todos os dados da order
         const orders: Order[] = ordersSnapshot.docs.map((doc) => ({
             id: doc.id,
             ...(doc.data() as Omit<Order, "id">),

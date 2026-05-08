@@ -21,8 +21,8 @@ export const listOrdersByToken = onCall(async (request) => {
 
     try {
         const snapshot = await orderCollection
-            .where("userId", "==", userId)
-            .where("startupId", "==", startupId)
+            .where("user_id", "==", userId)
+            .where("startup_id", "==", startupId)
             .orderBy("createdAt", "desc")
             .get();
 

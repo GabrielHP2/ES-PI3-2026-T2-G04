@@ -17,7 +17,7 @@ export const listOrders = onCall(async (request) => {
 
     try {
         const snapshot = await orderCollection
-            .where("userId", "==", userId)
+            .where("user_id", "==", userId)
             .orderBy("createdAt", "desc")
             .get();
 
