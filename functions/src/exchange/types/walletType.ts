@@ -24,3 +24,17 @@ export interface WalletType {
   availableBalance: number;
   blockedBalance: number;
 }
+
+export interface TokenWalletType {
+  availableBalance: number;
+  blockedBalance: number;
+  holdings: Holding[];
+}
+
+export interface Holding {
+  tokenBalance: number;
+  blockedTokenBalance: number;
+  startupId: string;
+  tokenSymbol: string;
+  avgPrince: number;
+}
