@@ -1,7 +1,7 @@
 // Gabriel Hespanholeto Maziero 25004669
 
 import 'package:flutter/material.dart';
-import '../components/token_balcao.dart';
+import '../components/token_card.dart';
 import '../controllers/balcao_controller.dart';
 
 class TokenMarketPage extends StatefulWidget {
