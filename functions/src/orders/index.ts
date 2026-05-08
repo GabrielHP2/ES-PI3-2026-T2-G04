@@ -1,2 +1,2 @@
-export {placeOrder} from "./handlers/placeOrder";
-export {updateOrderCallable} from "./handlers/updateOrder";
+export { placeOrder } from "./handlers/placeOrder";
+export { cancelOrderCallable } from "./handlers/updateOrder";
