@@ -13,19 +13,27 @@ export const getOrdersByStartupBytype = onCall(async (request)=> {
     const { startupId, type } = request.data;
 
     if (!startupId || typeof startupId !== "string") {
-        logger.error("Error from listOrdersByToken: startupId é obrigatório");
+        logger.error("Error from getOrdersByStartupBytype: startupId é obrigatório");
         throw new HttpsError("invalid-argument", "startupId é obrigatório.");
     }
     if (!type || typeof type !== "string"){
-        logger.error("Error from listOrdersByToken:type é obrigatório");
+        logger.error("Error from getOrdersByStartupBytype:type é obrigatório");
         throw new HttpsError("invalid-argument", "type é obrigatório.");
     }
+
+    const valid_types = ["buy" , "sell"];
+
+    if (!valid_types.includes(type)) {
+        logger.error("Error from getOrdersByStartupBytype:type inválido");
+        throw new HttpsError("invalid-argument", "type inválido.");
+}
 
     try{
         const ordersSnapshot = await orderCollection
         .where("startupId", "==", startupId)
         .where("type", "==", type)
         .orderBy("createdAt", "desc")
+        .limit(50)
         .get();
 
         if (ordersSnapshot.empty) {
