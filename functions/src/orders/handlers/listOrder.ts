@@ -22,7 +22,7 @@ export const listOrders = onCall(async (request) => {
             .get();
 
         if (snapshot.empty) {
-            return { orders: [] };
+            return {orders: []};
         }
 
         //map dos documentos
