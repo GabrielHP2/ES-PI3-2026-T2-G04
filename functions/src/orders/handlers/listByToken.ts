@@ -27,6 +27,7 @@ export const listOrdersByToken = onCall(async (request) => {
             .get();
 
         if (snapshot.empty) {
+            logger.info(`Nenhuma ordem encontrada para startupId=${startupId}`);
             return { orders: [] };
         }
 

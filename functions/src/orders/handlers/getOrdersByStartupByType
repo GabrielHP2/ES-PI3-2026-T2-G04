@@ -39,6 +39,7 @@ export const getOrdersByStartupBytype = onCall(async (request)=> {
         .get();
 
         if (ordersSnapshot.empty) {
+            logger.info(`Nenhuma ordem encontrada para startupId=${startupId} e type=${type}`);
             return { orders: [] };
         }
         //map puxa todos os dados da order

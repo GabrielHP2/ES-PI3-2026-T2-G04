@@ -22,6 +22,7 @@ export const listOrders = onCall(async (request) => {
             .get();
 
         if (snapshot.empty) {
+            logger.info(`Nenhuma ordem encontrada`);
             return {orders: []};
         }
 

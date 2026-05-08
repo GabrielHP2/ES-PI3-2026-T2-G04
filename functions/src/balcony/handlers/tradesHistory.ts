@@ -19,6 +19,7 @@ export const tradesHistory = onCall(async (request) => {
             .get();
 
         if (tradesSnapshot.empty) {
+            logger.info(`Nenhuma trade encontrada`);
             return { trades: [] };
         }
 
