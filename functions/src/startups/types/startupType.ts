@@ -1,6 +1,6 @@
 // João Pedro Panza Mainieri - RA: 25006642
 
-import {Timestamp} from "firebase-admin/firestore";
+import { Timestamp } from "firebase-admin/firestore";
 
 export type StartupStatus = "ativa" | "inativa" | "encerrada";
 
@@ -55,5 +55,6 @@ export interface SimplifiedStartup {
 export interface StartupPriceHistory {
   // Isso vai ser uma sub-collection.
   price: number; // Preço registrado no momento
-  timestamp: Timestamp; // Momento do registro
+  quantity: number;
+  executed_at: Timestamp; // Momento do registro
 }

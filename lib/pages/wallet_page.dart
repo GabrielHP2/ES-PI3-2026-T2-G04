@@ -4,7 +4,6 @@ import 'package:frontend/models/transactions.dart';
 import 'package:frontend/models/wallet.dart';
 import 'package:frontend/pages/wallet_deposit_page.dart';
 import 'package:frontend/pages/wallet_withdraw_page.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:frontend/services/wallet_services.dart';
 
 class WalletPage extends StatefulWidget {
