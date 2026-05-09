@@ -59,7 +59,10 @@ class _PaginaDetalhadaState extends State<PaginaDetalhada> {
       appBar: AppBar(
         elevation: 0,
         centerTitle: true,
-        title: const Text("DETALHES", style: TextStyle(color: Colors.black)),
+        title: const Text(
+          "Detalhes da startup",
+          style: TextStyle(color: Colors.black),
+        ),
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())

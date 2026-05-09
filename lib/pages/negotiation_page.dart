@@ -2,8 +2,9 @@
 // Tudo ok para receber os dados da inetgração do fb
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'package:frontend/components/token_negotiation.dart';
+import 'package:frontend/components/place_order.dart';
 import 'package:frontend/models/order_model.dart';
+import 'package:frontend/pages/wallet_page.dart';
 
 class NegociacaoPage extends StatefulWidget {
   final String startupId;
@@ -31,27 +32,7 @@ class _NegociacaoPageState extends State<NegociacaoPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        centerTitle: true,
-        leading: IconButton(
-          icon: const Icon(
-            Icons.arrow_back_ios_new,
-            color: Colors.black,
-            size: 20,
-          ),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: const Text(
-          'Negociação',
-          style: TextStyle(
-            color: Colors.black,
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ),
+      appBar: AppBar(title: const Text('Negociação')),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
@@ -80,8 +61,8 @@ class _NegociacaoPageState extends State<NegociacaoPage> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             const Text(
-              'Seu saldo:',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+              'Saldo disponível:',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
             ),
             Row(
               children: [
@@ -93,16 +74,17 @@ class _NegociacaoPageState extends State<NegociacaoPage> {
                   ),
                 ),
                 const SizedBox(width: 8),
-                Container(
-                  padding: const EdgeInsets.all(6),
-                  decoration: const BoxDecoration(
-                    color: Color(0xFF5C6BC0),
-                    shape: BoxShape.circle,
+                IconButton(
+                  onPressed: () => Navigator.of(
+                    context,
+                  ).push(MaterialPageRoute(builder: (context) => WalletPage())),
+                  style: ButtonStyle(
+                    backgroundColor: WidgetStateProperty.all(Colors.indigo),
                   ),
-                  child: const Icon(
+                  icon: const Icon(
                     Icons.credit_card,
                     color: Colors.white,
-                    size: 16,
+                    size: 20,
                   ),
                 ),
               ],
@@ -302,15 +284,20 @@ class _NegociacaoPageState extends State<NegociacaoPage> {
     );
   }
 
+  void _abrirPopUp(BuildContext context, OrderType tipo) {
+    showDialog(
+      context: context,
+      builder: (context) => PlaceOrderPopUp(currentPrice: 10, type: tipo),
+    );
+  }
+
   // Botões compra e venda
   Widget _buildActionButtons(BuildContext context) {
     return Row(
       children: [
         Expanded(
           child: ElevatedButton(
-            onPressed: () {
-              // Logica compra de digitar quantidade
-            },
+            onPressed: () => _abrirPopUp(context, OrderType.buy),
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.green,
               padding: const EdgeInsets.symmetric(vertical: 16),
@@ -331,14 +318,7 @@ class _NegociacaoPageState extends State<NegociacaoPage> {
         const SizedBox(width: 16),
         Expanded(
           child: ElevatedButton(
-            onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) =>
-                      TokenNegotiation(currentPrice: 10, type: OrderType.sell),
-                ),
-              );
-            },
+            onPressed: () => _abrirPopUp(context, OrderType.sell),
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.red,
               padding: const EdgeInsets.symmetric(vertical: 16),

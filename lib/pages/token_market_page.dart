@@ -1,6 +1,7 @@
 // Gabriel Hespanholeto Maziero 25004669
 
 import 'package:flutter/material.dart';
+import 'package:frontend/pages/wallet_page.dart';
 import '../components/token_card.dart';
 import '../controllers/balcao_controller.dart';
 
@@ -12,6 +13,7 @@ class TokenMarketPage extends StatefulWidget {
 }
 
 class _TokenMarketPageState extends State<TokenMarketPage> {
+  double saldoUsuario = 1000;
   List<Map<String, dynamic>?> _tokens = [];
   bool _isLoading = true;
 
@@ -40,10 +42,6 @@ class _TokenMarketPageState extends State<TokenMarketPage> {
       backgroundColor: const Color(0xFFF8F9FA),
       appBar: AppBar(
         title: const Text('Balcão de tokens'),
-        centerTitle: true,
-        backgroundColor: Colors.white,
-        elevation: 0,
-        foregroundColor: Colors.black,
         automaticallyImplyLeading: false,
       ),
       body: Padding(
@@ -52,41 +50,52 @@ class _TokenMarketPageState extends State<TokenMarketPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Cabeçalho do saldo
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            Column(
               children: [
-                const Text(
-                  'Seu saldo:',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-                ),
                 Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    // O saldo ainda está hardcoded, isso mudará quando vocês integrarem a tabela de Usuários
                     const Text(
-                      'R\$0,00',
+                      'Saldo disponível:',
                       style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
-                    const SizedBox(width: 8),
-                    Container(
-                      padding: const EdgeInsets.all(6),
-                      decoration: const BoxDecoration(
-                        color: Color(0xFF5759E0),
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(
-                        Icons.account_balance_wallet,
-                        color: Colors.white,
-                        size: 20,
-                      ),
+                    Row(
+                      children: [
+                        Text(
+                          'R\$${saldoUsuario.toStringAsFixed(2).replaceAll('.', ',')}',
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        IconButton(
+                          onPressed: () => Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => WalletPage(),
+                            ),
+                          ),
+                          style: ButtonStyle(
+                            backgroundColor: WidgetStateProperty.all(
+                              Colors.indigo,
+                            ),
+                          ),
+                          icon: const Icon(
+                            Icons.credit_card,
+                            color: Colors.white,
+                            size: 20,
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
+                const Divider(color: Colors.black12, height: 20),
               ],
             ),
-            const Divider(height: 30, thickness: 1),
             const Text(
               'Tokens de startups',
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),

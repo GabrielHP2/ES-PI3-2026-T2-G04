@@ -1,7 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend/models/order_model.dart';
-import 'package:frontend/pages/order_confirmation.dart';
 import 'package:frontend/pages/wallet_page.dart';
 import 'package:frontend/services/two_factor_services.dart';
 
@@ -140,16 +139,6 @@ class _ProfilePageState extends State<ProfilePage> {
               child: Text('CARTEIRA'),
             ),
             Text('Pagina de perfil em desenvolvimento'),
-            ElevatedButton(
-              onPressed: () async {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) => OrderConfirmationPage(order: o),
-                  ),
-                );
-              },
-              child: Text('TEST NOTA'),
-            ),
           ],
         ),
       ),

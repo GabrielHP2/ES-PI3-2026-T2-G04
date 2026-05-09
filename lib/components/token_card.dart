@@ -2,7 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'package:frontend/pages/negocio_balcao.dart';
+import 'package:frontend/pages/negotiation_page.dart';
 
 class TokenCard extends StatefulWidget {
   final String startupId;

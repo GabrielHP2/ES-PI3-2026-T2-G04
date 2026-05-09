@@ -130,8 +130,6 @@ class _OrderConfirmationPageState extends State<OrderConfirmationPage>
       appBar: AppBar(
         title: Text('Confirmar Ordem de ${order.typeLabel}'),
         automaticallyImplyLeading: false,
-        backgroundColor: primaryColor,
-        foregroundColor: Colors.white,
       ),
       body: Column(
         children: [
@@ -258,8 +256,8 @@ class _OrderConfirmationPageState extends State<OrderConfirmationPage>
                         Expanded(
                           child: Text(
                             isBuy
-                                ? 'Ao confirmar, o ${order.totalValue} será bloqueado na sua carteira até a execução ou exclusão da ordem.'
-                                : 'Ao confirmar, os ${order.quantity} serão bloqueados na sua carteira até a execução ou exclusão da ordem.',
+                                ? 'Ao confirmar, ${order.totalValue} do seu saldo será bloqueado na sua carteira até a execução ou exclusão da ordem.'
+                                : 'Ao confirmar, ${order.quantity} token(s) serão bloqueados na sua carteira até a execução ou exclusão da ordem.',
                             style: TextStyle(
                               fontSize: 13,
                               color: Colors.amber.shade900,
