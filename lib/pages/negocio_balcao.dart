@@ -2,45 +2,30 @@
 // Tudo ok para receber os dados da inetgração do fb
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:frontend/components/token_negotiation.dart';
+import 'package:frontend/models/order_model.dart';
 
 class NegociacaoPage extends StatefulWidget {
-  final String ticker;
-  final String nomeStartup;
-  final double saldoUsuario;
-  final double cotacaoAtual;
-  final double percentualValorizacao;
-  final List<FlSpot> historicoInicial;
+  final String startupId;
 
-  const NegociacaoPage({
-    super.key,
-    required this.ticker,
-    required this.nomeStartup,
-    required this.saldoUsuario,
-    required this.cotacaoAtual,
-    required this.percentualValorizacao,
-    required this.historicoInicial,
-  });
+  const NegociacaoPage({super.key, required this.startupId});
 
   @override
   State<NegociacaoPage> createState() => _NegociacaoPageState();
 }
 
 class _NegociacaoPageState extends State<NegociacaoPage> {
-  // Controle do filtro de tempo 
+  final double saldoUsuario = 1000;
+  // Controle do filtro de tempo
   String _periodoSelecionado = '1M';
   final List<String> _periodos = ['1D', '1W', '1M', '1Y', '5Y', 'ALL'];
-  
-  late List<FlSpot> _pontosDoGrafico;
 
   @override
   void initState() {
     super.initState();
-    _pontosDoGrafico = widget.historicoInicial;
   }
 
-  Future<void> _buscarHistoricoBackend(String periodo) async {
-    
-  }
+  Future<void> _buscarHistoricoBackend(String periodo) async {}
 
   @override
   Widget build(BuildContext context) {
@@ -51,12 +36,20 @@ class _NegociacaoPageState extends State<NegociacaoPage> {
         elevation: 0,
         centerTitle: true,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.black, size: 20),
+          icon: const Icon(
+            Icons.arrow_back_ios_new,
+            color: Colors.black,
+            size: 20,
+          ),
           onPressed: () => Navigator.pop(context),
         ),
         title: const Text(
           'Negociação',
-          style: TextStyle(color: Colors.black, fontSize: 18, fontWeight: FontWeight.bold),
+          style: TextStyle(
+            color: Colors.black,
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+          ),
         ),
       ),
       body: SafeArea(
@@ -93,17 +86,24 @@ class _NegociacaoPageState extends State<NegociacaoPage> {
             Row(
               children: [
                 Text(
-                  'R\$${widget.saldoUsuario.toStringAsFixed(2).replaceAll('.', ',')}',
-                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  'R\$${saldoUsuario.toStringAsFixed(2).replaceAll('.', ',')}',
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 const SizedBox(width: 8),
                 Container(
                   padding: const EdgeInsets.all(6),
                   decoration: const BoxDecoration(
-                    color: Color(0xFF5C6BC0), 
+                    color: Color(0xFF5C6BC0),
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(Icons.credit_card, color: Colors.white, size: 16),
+                  child: const Icon(
+                    Icons.credit_card,
+                    color: Colors.white,
+                    size: 16,
+                  ),
                 ),
               ],
             ),
@@ -123,22 +123,30 @@ class _NegociacaoPageState extends State<NegociacaoPage> {
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: Colors.grey.shade200),
         boxShadow: const [
-          BoxShadow(color: Colors.black12, blurRadius: 10, offset: Offset(0, 4)),
+          BoxShadow(
+            color: Colors.black12,
+            blurRadius: 10,
+            offset: Offset(0, 4),
+          ),
         ],
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(Icons.account_balance, color: Color(0xFF5C6BC0), size: 32),
+          const Icon(Icons.savings, color: Colors.indigo, size: 32),
           const SizedBox(width: 12),
           Text(
-            widget.ticker,
+            '\$ FNOVA',
             style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w900),
           ),
           const SizedBox(width: 8),
           Text(
-            widget.nomeStartup,
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: Colors.grey.shade500),
+            'FinNova',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
+              color: Colors.grey.shade500,
+            ),
           ),
         ],
       ),
@@ -154,7 +162,11 @@ class _NegociacaoPageState extends State<NegociacaoPage> {
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: Colors.grey.shade200),
         boxShadow: const [
-          BoxShadow(color: Colors.black12, blurRadius: 10, offset: Offset(0, 4)),
+          BoxShadow(
+            color: Colors.black12,
+            blurRadius: 10,
+            offset: Offset(0, 4),
+          ),
         ],
       ),
       child: Column(
@@ -166,27 +178,48 @@ class _NegociacaoPageState extends State<NegociacaoPage> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('COTAÇÃO ATUAL', style: TextStyle(fontSize: 10, color: Colors.grey, fontWeight: FontWeight.bold)),
+                  const Text(
+                    'COTAÇÃO ATUAL',
+                    style: TextStyle(
+                      fontSize: 10,
+                      color: Colors.grey,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                   Text(
-                    'R\$ ${widget.cotacaoAtual.toStringAsFixed(2).replaceAll('.', ',')}',
-                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900),
+                    'R\$ ${10.toStringAsFixed(2).replaceAll('.', ',')}',
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w900,
+                    ),
                   ),
                 ],
               ),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  const Text('VALORIZAÇÃO RELATIVA', style: TextStyle(fontSize: 10, color: Colors.grey, fontWeight: FontWeight.bold)),
+                  const Text(
+                    'VALORIZAÇÃO RELATIVA',
+                    style: TextStyle(
+                      fontSize: 10,
+                      color: Colors.grey,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                   Text(
-                    '${widget.percentualValorizacao >= 0 ? '+' : ''}${widget.percentualValorizacao.toInt()}%',
-                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: Colors.black),
+                    '${10 >= 0 ? '+' : ''}${10.toInt()}%',
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w900,
+                      color: Colors.black,
+                    ),
                   ),
                 ],
               ),
             ],
           ),
           const SizedBox(height: 20),
-          
+
           // Grafico das linhas
           Container(
             height: 150,
@@ -205,7 +238,6 @@ class _NegociacaoPageState extends State<NegociacaoPage> {
                 borderData: FlBorderData(show: false),
                 lineBarsData: [
                   LineChartBarData(
-                    spots: _pontosDoGrafico,
                     isCurved: true,
                     color: const Color(0xFF5C6BC0),
                     barWidth: 2.5,
@@ -216,7 +248,7 @@ class _NegociacaoPageState extends State<NegociacaoPage> {
                       gradient: LinearGradient(
                         colors: [
                           const Color(0xFF5C6BC0).withOpacity(0.3), // ignorar
-                          const Color(0xFF5C6BC0).withOpacity(0.0), // ignorar 
+                          const Color(0xFF5C6BC0).withOpacity(0.0), // ignorar
                         ],
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
@@ -224,9 +256,7 @@ class _NegociacaoPageState extends State<NegociacaoPage> {
                     ),
                   ),
                 ],
-                lineTouchData: const LineTouchData(
-                  enabled: false,
-                ),
+                lineTouchData: const LineTouchData(enabled: false),
               ),
             ),
           ),
@@ -245,9 +275,14 @@ class _NegociacaoPageState extends State<NegociacaoPage> {
                   });
                 },
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
                   decoration: BoxDecoration(
-                    color: isSelected ? const Color(0xFF5C6BC0) : Colors.transparent,
+                    color: isSelected
+                        ? const Color(0xFF5C6BC0)
+                        : Colors.transparent,
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
@@ -277,25 +312,48 @@ class _NegociacaoPageState extends State<NegociacaoPage> {
               // Logica compra de digitar quantidade
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color.fromARGB(255, 140, 255, 86), 
+              backgroundColor: Colors.green,
               padding: const EdgeInsets.symmetric(vertical: 16),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
-            child: const Text('Comprar', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
+            child: const Text(
+              'Comprar',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+            ),
           ),
         ),
         const SizedBox(width: 16),
         Expanded(
           child: ElevatedButton(
             onPressed: () {
-              // Logica venda
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) =>
+                      TokenNegotiation(currentPrice: 10, type: OrderType.sell),
+                ),
+              );
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color.fromARGB(255, 141, 15, 36), 
+              backgroundColor: Colors.red,
               padding: const EdgeInsets.symmetric(vertical: 16),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
-            child: const Text('Vender', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
+            child: const Text(
+              'Vender',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+            ),
           ),
         ),
       ],

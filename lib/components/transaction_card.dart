@@ -15,11 +15,11 @@ class TransactionCard extends StatefulWidget {
 class _TrasactionCardState extends State<TransactionCard> {
   @override
   Widget build(BuildContext context) {
-    final _transaction = widget.transaction;
+    final transaction = widget.transaction;
     final formattedCreatedAt = DateFormat(
       'dd/MM/yyyy HH:mm',
       'pt_BR',
-    ).format(_transaction.createdAt.toDate());
+    ).format(transaction.createdAt.toDate());
 
     return Container(
       width: double.infinity,
@@ -37,7 +37,7 @@ class _TrasactionCardState extends State<TransactionCard> {
           Expanded(
             flex: 0,
             child: Center(
-              child: _transaction.type == TransactionType.expense
+              child: transaction.type == TransactionType.expense
                   ? Icon(Icons.remove, color: Colors.red)
                   : Icon(Icons.add, color: Colors.green),
             ),
@@ -49,7 +49,7 @@ class _TrasactionCardState extends State<TransactionCard> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  _transaction.description,
+                  transaction.description,
                   style: const TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
@@ -70,9 +70,9 @@ class _TrasactionCardState extends State<TransactionCard> {
             flex: 3,
             child: Center(
               child: Text(
-                moneyFormatter.format(_transaction.amountBRL),
+                moneyFormatter.format(transaction.amountBRL),
                 style: TextStyle(
-                  color: _transaction.type == TransactionType.expense
+                  color: transaction.type == TransactionType.expense
                       ? Colors.red
                       : Colors.green,
                   fontWeight: FontWeight.bold,

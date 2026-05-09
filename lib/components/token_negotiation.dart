@@ -1,22 +1,13 @@
 // Autor: Gabriel Henrique Pacagnelli Pagliato   RA: 25016528
-
 import 'package:flutter/material.dart';
-import 'package:frontend/models/transactions.dart';
+import 'package:frontend/models/order_model.dart';
 import 'package:frontend/services/numberformatter_service.dart';
 
 class TokenNegotiation extends StatelessWidget {
   final double currentPrice;
-  final int tokensQuantity;
-  final double value;
-  final TransactionType type;
+  final OrderType type;
 
-  TokenNegotiation({
-    super.key,
-    required this.currentPrice,
-    required this.tokensQuantity,
-    required this.value,
-    required this.type,
-  });
+  TokenNegotiation({super.key, required this.currentPrice, required this.type});
 
   @override
   Widget build(BuildContext context) {
@@ -37,7 +28,7 @@ class TokenNegotiation extends StatelessWidget {
                 ),
                 SizedBox(width: 30),
                 Text(
-                  type == TransactionType.expense
+                  type == OrderType.buy
                       ? 'CRIAR ORDEM DE COMPRA'
                       : 'CRIAR ORDEM DE VENDA',
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
@@ -49,7 +40,7 @@ class TokenNegotiation extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  type == TransactionType.expense
+                  type == OrderType.buy
                       ? 'Preço de compra atual: '
                       : 'Preço de venda atual: ',
                   style: TextStyle(fontSize: 17, fontWeight: FontWeight(450)),
@@ -65,7 +56,7 @@ class TokenNegotiation extends StatelessWidget {
               alignment: Alignment.centerLeft,
               padding: EdgeInsets.all(10),
               child: Text(
-                type == TransactionType.expense
+                type == OrderType.buy
                     ? 'Quantos tokens deseja comprar:'
                     : 'Quantos tokens deseja vender:',
                 style: TextStyle(fontSize: 15, fontWeight: FontWeight(450)),
@@ -88,7 +79,7 @@ class TokenNegotiation extends StatelessWidget {
               alignment: Alignment.centerLeft,
               padding: EdgeInsets.all(10),
               child: Text(
-                type == TransactionType.expense
+                type == OrderType.buy
                     ? 'Por quanto deseja comprar:'
                     : 'Por quanto deseja vender:',
                 textDirection: TextDirection.ltr,
@@ -101,7 +92,7 @@ class TokenNegotiation extends StatelessWidget {
               child: TextField(
                 keyboardType: TextInputType.numberWithOptions(decimal: true),
                 decoration: InputDecoration(
-                  hintText: type == TransactionType.expense
+                  hintText: type == OrderType.buy
                       ? 'R\$ 1,00 (valor de compra imediata)'
                       : 'R\$ 1,00 (valor de venda imediata)',
                   border: OutlineInputBorder(
@@ -112,16 +103,14 @@ class TokenNegotiation extends StatelessWidget {
             ),
             SizedBox(height: 12),
             TextButton(
-              onPressed: null,            // TODO: colocar a func de compra/venda
+              onPressed: null, // TODO: colocar a func de compra/venda
               style: ButtonStyle(
                 backgroundColor: WidgetStatePropertyAll(
-                  type == TransactionType.expense
-                      ? Colors.green[800]
-                      : Colors.red[900],
+                  type == OrderType.buy ? Colors.green[800] : Colors.red[900],
                 ),
               ),
               child: Text(
-                type == TransactionType.expense
+                type == OrderType.buy
                     ? 'Criar ordem de compra'
                     : 'Criar ordem de venda',
                 style: TextStyle(

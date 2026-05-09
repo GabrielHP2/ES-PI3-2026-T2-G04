@@ -86,6 +86,7 @@ Future<List<Map<String, dynamic>>> buscarTokens() async {
 
       // Monta depois da tradução
       tokensProntosParaTela.add({
+        'startupId': startup['id'],
         'token_symbol': startup['token_symbol'],
         'nome': startup['name'],
         'precoAtual': precoAtual,

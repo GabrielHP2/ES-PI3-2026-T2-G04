@@ -113,6 +113,7 @@ class _TokenMarketPageState extends State<TokenMarketPage> {
                         itemBuilder: (context, index) {
                           final token = _tokens[index];
                           return TokenCard(
+                            startupId: token?['startupId'],
                             ticker: token?['token_symbol'],
                             nome: token?['nome'],
                             precoAtual: token?['precoAtual'],
