@@ -19,7 +19,7 @@ export async function matchOrders(startupId: string): Promise<MatchesExecuted> {
     }
   });
 
-  if (!startupOpenOrders) return { matchesExecuted: 0 };
+  if (startupOpenOrders.length == 0) return { matchesExecuted: 0 };
   let buyOrders: Order[] = [];
   let sellOrders: Order[] = [];
   for (const o of startupOpenOrders) {
@@ -66,7 +66,7 @@ function findMatchingOrders(buys: Order[], sells: Order[]): MatchOrder[] {
       : a.createdAt.toMillis() - b.createdAt.toMillis(),
   );
   sells.sort((a, b) =>
-    b.price - a.price == 0
+    a.price - b.price !== 0
       ? a.price - b.price
       : a.createdAt.toMillis() - b.createdAt.toMillis(),
   );
@@ -120,16 +120,21 @@ async function settleMatch(
 
     // Validações de consistência
     const sellerHolding = sellerWallet.holdings.find(
-      (h) => h.startupId === sell.startup_id,
+      (h) => h.startup_id === sell.startup_id,
     );
-    if (!sellerHolding || sellerHolding.blockedTokenBalance < qty) {
+
+    console.log("[settleMatch] DEBUG", {
+      sellStartup_id: sell.startup_id,
+      sellerHoldings: JSON.stringify(sellerWallet.holdings),
+    });
+    if (!sellerHolding || sellerHolding.blocked_token_balance < qty) {
       console.error(
         "[settleMatch] Inconsistência: blockedTokenBalance insuficiente",
         {
           sellOrderId: sell.id,
           buyOrderId: buy.id,
           expected: qty,
-          found: sellerHolding?.blockedTokenBalance ?? 0,
+          found: sellerHolding?.blocked_token_balance ?? 0,
         },
       );
       return;
@@ -156,43 +161,45 @@ async function settleMatch(
 
     // transferTokens
     const updatedSellerHoldings = sellerWallet.holdings.map((h) =>
-      h.startupId === sell.startup_id
+      h.startup_id === sell.startup_id
         ? {
             ...h,
-            blockedTokenBalance: h.blockedTokenBalance - qty,
-            avgPrice:
-              (h.tokenBalance * h.avgPrice + qty * price) /
-              (h.tokenBalance + qty),
+            blocked_token_balance: h.blocked_token_balance - qty,
+            avg_price: h.avg_price,
           }
         : h,
     );
     tx.update(walletRefSeller, { holdings: updatedSellerHoldings });
 
-    const buyerHoldingExists = buyerWallet.holdings.some(
-      (h) => h.startupId === buy.startup_id,
+    const buyerHoldings = buyerWallet.holdings || [];
+
+    const buyerHoldingExists = buyerHoldings.some(
+      (h) => h.startup_id === buy.startup_id,
     );
+
     const updatedBuyerHoldings = buyerHoldingExists
-      ? buyerWallet.holdings.map((h) =>
-          h.startupId === buy.startup_id
+      ? buyerHoldings.map((h) =>
+          h.startup_id === buy.startup_id
             ? {
                 ...h,
-                tokenBalance: h.tokenBalance + qty,
-                avgPrice:
-                  (h.tokenBalance * h.avgPrice + qty * price) /
-                  (h.tokenBalance + qty),
+                token_balance: h.token_balance + qty,
+                avg_price:
+                  (h.token_balance * (h.avg_price || price) + qty * price) /
+                  (h.token_balance + qty),
               }
             : h,
         )
       : [
-          ...buyerWallet.holdings,
+          ...buyerHoldings,
           {
-            tokenBalance: qty,
-            blockedTokenBalance: 0,
-            startupId: buy.startup_id,
-            tokenSymbol: buy.token_symbol,
-            avgPrince: price,
+            token_balance: qty,
+            blocked_token_balance: 0,
+            startup_id: buy.startup_id,
+            token_symbol: buy.token_symbol,
+            avg_price: price,
           },
         ];
+
     tx.update(walletRefBuyer, { holdings: updatedBuyerHoldings });
 
     // executeOrderExecution
@@ -212,7 +219,7 @@ async function settleMatch(
     tx.set(tradeRef, {
       buyOrderId: buy.id,
       sellOrderId: sell.id,
-      startupId: buy.startup_id,
+      startup_id: buy.startup_id,
       buyerId: buy.user_id,
       sellerId: sell.user_id,
       qty,
@@ -252,7 +259,7 @@ async function settleMatch(
       .collection("price_history")
       .doc();
     const newPriceHistoryEntry: StartupPriceHistory = {
-      price: buy.price,
+      price: price,
       quantity: qty,
       executed_at: Timestamp.now(),
     };

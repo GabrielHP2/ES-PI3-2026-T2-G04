@@ -3,6 +3,8 @@ import 'package:frontend/components/token_card.dart';
 import 'package:frontend/controllers/balcao_controller.dart';
 import 'package:frontend/models/token.dart';
 import 'package:frontend/pages/wallet_page.dart';
+import 'package:frontend/services/numberformatter_service.dart';
+import 'package:frontend/services/wallet_services.dart';
 
 class TokenMarketPage extends StatefulWidget {
   const TokenMarketPage({super.key});
@@ -12,7 +14,7 @@ class TokenMarketPage extends StatefulWidget {
 }
 
 class _TokenMarketPageState extends State<TokenMarketPage> {
-  double saldoUsuario = 1000;
+  double _saldoUsuario = 0;
   List<Token> _tokens = <Token>[];
   bool _isLoading = true;
 
@@ -26,10 +28,21 @@ class _TokenMarketPageState extends State<TokenMarketPage> {
     });
   }
 
+  Future<void> _fetchData() async {
+    _fetchTokens();
+    final wallet = await callWalletBalance();
+
+    if (!mounted) return;
+
+    setState(() {
+      _saldoUsuario = wallet?.availableBalance ?? 0;
+    });
+  }
+
   @override
   void initState() {
     super.initState();
-    _fetchTokens();
+    _fetchData();
   }
 
   @override
@@ -52,12 +65,15 @@ class _TokenMarketPageState extends State<TokenMarketPage> {
                   children: [
                     const Text(
                       'Saldo disponível:',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
                     Row(
                       children: [
                         Text(
-                          'R\$${saldoUsuario.toStringAsFixed(2).replaceAll('.', ',')}',
+                          moneyFormatter.format(_saldoUsuario),
                           style: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
@@ -66,11 +82,14 @@ class _TokenMarketPageState extends State<TokenMarketPage> {
                         const SizedBox(width: 8),
                         IconButton(
                           onPressed: () => Navigator.of(context).push(
-                            MaterialPageRoute(builder: (_) => const WalletPage()),
+                            MaterialPageRoute(
+                              builder: (_) => const WalletPage(),
+                            ),
                           ),
                           style: ButtonStyle(
-                            backgroundColor:
-                                WidgetStateProperty.all(Colors.indigo),
+                            backgroundColor: WidgetStateProperty.all(
+                              Colors.indigo,
+                            ),
                           ),
                           icon: const Icon(
                             Icons.credit_card,
@@ -98,19 +117,19 @@ class _TokenMarketPageState extends State<TokenMarketPage> {
                         child: CircularProgressIndicator(color: Colors.indigo),
                       )
                     : _tokens.isEmpty
-                        ? const Center(
-                            child: Text(
-                              'Sem Tokens disponíveis.',
-                              style: TextStyle(color: Colors.grey, fontSize: 16),
-                            ),
-                          )
-                        : ListView.builder(
-                            itemCount: _tokens.length,
-                            itemBuilder: (_, index) {
-                              final token = _tokens[index];
-                              return TokenCard(token: token);
-                            },
-                          ),
+                    ? const Center(
+                        child: Text(
+                          'Sem Tokens disponíveis.',
+                          style: TextStyle(color: Colors.grey, fontSize: 16),
+                        ),
+                      )
+                    : ListView.builder(
+                        itemCount: _tokens.length,
+                        itemBuilder: (_, index) {
+                          final token = _tokens[index];
+                          return TokenCard(token: token);
+                        },
+                      ),
               ),
             ),
           ],

@@ -5,6 +5,7 @@ import 'package:frontend/controllers/balcao_controller.dart';
 import 'package:frontend/models/order_model.dart';
 import 'package:frontend/models/token.dart';
 import 'package:frontend/pages/wallet_page.dart';
+import 'package:frontend/services/numberformatter_service.dart';
 import 'package:frontend/services/wallet_services.dart';
 
 class NegociacaoPage extends StatefulWidget {
@@ -29,17 +30,17 @@ class _NegociacaoPageState extends State<NegociacaoPage> {
   void initState() {
     super.initState();
     _token = widget.initialToken;
-    _historicoFiltrado = _filtrarHistorico(widget.initialToken, _periodoSelecionado);
+    _historicoFiltrado = _filtrarHistorico(
+      widget.initialToken,
+      _periodoSelecionado,
+    );
     _isTokenLoading = false;
     _fetchData();
   }
 
   Future<void> _fetchData() async {
-    final tokenFuture = buscarTokenPorStartupId(widget.initialToken.startupId);
-    final walletFuture = callWalletBalance();
-
-    final token = await tokenFuture;
-    final wallet = await walletFuture;
+    final token = await buscarTokenPorStartupId(widget.initialToken.startupId);
+    final wallet = await callWalletBalance();
 
     if (!mounted) return;
 
@@ -139,18 +140,25 @@ class _NegociacaoPageState extends State<NegociacaoPage> {
             Row(
               children: [
                 Text(
-                  'R\$${_saldoUsuario.toStringAsFixed(2).replaceAll('.', ',')}',
-                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  moneyFormatter.format(_saldoUsuario),
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 const SizedBox(width: 8),
                 IconButton(
-                  onPressed: () => Navigator.of(context).push(
-                    MaterialPageRoute(builder: (_) => const WalletPage()),
-                  ),
+                  onPressed: () => Navigator.of(
+                    context,
+                  ).push(MaterialPageRoute(builder: (_) => const WalletPage())),
                   style: ButtonStyle(
                     backgroundColor: WidgetStateProperty.all(Colors.indigo),
                   ),
-                  icon: const Icon(Icons.credit_card, color: Colors.white, size: 20),
+                  icon: const Icon(
+                    Icons.credit_card,
+                    color: Colors.white,
+                    size: 20,
+                  ),
                 ),
               ],
             ),
@@ -169,7 +177,11 @@ class _NegociacaoPageState extends State<NegociacaoPage> {
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: Colors.grey.shade200),
         boxShadow: const [
-          BoxShadow(color: Colors.black12, blurRadius: 10, offset: Offset(0, 4)),
+          BoxShadow(
+            color: Colors.black12,
+            blurRadius: 10,
+            offset: Offset(0, 4),
+          ),
         ],
       ),
       child: Row(
@@ -201,7 +213,11 @@ class _NegociacaoPageState extends State<NegociacaoPage> {
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: Colors.grey.shade200),
         boxShadow: const [
-          BoxShadow(color: Colors.black12, blurRadius: 10, offset: Offset(0, 4)),
+          BoxShadow(
+            color: Colors.black12,
+            blurRadius: 10,
+            offset: Offset(0, 4),
+          ),
         ],
       ),
       child: Column(
@@ -222,7 +238,10 @@ class _NegociacaoPageState extends State<NegociacaoPage> {
                   ),
                   Text(
                     'R\$ ${_token!.precoAtual.toStringAsFixed(2).replaceAll('.', ',')}',
-                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900),
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w900,
+                    ),
                   ),
                 ],
               ),
@@ -301,9 +320,14 @@ class _NegociacaoPageState extends State<NegociacaoPage> {
               return GestureDetector(
                 onTap: () => _selecionarPeriodo(periodo),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
                   decoration: BoxDecoration(
-                    color: isSelected ? const Color(0xFF5C6BC0) : Colors.transparent,
+                    color: isSelected
+                        ? const Color(0xFF5C6BC0)
+                        : Colors.transparent,
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
@@ -344,7 +368,9 @@ class _NegociacaoPageState extends State<NegociacaoPage> {
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.green,
               padding: const EdgeInsets.symmetric(vertical: 16),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
             child: const Text(
               'Comprar',
@@ -363,7 +389,9 @@ class _NegociacaoPageState extends State<NegociacaoPage> {
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.red,
               padding: const EdgeInsets.symmetric(vertical: 16),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
             child: const Text(
               'Vender',
