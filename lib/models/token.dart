@@ -58,26 +58,54 @@ class Token {
   List<double> get historicoPrecos =>
       priceHistory.map((p) => p.price).toList(growable: false);
 
-  factory Token.fromBackendMap(Map<String, dynamic> map) {
-    final rawHistory = map['price_history'] as List<dynamic>? ?? const [];
-    final history = rawHistory
-        .map((e) => TokenPricePoint.fromMap(Map<String, dynamic>.from(e as Map)))
-        .toList()
+  static double _computeVariationFromSeries(
+    List<TokenPricePoint> history,
+    double currentPrice,
+  ) {
+    if (currentPrice <= 0) return 0.0;
+
+    final valid = history.where((p) => p.price > 0).toList()
       ..sort((a, b) => a.executedAt.compareTo(b.executedAt));
 
-    final currentPrice = (map['last_price'] as num?)?.toDouble() ?? 0;
-    final now = DateTime.now();
-    final startOfDay = DateTime(now.year, now.month, now.day);
+    if (valid.isEmpty) return 0.0;
 
-    TokenPricePoint? previousDayLast;
-    for (final p in history) {
-      if (p.executedAt.toDate().isBefore(startOfDay)) {
-        previousDayLast = p;
+    final last = valid.last;
+    final sameAsLast = (last.price - currentPrice).abs() < 0.0000001;
+
+    double? base;
+    if (sameAsLast) {
+      for (var i = valid.length - 2; i >= 0; i--) {
+        if (valid[i].price > 0) {
+          base = valid[i].price;
+          break;
+        }
       }
+    } else {
+      base = last.price;
     }
 
-    final base = previousDayLast?.price ?? currentPrice;
-    final variacao = base > 0 ? ((currentPrice - base) / base) * 100 : 0.0;
+    if (base == null || base <= 0) return 0.0;
+    return ((currentPrice - base) / base) * 100;
+  }
+
+  factory Token.fromBackendMap(Map<String, dynamic> map) {
+    final rawHistory = map['price_history'] as List<dynamic>? ?? const [];
+    final history =
+        rawHistory
+            .map(
+              (e) =>
+                  TokenPricePoint.fromMap(Map<String, dynamic>.from(e as Map)),
+            )
+            .toList()
+          ..sort((a, b) => a.executedAt.compareTo(b.executedAt));
+
+    final backendLastPrice = (map['last_price'] as num?)?.toDouble() ?? 0.0;
+    final historyLastPrice = history.isNotEmpty ? history.last.price : 0.0;
+    final currentPrice = backendLastPrice > 0
+        ? backendLastPrice
+        : historyLastPrice;
+
+    final variation = _computeVariationFromSeries(history, currentPrice);
 
     return Token(
       startupId: (map['id'] ?? map['startup_id'] ?? '').toString(),
@@ -86,7 +114,7 @@ class Token {
       precoAtual: currentPrice,
       currentRaised: (map['current_raised'] as num?)?.toDouble() ?? 0,
       priceHistory: history,
-      variacao: variacao,
+      variacao: variation,
     );
   }
 }
