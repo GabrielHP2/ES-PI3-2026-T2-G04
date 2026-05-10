@@ -1,9 +1,8 @@
-// Gabriel Hespanholeto Maziero 25004669
-
 import 'package:flutter/material.dart';
+import 'package:frontend/components/token_card.dart';
+import 'package:frontend/controllers/balcao_controller.dart';
+import 'package:frontend/models/token.dart';
 import 'package:frontend/pages/wallet_page.dart';
-import '../components/token_card.dart';
-import '../controllers/balcao_controller.dart';
 
 class TokenMarketPage extends StatefulWidget {
   const TokenMarketPage({super.key});
@@ -14,16 +13,13 @@ class TokenMarketPage extends StatefulWidget {
 
 class _TokenMarketPageState extends State<TokenMarketPage> {
   double saldoUsuario = 1000;
-  List<Map<String, dynamic>?> _tokens = [];
+  List<Token> _tokens = <Token>[];
   bool _isLoading = true;
 
   Future<void> _fetchTokens() async {
-    setState(() {
-      _isLoading = true;
-    });
-
+    setState(() => _isLoading = true);
     final result = await buscarTokens();
-
+    if (!mounted) return;
     setState(() {
       _tokens = result;
       _isLoading = false;
@@ -32,7 +28,7 @@ class _TokenMarketPageState extends State<TokenMarketPage> {
 
   @override
   void initState() {
-    super.initState;
+    super.initState();
     _fetchTokens();
   }
 
@@ -45,11 +41,10 @@ class _TokenMarketPageState extends State<TokenMarketPage> {
         automaticallyImplyLeading: false,
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Cabeçalho do saldo
             Column(
               children: [
                 Row(
@@ -57,10 +52,7 @@ class _TokenMarketPageState extends State<TokenMarketPage> {
                   children: [
                     const Text(
                       'Saldo disponível:',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                      ),
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
                     ),
                     Row(
                       children: [
@@ -74,14 +66,11 @@ class _TokenMarketPageState extends State<TokenMarketPage> {
                         const SizedBox(width: 8),
                         IconButton(
                           onPressed: () => Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) => WalletPage(),
-                            ),
+                            MaterialPageRoute(builder: (_) => const WalletPage()),
                           ),
                           style: ButtonStyle(
-                            backgroundColor: WidgetStateProperty.all(
-                              Colors.indigo,
-                            ),
+                            backgroundColor:
+                                WidgetStateProperty.all(Colors.indigo),
                           ),
                           icon: const Icon(
                             Icons.credit_card,
@@ -101,36 +90,27 @@ class _TokenMarketPageState extends State<TokenMarketPage> {
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
-
-            // API
             Expanded(
               child: RefreshIndicator(
-                onRefresh: () => _fetchTokens(),
+                onRefresh: _fetchTokens,
                 child: _isLoading
                     ? const Center(
                         child: CircularProgressIndicator(color: Colors.indigo),
                       )
                     : _tokens.isEmpty
-                    ? const Center(
-                        child: Text(
-                          'Sem Tokens disponíveis.',
-                          style: TextStyle(color: Colors.grey, fontSize: 16),
-                        ),
-                      )
-                    : ListView.builder(
-                        itemCount: _tokens.length,
-                        itemBuilder: (context, index) {
-                          final token = _tokens[index];
-                          return TokenCard(
-                            startupId: token?['startupId'],
-                            ticker: token?['token_symbol'],
-                            nome: token?['nome'],
-                            precoAtual: token?['precoAtual'],
-                            variacao: token?['variacao'],
-                            historicoPrecos: token?['historico'],
-                          );
-                        },
-                      ),
+                        ? const Center(
+                            child: Text(
+                              'Sem Tokens disponíveis.',
+                              style: TextStyle(color: Colors.grey, fontSize: 16),
+                            ),
+                          )
+                        : ListView.builder(
+                            itemCount: _tokens.length,
+                            itemBuilder: (_, index) {
+                              final token = _tokens[index];
+                              return TokenCard(token: token);
+                            },
+                          ),
               ),
             ),
           ],

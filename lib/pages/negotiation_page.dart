@@ -1,41 +1,114 @@
-// Gabriel Hespanholeto Maziero 25004669
-// Tudo ok para receber os dados da inetgração do fb
-import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:flutter/material.dart';
 import 'package:frontend/components/place_order.dart';
+import 'package:frontend/controllers/balcao_controller.dart';
 import 'package:frontend/models/order_model.dart';
+import 'package:frontend/models/token.dart';
 import 'package:frontend/pages/wallet_page.dart';
+import 'package:frontend/services/wallet_services.dart';
 
 class NegociacaoPage extends StatefulWidget {
-  final String startupId;
+  final Token initialToken;
 
-  const NegociacaoPage({super.key, required this.startupId});
+  const NegociacaoPage({super.key, required this.initialToken});
 
   @override
   State<NegociacaoPage> createState() => _NegociacaoPageState();
 }
 
 class _NegociacaoPageState extends State<NegociacaoPage> {
-  final double saldoUsuario = 1000;
-  // Controle do filtro de tempo
-  String _periodoSelecionado = '1M';
   final List<String> _periodos = ['1D', '1W', '1M', '1Y', '5Y', 'ALL'];
+
+  String _periodoSelecionado = '1M';
+  Token? _token;
+  bool _isTokenLoading = true;
+  List<double> _historicoFiltrado = [];
+  double _saldoUsuario = 0;
 
   @override
   void initState() {
     super.initState();
+    _token = widget.initialToken;
+    _historicoFiltrado = _filtrarHistorico(widget.initialToken, _periodoSelecionado);
+    _isTokenLoading = false;
+    _fetchData();
   }
 
-  Future<void> _buscarHistoricoBackend(String periodo) async {}
+  Future<void> _fetchData() async {
+    final tokenFuture = buscarTokenPorStartupId(widget.initialToken.startupId);
+    final walletFuture = callWalletBalance();
+
+    final token = await tokenFuture;
+    final wallet = await walletFuture;
+
+    if (!mounted) return;
+
+    setState(() {
+      if (token != null) {
+        _token = token;
+        _historicoFiltrado = _filtrarHistorico(token, _periodoSelecionado);
+      }
+      _saldoUsuario = wallet?.availableBalance ?? 0;
+    });
+  }
+
+  List<double> _filtrarHistorico(Token token, String periodo) {
+    final now = DateTime.now();
+    DateTime? inicio;
+
+    switch (periodo) {
+      case '1D':
+        inicio = now.subtract(const Duration(days: 1));
+        break;
+      case '1W':
+        inicio = now.subtract(const Duration(days: 7));
+        break;
+      case '1M':
+        inicio = DateTime(now.year, now.month - 1, now.day);
+        break;
+      case '1Y':
+        inicio = DateTime(now.year - 1, now.month, now.day);
+        break;
+      case '5Y':
+        inicio = DateTime(now.year - 5, now.month, now.day);
+        break;
+      case 'ALL':
+        inicio = null;
+        break;
+    }
+
+    final pontos = token.priceHistory.where((p) {
+      if (inicio == null) return true;
+      final d = p.executedAt.toDate();
+      return d.isAfter(inicio) || d.isAtSameMomentAs(inicio);
+    });
+
+    final precos = pontos.map((p) => p.price).toList();
+    if (precos.isEmpty) return token.historicoPrecos;
+    if (precos.length == 1) return [precos.first, precos.first];
+    return precos;
+  }
+
+  void _selecionarPeriodo(String periodo) {
+    if (_token == null) return;
+    setState(() {
+      _periodoSelecionado = periodo;
+      _historicoFiltrado = _filtrarHistorico(_token!, periodo);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
+    if (_isTokenLoading || _token == null) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(title: const Text('Negociação')),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
@@ -53,7 +126,6 @@ class _NegociacaoPageState extends State<NegociacaoPage> {
     );
   }
 
-  // Info do saldo
   Widget _buildSaldoHeader() {
     return Column(
       children: [
@@ -67,25 +139,18 @@ class _NegociacaoPageState extends State<NegociacaoPage> {
             Row(
               children: [
                 Text(
-                  'R\$${saldoUsuario.toStringAsFixed(2).replaceAll('.', ',')}',
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  'R\$${_saldoUsuario.toStringAsFixed(2).replaceAll('.', ',')}',
+                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(width: 8),
                 IconButton(
-                  onPressed: () => Navigator.of(
-                    context,
-                  ).push(MaterialPageRoute(builder: (context) => WalletPage())),
+                  onPressed: () => Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => const WalletPage()),
+                  ),
                   style: ButtonStyle(
                     backgroundColor: WidgetStateProperty.all(Colors.indigo),
                   ),
-                  icon: const Icon(
-                    Icons.credit_card,
-                    color: Colors.white,
-                    size: 20,
-                  ),
+                  icon: const Icon(Icons.credit_card, color: Colors.white, size: 20),
                 ),
               ],
             ),
@@ -96,7 +161,6 @@ class _NegociacaoPageState extends State<NegociacaoPage> {
     );
   }
 
-  // Card de identificação da startup
   Widget _buildTokenInfoCard() {
     return Container(
       padding: const EdgeInsets.all(20),
@@ -105,25 +169,19 @@ class _NegociacaoPageState extends State<NegociacaoPage> {
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: Colors.grey.shade200),
         boxShadow: const [
-          BoxShadow(
-            color: Colors.black12,
-            blurRadius: 10,
-            offset: Offset(0, 4),
-          ),
+          BoxShadow(color: Colors.black12, blurRadius: 10, offset: Offset(0, 4)),
         ],
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(Icons.savings, color: Colors.indigo, size: 32),
-          const SizedBox(width: 12),
           Text(
-            '\$ FNOVA',
+            '\$ ${_token!.tokenSymbol}',
             style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w900),
           ),
           const SizedBox(width: 8),
           Text(
-            'FinNova',
+            _token!.nome,
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w600,
@@ -135,7 +193,6 @@ class _NegociacaoPageState extends State<NegociacaoPage> {
     );
   }
 
-  // Card do filtro de tempo
   Widget _buildChartCard() {
     return Container(
       padding: const EdgeInsets.all(20),
@@ -144,16 +201,11 @@ class _NegociacaoPageState extends State<NegociacaoPage> {
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: Colors.grey.shade200),
         boxShadow: const [
-          BoxShadow(
-            color: Colors.black12,
-            blurRadius: 10,
-            offset: Offset(0, 4),
-          ),
+          BoxShadow(color: Colors.black12, blurRadius: 10, offset: Offset(0, 4)),
         ],
       ),
       child: Column(
         children: [
-          // Valores grafico
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -169,11 +221,8 @@ class _NegociacaoPageState extends State<NegociacaoPage> {
                     ),
                   ),
                   Text(
-                    'R\$ ${10.toStringAsFixed(2).replaceAll('.', ',')}',
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w900,
-                    ),
+                    'R\$ ${_token!.precoAtual.toStringAsFixed(2).replaceAll('.', ',')}',
+                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900),
                   ),
                 ],
               ),
@@ -189,11 +238,10 @@ class _NegociacaoPageState extends State<NegociacaoPage> {
                     ),
                   ),
                   Text(
-                    '${10 >= 0 ? '+' : ''}${10.toInt()}%',
+                    '${_token!.variacao >= 0 ? '+' : ''}${_token!.variacao.toStringAsFixed(2)}%',
                     style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w900,
-                      color: Colors.black,
                     ),
                   ),
                 ],
@@ -201,8 +249,6 @@ class _NegociacaoPageState extends State<NegociacaoPage> {
             ],
           ),
           const SizedBox(height: 20),
-
-          // Grafico das linhas
           Container(
             height: 150,
             width: double.infinity,
@@ -220,6 +266,11 @@ class _NegociacaoPageState extends State<NegociacaoPage> {
                 borderData: FlBorderData(show: false),
                 lineBarsData: [
                   LineChartBarData(
+                    spots: _historicoFiltrado
+                        .asMap()
+                        .entries
+                        .map((e) => FlSpot(e.key.toDouble(), e.value))
+                        .toList(),
                     isCurved: true,
                     color: const Color(0xFF5C6BC0),
                     barWidth: 2.5,
@@ -229,8 +280,8 @@ class _NegociacaoPageState extends State<NegociacaoPage> {
                       show: true,
                       gradient: LinearGradient(
                         colors: [
-                          const Color(0xFF5C6BC0).withOpacity(0.3), // ignorar
-                          const Color(0xFF5C6BC0).withOpacity(0.0), // ignorar
+                          const Color(0xFF5C6BC0).withValues(alpha: 0.3),
+                          const Color(0xFF5C6BC0).withValues(alpha: 0),
                         ],
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
@@ -243,28 +294,16 @@ class _NegociacaoPageState extends State<NegociacaoPage> {
             ),
           ),
           const SizedBox(height: 20),
-
-          // Filtros dos periodos
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: _periodos.map((periodo) {
               final isSelected = periodo == _periodoSelecionado;
               return GestureDetector(
-                onTap: () {
-                  setState(() {
-                    _periodoSelecionado = periodo;
-                    _buscarHistoricoBackend(periodo);
-                  });
-                },
+                onTap: () => _selecionarPeriodo(periodo),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 6,
-                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
-                    color: isSelected
-                        ? const Color(0xFF5C6BC0)
-                        : Colors.transparent,
+                    color: isSelected ? const Color(0xFF5C6BC0) : Colors.transparent,
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
@@ -287,11 +326,15 @@ class _NegociacaoPageState extends State<NegociacaoPage> {
   void _abrirPopUp(BuildContext context, OrderType tipo) {
     showDialog(
       context: context,
-      builder: (context) => PlaceOrderPopUp(currentPrice: 10, type: tipo),
+      builder: (_) => PlaceOrderPopUp(
+        token: _token!,
+        currentPrice: _token!.precoAtual,
+        type: tipo,
+        userAvailableBalance: _saldoUsuario,
+      ),
     );
   }
 
-  // Botões compra e venda
   Widget _buildActionButtons(BuildContext context) {
     return Row(
       children: [
@@ -301,9 +344,7 @@ class _NegociacaoPageState extends State<NegociacaoPage> {
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.green,
               padding: const EdgeInsets.symmetric(vertical: 16),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             ),
             child: const Text(
               'Comprar',
@@ -322,9 +363,7 @@ class _NegociacaoPageState extends State<NegociacaoPage> {
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.red,
               padding: const EdgeInsets.symmetric(vertical: 16),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             ),
             child: const Text(
               'Vender',
