@@ -1,8 +1,10 @@
-// Gabriel Hespanholeto Maziero 25004669
-
 import 'package:flutter/material.dart';
-import '../components/token_card.dart';
-import '../controllers/balcao_controller.dart';
+import 'package:frontend/components/token_card.dart';
+import 'package:frontend/controllers/balcao_controller.dart';
+import 'package:frontend/models/token.dart';
+import 'package:frontend/pages/wallet_page.dart';
+import 'package:frontend/services/numberformatter_service.dart';
+import 'package:frontend/services/wallet_services.dart';
 
 class TokenMarketPage extends StatefulWidget {
   const TokenMarketPage({super.key});
@@ -12,26 +14,35 @@ class TokenMarketPage extends StatefulWidget {
 }
 
 class _TokenMarketPageState extends State<TokenMarketPage> {
-  List<Map<String, dynamic>?> _tokens = [];
+  double _saldoUsuario = 0;
+  List<Token> _tokens = <Token>[];
   bool _isLoading = true;
 
   Future<void> _fetchTokens() async {
-    setState(() {
-      _isLoading = true;
-    });
-
+    setState(() => _isLoading = true);
     final result = await buscarTokens();
-
+    if (!mounted) return;
     setState(() {
       _tokens = result;
       _isLoading = false;
     });
   }
 
+  Future<void> _fetchData() async {
+    _fetchTokens();
+    final wallet = await callWalletBalance();
+
+    if (!mounted) return;
+
+    setState(() {
+      _saldoUsuario = wallet?.availableBalance ?? 0;
+    });
+  }
+
   @override
   void initState() {
-    super.initState;
-    _fetchTokens();
+    super.initState();
+    _fetchData();
   }
 
   @override
@@ -40,63 +51,67 @@ class _TokenMarketPageState extends State<TokenMarketPage> {
       backgroundColor: const Color(0xFFF8F9FA),
       appBar: AppBar(
         title: const Text('Balcão de tokens'),
-        centerTitle: true,
-        backgroundColor: Colors.white,
-        elevation: 0,
-        foregroundColor: Colors.black,
         automaticallyImplyLeading: false,
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Cabeçalho do saldo
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            Column(
               children: [
-                const Text(
-                  'Seu saldo:',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-                ),
                 Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    // O saldo ainda está hardcoded, isso mudará quando vocês integrarem a tabela de Usuários
                     const Text(
-                      'R\$0,00',
+                      'Saldo disponível:',
                       style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
-                    const SizedBox(width: 8),
-                    Container(
-                      padding: const EdgeInsets.all(6),
-                      decoration: const BoxDecoration(
-                        color: Color(0xFF5759E0),
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(
-                        Icons.account_balance_wallet,
-                        color: Colors.white,
-                        size: 20,
-                      ),
+                    Row(
+                      children: [
+                        Text(
+                          moneyFormatter.format(_saldoUsuario),
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        IconButton(
+                          onPressed: () => Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) => const WalletPage(),
+                            ),
+                          ),
+                          style: ButtonStyle(
+                            backgroundColor: WidgetStateProperty.all(
+                              Colors.indigo,
+                            ),
+                          ),
+                          icon: const Icon(
+                            Icons.credit_card,
+                            color: Colors.white,
+                            size: 20,
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
+                const Divider(color: Colors.black12, height: 20),
               ],
             ),
-            const Divider(height: 30, thickness: 1),
             const Text(
               'Tokens de startups',
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
-
-            // API
             Expanded(
               child: RefreshIndicator(
-                onRefresh: () => _fetchTokens(),
+                onRefresh: _fetchTokens,
                 child: _isLoading
                     ? const Center(
                         child: CircularProgressIndicator(color: Colors.indigo),
@@ -110,15 +125,9 @@ class _TokenMarketPageState extends State<TokenMarketPage> {
                       )
                     : ListView.builder(
                         itemCount: _tokens.length,
-                        itemBuilder: (context, index) {
+                        itemBuilder: (_, index) {
                           final token = _tokens[index];
-                          return TokenCard(
-                            ticker: token?['token_symbol'],
-                            nome: token?['nome'],
-                            precoAtual: token?['precoAtual'],
-                            variacao: token?['variacao'],
-                            historicoPrecos: token?['historico'],
-                          );
+                          return TokenCard(token: token);
                         },
                       ),
               ),

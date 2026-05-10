@@ -7,7 +7,7 @@ import {
   TokenWalletType,
   TransactionModel,
 } from "../../exchange/types/walletType";
-import { Timestamp } from "firebase-admin/firestore";
+import { FieldValue, Timestamp } from "firebase-admin/firestore";
 import { StartupPriceHistory } from "../../startups/types/startupType";
 
 export async function matchOrders(startupId: string): Promise<MatchesExecuted> {
@@ -19,7 +19,7 @@ export async function matchOrders(startupId: string): Promise<MatchesExecuted> {
     }
   });
 
-  if (!startupOpenOrders) return { matchesExecuted: 0 };
+  if (startupOpenOrders.length == 0) return { matchesExecuted: 0 };
   let buyOrders: Order[] = [];
   let sellOrders: Order[] = [];
   for (const o of startupOpenOrders) {
@@ -42,9 +42,10 @@ export async function matchOrders(startupId: string): Promise<MatchesExecuted> {
   let matchesExecutedCount: number = 0;
   for (const mo of matchingOrders) {
     try {
-      const { qty, price } = resolveMatch(mo.buy, mo.sell);
-      await settleMatch(mo.buy, mo.sell, qty, price);
-      matchesExecutedCount++;
+      const wasExecuted = await settleMatch(mo.buy, mo.sell);
+      if (wasExecuted) {
+        matchesExecutedCount++;
+      }
     } catch (e) {
       console.error(
         "[matchOrders] Erro ao liquidar par de ordens, pulando para o próximo:",
@@ -66,7 +67,7 @@ function findMatchingOrders(buys: Order[], sells: Order[]): MatchOrder[] {
       : a.createdAt.toMillis() - b.createdAt.toMillis(),
   );
   sells.sort((a, b) =>
-    b.price - a.price == 0
+    a.price - b.price !== 0
       ? a.price - b.price
       : a.createdAt.toMillis() - b.createdAt.toMillis(),
   );
@@ -84,23 +85,8 @@ function findMatchingOrders(buys: Order[], sells: Order[]): MatchOrder[] {
   return matchingOrders;
 }
 
-function resolveMatch(buy: Order, sell: Order) {
-  const remainingBuy = buy.quantity - buy.quantity_filled;
-  const remainingSell = sell.quantity - sell.quantity_filled;
-
-  const qty = Math.min(remainingBuy, remainingSell);
-
-  const price = sell.price;
-  return { qty, price };
-}
-
-async function settleMatch(
-  buy: Order,
-  sell: Order,
-  qty: number,
-  price: number,
-) {
-  await db.runTransaction(async (tx) => {
+async function settleMatch(buy: Order, sell: Order): Promise<boolean> {
+  return db.runTransaction(async (tx) => {
     const walletRefBuyer = db.collection("wallets").doc(buy.user_id!);
     const walletRefSeller = db.collection("wallets").doc(sell.user_id!);
     const buyOrderRef = db.collection("orders").doc(buy.id);
@@ -116,23 +102,63 @@ async function settleMatch(
 
     const buyerWallet = buyerSnap.data() as TokenWalletType;
     const sellerWallet = sellerSnap.data() as TokenWalletType;
+    const currentBuyOrder = buyOrderSnap.data() as Order | undefined;
+    const currentSellOrder = sellOrderSnap.data() as Order | undefined;
+
+    if (!currentBuyOrder || !currentSellOrder) {
+      return false;
+    }
+
+    if (
+      (currentBuyOrder.status !== OrderStatus.open &&
+        currentBuyOrder.status !== OrderStatus.partially) ||
+      (currentSellOrder.status !== OrderStatus.open &&
+        currentSellOrder.status !== OrderStatus.partially)
+    ) {
+      return false;
+    }
+
+    if (currentBuyOrder.user_id === currentSellOrder.user_id) {
+      return false;
+    }
+
+    if (currentBuyOrder.price < currentSellOrder.price) {
+      return false;
+    }
+
+    const remainingBuy =
+      currentBuyOrder.quantity - currentBuyOrder.quantity_filled;
+    const remainingSell =
+      currentSellOrder.quantity - currentSellOrder.quantity_filled;
+    const qty = Math.min(remainingBuy, remainingSell);
+
+    if (qty <= 0) {
+      return false;
+    }
+
+    const price = currentSellOrder.price;
     const totalValue = qty * price;
 
     // Validações de consistência
     const sellerHolding = sellerWallet.holdings.find(
-      (h) => h.startupId === sell.startup_id,
+      (h) => h.startup_id === currentSellOrder.startup_id,
     );
-    if (!sellerHolding || sellerHolding.blockedTokenBalance < qty) {
+
+    console.log("[settleMatch] DEBUG", {
+      sellStartup_id: currentSellOrder.startup_id,
+      sellerHoldings: JSON.stringify(sellerWallet.holdings),
+    });
+    if (!sellerHolding || sellerHolding.blocked_token_balance < qty) {
       console.error(
         "[settleMatch] Inconsistência: blockedTokenBalance insuficiente",
         {
           sellOrderId: sell.id,
           buyOrderId: buy.id,
           expected: qty,
-          found: sellerHolding?.blockedTokenBalance ?? 0,
+          found: sellerHolding?.blocked_token_balance ?? 0,
         },
       );
-      return;
+      return false;
     }
     if (buyerWallet.blockedBalance < totalValue) {
       console.error(
@@ -143,7 +169,7 @@ async function settleMatch(
           found: buyerWallet.blockedBalance,
         },
       );
-      return;
+      return false;
     }
 
     // transferFunds
@@ -156,52 +182,56 @@ async function settleMatch(
 
     // transferTokens
     const updatedSellerHoldings = sellerWallet.holdings.map((h) =>
-      h.startupId === sell.startup_id
+      h.startup_id === currentSellOrder.startup_id
         ? {
             ...h,
-            blockedTokenBalance: h.blockedTokenBalance - qty,
-            avgPrice:
-              (h.tokenBalance * h.avgPrice + qty * price) /
-              (h.tokenBalance + qty),
+            blocked_token_balance: h.blocked_token_balance - qty,
+            avg_price: h.avg_price,
           }
         : h,
     );
     tx.update(walletRefSeller, { holdings: updatedSellerHoldings });
 
-    const buyerHoldingExists = buyerWallet.holdings.some(
-      (h) => h.startupId === buy.startup_id,
+    const buyerHoldings = buyerWallet.holdings || [];
+
+    const buyerHoldingExists = buyerHoldings.some(
+      (h) => h.startup_id === currentBuyOrder.startup_id,
     );
+
     const updatedBuyerHoldings = buyerHoldingExists
-      ? buyerWallet.holdings.map((h) =>
-          h.startupId === buy.startup_id
+      ? buyerHoldings.map((h) =>
+          h.startup_id === currentBuyOrder.startup_id
             ? {
                 ...h,
-                tokenBalance: h.tokenBalance + qty,
-                avgPrice:
-                  (h.tokenBalance * h.avgPrice + qty * price) /
-                  (h.tokenBalance + qty),
+                token_balance: h.token_balance + qty,
+                avg_price:
+                  (h.token_balance * (h.avg_price || price) + qty * price) /
+                  (h.token_balance + qty),
               }
             : h,
         )
       : [
-          ...buyerWallet.holdings,
+          ...buyerHoldings,
           {
-            tokenBalance: qty,
-            blockedTokenBalance: 0,
-            startupId: buy.startup_id,
-            tokenSymbol: buy.token_symbol,
-            avgPrince: price,
+            token_balance: qty,
+            blocked_token_balance: 0,
+            startup_id: currentBuyOrder.startup_id,
+            token_symbol: currentBuyOrder.token_symbol,
+            avg_price: price,
           },
         ];
+
     tx.update(walletRefBuyer, { holdings: updatedBuyerHoldings });
 
     // executeOrderExecution
-    const buyFilled = (buyOrderSnap.data()?.quantity_filled ?? 0) + qty;
-    const buyStatus = buyFilled >= buy.quantity ? "filled" : "partially";
+    const buyFilled = currentBuyOrder.quantity_filled + qty;
+    const buyStatus =
+      buyFilled >= currentBuyOrder.quantity ? "filled" : "partially";
     tx.update(buyOrderRef, { quantity_filled: buyFilled, status: buyStatus });
 
-    const sellFilled = (sellOrderSnap.data()?.quantity_filled ?? 0) + qty;
-    const sellStatus = sellFilled >= sell.quantity ? "filled" : "partially";
+    const sellFilled = currentSellOrder.quantity_filled + qty;
+    const sellStatus =
+      sellFilled >= currentSellOrder.quantity ? "filled" : "partially";
     tx.update(sellOrderRef, {
       quantity_filled: sellFilled,
       status: sellStatus,
@@ -212,9 +242,9 @@ async function settleMatch(
     tx.set(tradeRef, {
       buyOrderId: buy.id,
       sellOrderId: sell.id,
-      startupId: buy.startup_id,
-      buyerId: buy.user_id,
-      sellerId: sell.user_id,
+      startup_id: currentBuyOrder.startup_id,
+      buyerId: currentBuyOrder.user_id,
+      sellerId: currentSellOrder.user_id,
       qty,
       price,
       totalValue,
@@ -224,10 +254,10 @@ async function settleMatch(
     const buyTransaction = {
       amountBRL: totalValue,
       createdAt: Timestamp.now(),
-      description: `Compra de \$${buy.token_symbol}`,
+      description: `Compra de \$${currentBuyOrder.token_symbol}`,
       tradeId: tradeRef.id,
       type: "expense",
-      userId: buy.user_id,
+      userId: currentBuyOrder.user_id,
     } as TransactionModel;
 
     const buyTransactionRef = db.collection("transactions").doc();
@@ -236,26 +266,41 @@ async function settleMatch(
     const sellTransaction = {
       amountBRL: totalValue,
       createdAt: Timestamp.now(),
-      description: `Venda de \$${sell.token_symbol}`,
+      description: `Venda de \$${currentSellOrder.token_symbol}`,
       tradeId: tradeRef.id,
       type: "income",
-      userId: sell.user_id,
+      userId: currentSellOrder.user_id,
     } as TransactionModel;
 
     const sellTransactionRef = db.collection("transactions").doc();
     tx.create(sellTransactionRef, sellTransaction);
 
+    // updateStartupLastPrice
+    const startupRef = db
+      .collection("startups")
+      .doc(currentBuyOrder.startup_id);
+    tx.set(
+      startupRef,
+      {
+        last_price: price,
+        updatedAt: FieldValue.serverTimestamp(),
+      },
+      { merge: true },
+    );
+
     //addPriceToPriceHistory
     const priceHistoryRef = db
       .collection("startups")
-      .doc(buy.startup_id)
+      .doc(currentBuyOrder.startup_id)
       .collection("price_history")
       .doc();
     const newPriceHistoryEntry: StartupPriceHistory = {
-      price: buy.price,
+      price: price,
       quantity: qty,
       executed_at: Timestamp.now(),
     };
     tx.set(priceHistoryRef, newPriceHistoryEntry);
+
+    return true;
   });
 }

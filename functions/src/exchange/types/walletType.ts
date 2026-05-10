@@ -31,10 +31,10 @@ export interface TokenWalletType {
   holdings: Holding[];
 }
 
-export interface Holding {
-  tokenBalance: number;
-  blockedTokenBalance: number;
-  startupId: string;
-  tokenSymbol: string;
-  avgPrice: number;
-}
+type Holding = {
+  startup_id: string;
+  token_symbol: string;
+  token_balance: number;
+  blocked_token_balance: number;
+  avg_price: number;
+};
