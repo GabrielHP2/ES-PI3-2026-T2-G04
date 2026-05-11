@@ -122,6 +122,32 @@ class OrderModel {
       updatedAt: _parseDate(map['updatedAt']),
     );
   }
+
+  OrderModel copyWith({
+    String? id,
+    double? price,
+    int? quantity,
+    int? quantityFilled,
+    String? startupId,
+    OrderStatus? status,
+    String? tokenSymbol,
+    OrderType? type,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) {
+    return OrderModel(
+      id: id ?? this.id,
+      price: price ?? this.price,
+      quantity: quantity ?? this.quantity,
+      quantityFilled: quantityFilled ?? this.quantityFilled,
+      startupId: startupId ?? this.startupId,
+      status: status ?? this.status,
+      tokenSymbol: tokenSymbol ?? this.tokenSymbol,
+      type: type ?? this.type,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+    );
+  }
 }
 
 class ConfirmOrderModel {
@@ -151,8 +177,9 @@ class ConfirmOrderModel {
 
   String get typeLabel => type.label;
 
-  double get balanceAfter =>
-      type == OrderType.buy ? userBalance - totalValue : userBalance + totalValue;
+  double get balanceAfter => type == OrderType.buy
+      ? userBalance - totalValue
+      : userBalance + totalValue;
 
   int get tokenBalanceAfter => type == OrderType.buy
       ? userTokenBalance + quantity

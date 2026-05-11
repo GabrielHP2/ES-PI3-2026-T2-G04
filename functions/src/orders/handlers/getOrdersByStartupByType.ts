@@ -1,7 +1,7 @@
-import {HttpsError, onCall} from "firebase-functions/v2/https";
-import {db} from "../../startups/shared/firebase";
-import {logger} from "firebase-functions/v2";
-import {Order} from "../types/orderType";
+import { HttpsError, onCall } from "firebase-functions/v2/https";
+import { db } from "../../startups/shared/firebase";
+import { logger } from "firebase-functions/v2";
+import { Order } from "../types/orderType";
 
 const orderCollection = db.collection("orders");
 
@@ -11,10 +11,12 @@ export const getOrdersByStartupBytype = onCall(async (request) => {
     throw new HttpsError("unauthenticated", "User not authenticated");
   }
 
-  const {startupId, type} = request.data;
+  const { startupId, type } = request.data;
 
   if (!startupId || typeof startupId !== "string") {
-    logger.error("Error from getOrdersByStartupBytype: startupId é obrigatório");
+    logger.error(
+      "Error from getOrdersByStartupBytype: startupId é obrigatório",
+    );
     throw new HttpsError("invalid-argument", "startupId é obrigatório.");
   }
 
@@ -42,7 +44,7 @@ export const getOrdersByStartupBytype = onCall(async (request) => {
       logger.info(
         `Nenhuma ordem encontrada para startupId=${startupId} e type=${type}`,
       );
-      return {orders: []};
+      return { orders: [] };
     }
 
     const orders: Order[] = ordersSnapshot.docs.map((doc) => ({
@@ -51,7 +53,7 @@ export const getOrdersByStartupBytype = onCall(async (request) => {
     }));
 
     logger.info(`Listadas ${orders.length} da startupId=${startupId}`);
-    return {orders};
+    return { orders };
   } catch (error) {
     logger.error("Erro ao listar ordens:", error);
     throw new HttpsError("internal", "Erro ao listar ordens.");

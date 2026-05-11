@@ -1,5 +1,6 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:frontend/components/order_book.dart';
 import 'package:frontend/components/place_order.dart';
 import 'package:frontend/controllers/balcao_controller.dart';
 import 'package:frontend/models/order_model.dart';
@@ -120,6 +121,8 @@ class _NegociacaoPageState extends State<NegociacaoPage> {
               _buildChartCard(),
               const SizedBox(height: 30),
               _buildActionButtons(context),
+              const SizedBox(height: 16),
+              OrderBook(type: OrderType.sell, startupId: _token!.startupId),
             ],
           ),
         ),

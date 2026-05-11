@@ -68,7 +68,9 @@ Future<List<OrderModel>> listOrders() async {
     final data = Map<String, dynamic>.from(result.data as Map);
     final orders = data['orders'] as List<dynamic>? ?? const [];
     return orders
-        .map((e) => OrderModel.fromBackendMap(Map<String, dynamic>.from(e as Map)))
+        .map(
+          (e) => OrderModel.fromBackendMap(Map<String, dynamic>.from(e as Map)),
+        )
         .toList();
   } catch (_) {
     return [];
@@ -82,9 +84,56 @@ Future<List<OrderModel>> listOrdersByToken(String startupId) async {
     final data = Map<String, dynamic>.from(result.data as Map);
     final orders = data['orders'] as List<dynamic>? ?? const [];
     return orders
-        .map((e) => OrderModel.fromBackendMap(Map<String, dynamic>.from(e as Map)))
+        .map(
+          (e) => OrderModel.fromBackendMap(Map<String, dynamic>.from(e as Map)),
+        )
         .toList();
   } catch (_) {
     return [];
   }
+}
+
+Future<List<OrderModel>> callGetOrdersByStartupByType(
+  String startupId,
+  OrderType type,
+) async {
+  try {
+    final callable = _functions.httpsCallable('getOrdersByStartupAndType');
+    final result = await callable.call({
+      'startupId': startupId,
+      'type': type.backendValue,
+    });
+    final data = result.data as Map<String, dynamic>;
+    final orders = (data['orders'] as List<dynamic>? ?? [])
+        .map(
+          (d) => OrderModel.fromBackendMap(Map<String, dynamic>.from(d as Map)),
+        )
+        .toList();
+
+    return _mergeOrdersByPrice(orders);
+  } on FirebaseFunctionsException catch (err) {
+    print('FirebaseFunctionsException: ${err.code} - ${err.message}');
+    return [];
+  } catch (e) {
+    print('Error: $e');
+    return [];
+  }
+}
+
+List<OrderModel> _mergeOrdersByPrice(List<OrderModel> orders) {
+  final Map<double, OrderModel> priceMap = {};
+
+  for (final order in orders) {
+    if (priceMap.containsKey(order.price)) {
+      // Soma a quantidade na ordem existente
+      final existing = priceMap[order.price]!;
+      priceMap[order.price] = existing.copyWith(
+        quantity: existing.quantity + order.quantity,
+      );
+    } else {
+      priceMap[order.price] = order;
+    }
+  }
+
+  return priceMap.values.toList();
 }
