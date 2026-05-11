@@ -19,11 +19,17 @@ class _WalletPageState extends State<WalletPage> {
   bool _isLoading = true;
 
   Future<void> _fetchWallet() async {
-    setState(() {
-      _isLoading = true;
-    });
+    if (!_isLoading) {
+      if (!mounted) return;
+      setState(() {
+        _isLoading = true;
+      });
+    }
+
     final result = await callWalletBalance();
     final resultTransactions = await callWalletTransactions();
+
+    if (!mounted) return;
     setState(() {
       _isLoading = false;
       balance = result;
