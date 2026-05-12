@@ -97,7 +97,10 @@ class _OrderBookState extends State<OrderBook> {
                             moneyFormatter.format(o.price),
                             textAlign: .center,
                           ),
-                          Text(o.quantity.toString(), textAlign: .center),
+                          Text(
+                            (o.quantity - o.quantityFilled).toString(),
+                            textAlign: .center,
+                          ),
                         ],
                       ),
                     )

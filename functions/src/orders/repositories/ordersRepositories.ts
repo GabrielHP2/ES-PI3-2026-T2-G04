@@ -39,7 +39,7 @@ export async function getOrdersByStartupAndType(
   const snapshot = await orderCollection
     .where("startup_id", "==", startupId)
     .where("type", "==", type)
-    .limit(50)
+    .where("status", "in", ["open", "partially"])
     .get();
 
   if (snapshot.empty) return [];
