@@ -47,6 +47,18 @@ class _QuestionsSectionState extends State<QuestionsSection> {
   }
 
   Future<void> _submitQuestion() async {
+    setState(() {
+      _isLoading = true;
+    });
+    if (_controller.text.trim().isEmpty) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Campo de pergunta vazio')));
+      setState(() {
+        _isLoading = false;
+      });
+      return;
+    }
     await callSendQuestion(widget.startupId, widget.isPublic, _controller.text);
     await _fetchQuestions(widget.startupId, widget.isPublic);
     if (!mounted) return;
