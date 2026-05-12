@@ -3,7 +3,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/pages/auth_2fa.dart';
 import 'package:frontend/pages/cadastro_page.dart';
-import 'package:frontend/pages/home_shell.dart';
 import 'package:frontend/pages/recuperar_senha.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -119,10 +118,6 @@ class _LoginPageState extends State<LoginPage> {
                     messenger.hideCurrentSnackBar();
                     messenger.showSnackBar(
                       const SnackBar(content: Text('Login feito com sucesso')),
-                    );
-                    navigator.pushAndRemoveUntil(
-                      MaterialPageRoute(builder: (_) => const HomeShell()),
-                      (route) => false,
                     );
                   } on FirebaseAuthMultiFactorException catch (error) {
                     if (!mounted) return;

@@ -80,11 +80,14 @@ class _TokenMarketPageState extends State<TokenMarketPage> {
                         ),
                         const SizedBox(width: 8),
                         IconButton(
-                          onPressed: () => Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (_) => const WalletPage(),
-                            ),
-                          ),
+                          onPressed: () async {
+                            await Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (_) => const WalletPage(),
+                              ),
+                            );
+                            await _fetchData();
+                          },
                           style: ButtonStyle(
                             backgroundColor: WidgetStateProperty.all(
                               Colors.indigo,
