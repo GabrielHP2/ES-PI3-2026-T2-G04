@@ -22,6 +22,7 @@ class _WalletDepositPageState extends State<WalletDepositPage> {
   PaymentMethods _paymentMethod = PaymentMethods.none;
   bool _isValid = false;
   bool _isEnabled = false;
+  bool _isSubmitting = false;
 
   PaymentType _toPaymentType(PaymentMethods method) {
     switch (method) {
@@ -115,9 +116,13 @@ class _WalletDepositPageState extends State<WalletDepositPage> {
                 : SizedBox(height: 0),
             SizedBox(height: 16),
             ElevatedButton(
-              onPressed: !_isEnabled
+              onPressed: (!_isEnabled || _isSubmitting)
                   ? null
                   : () async {
+                      setState(() {
+                        _isSubmitting = true;
+                      });
+
                       final result = await callWalletDeposit(
                         controller.numberValue,
                         _toPaymentType(_paymentMethod),
@@ -130,6 +135,10 @@ class _WalletDepositPageState extends State<WalletDepositPage> {
                         return;
                       }
 
+                      setState(() {
+                        _isSubmitting = false;
+                      });
+
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
                           content: Text('Não foi possível depositar.'),
@@ -137,11 +146,14 @@ class _WalletDepositPageState extends State<WalletDepositPage> {
                       );
                     },
               style: ElevatedButton.styleFrom(
-                backgroundColor: _isEnabled
+                backgroundColor: (_isEnabled && !_isSubmitting)
                     ? Colors.indigo
                     : Colors.grey.shade400,
               ),
-              child: Text('DEPOSITAR', style: TextStyle(color: Colors.white)),
+              child: Text(
+                _isSubmitting ? 'DEPOSITANDO...' : 'DEPOSITAR',
+                style: const TextStyle(color: Colors.white),
+              ),
             ),
           ],
         ),

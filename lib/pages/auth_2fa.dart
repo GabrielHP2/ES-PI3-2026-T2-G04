@@ -4,7 +4,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:frontend/pages/home_shell.dart';
 
 class Autenticacao2FAPage extends StatefulWidget {
   final MultiFactorResolver resolver;
@@ -29,14 +28,6 @@ class _Autenticacao2FAPageState extends State<Autenticacao2FAPage> {
     messenger.hideCurrentSnackBar();
     messenger.showSnackBar(
       SnackBar(content: Text(message), backgroundColor: backgroundColor),
-    );
-  }
-
-  void _goHome() {
-    Navigator.pushAndRemoveUntil(
-      context,
-      MaterialPageRoute(builder: (_) => const HomeShell()),
-      (route) => false,
     );
   }
 
@@ -66,8 +57,6 @@ class _Autenticacao2FAPageState extends State<Autenticacao2FAPage> {
             await widget.resolver.resolveSignIn(
               PhoneMultiFactorGenerator.getAssertion(credential),
             );
-            if (!mounted) return;
-            _goHome();
           } on FirebaseAuthException catch (e) {
             if (!mounted) return;
             _showSnack('Falha ao concluir o 2FA: ${e.message ?? e.code}');
@@ -133,8 +122,6 @@ class _Autenticacao2FAPageState extends State<Autenticacao2FAPage> {
       await widget.resolver.resolveSignIn(
         PhoneMultiFactorGenerator.getAssertion(credential),
       );
-      if (!mounted) return;
-      _goHome();
     } on FirebaseAuthException catch (e) {
       _showSnack(e.message ?? e.code);
     } catch (e) {
