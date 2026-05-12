@@ -17,9 +17,7 @@ class TokenCard extends StatelessWidget {
 
     return GestureDetector(
       onTap: () => Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (_) => NegociacaoPage(initialToken: token),
-        ),
+        MaterialPageRoute(builder: (_) => NegociacaoPage(initialToken: token)),
       ),
       child: Container(
         margin: const EdgeInsets.only(bottom: 16),
@@ -29,7 +27,11 @@ class TokenCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
           border: Border.all(color: Colors.grey.shade300, width: 1),
           boxShadow: const [
-            BoxShadow(color: Colors.black26, offset: Offset(0, 2), blurRadius: 1),
+            BoxShadow(
+              color: Colors.black26,
+              offset: Offset(0, 2),
+              blurRadius: 1,
+            ),
           ],
         ),
         child: Column(
@@ -82,7 +84,7 @@ class TokenCard extends StatelessWidget {
               child: LineChart(
                 LineChartData(
                   lineTouchData: LineTouchData(
-                    enabled: true,
+                    enabled: false,
                     touchTooltipData: LineTouchTooltipData(
                       fitInsideHorizontally: true,
                       fitInsideVertically: true,

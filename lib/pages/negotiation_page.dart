@@ -1,5 +1,6 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:frontend/components/order_book.dart';
 import 'package:frontend/components/place_order.dart';
 import 'package:frontend/controllers/balcao_controller.dart';
 import 'package:frontend/models/order_model.dart';
@@ -121,6 +122,16 @@ class _NegociacaoPageState extends State<NegociacaoPage> {
               _buildChartCard(),
               const SizedBox(height: 16),
               _buildActionButtons(context),
+              const SizedBox(height: 48),
+              const Text(
+                'Livro de ordens:',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+              ),
+              const Divider(),
+              const SizedBox(height: 16),
+              OrderBook(type: OrderType.sell, startupId: _token!.startupId),
+              const SizedBox(height: 16),
+              OrderBook(type: OrderType.buy, startupId: _token!.startupId),
             ],
           ),
         ),
@@ -175,7 +186,7 @@ class _NegociacaoPageState extends State<NegociacaoPage> {
 
   Widget _buildTokenInfoCard() {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
@@ -207,7 +218,7 @@ class _NegociacaoPageState extends State<NegociacaoPage> {
 
   Widget _buildChartCard() {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
@@ -304,7 +315,25 @@ class _NegociacaoPageState extends State<NegociacaoPage> {
                     ),
                   ),
                 ],
-                lineTouchData: const LineTouchData(enabled: false),
+                lineTouchData: LineTouchData(
+                  enabled: true,
+                  touchTooltipData: LineTouchTooltipData(
+                    fitInsideHorizontally: true,
+                    fitInsideVertically: true,
+                    getTooltipColor: (_) => Colors.black87,
+                    getTooltipItems: (touchedSpots) {
+                      return touchedSpots.map((spot) {
+                        return LineTooltipItem(
+                          'R\$ ${spot.y.toStringAsFixed(2)}',
+                          const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        );
+                      }).toList();
+                    },
+                  ),
+                ),
               ),
             ),
           ),

@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend/models/question.dart';
 import 'package:frontend/services/question_service.dart';
@@ -97,7 +96,7 @@ class _QuestionsSectionState extends State<QuestionsSection> {
                     },
                     separatorBuilder: (context, index) =>
                         const SizedBox(height: 16),
-                    itemCount: _questions!.length,
+                    itemCount: _questions.length,
                   ),
                 ),
         ),
@@ -105,7 +104,7 @@ class _QuestionsSectionState extends State<QuestionsSection> {
         TextField(
           maxLength: 180,
           controller: _controller,
-          onSubmitted: (value) => _submitQuestion(),
+          onSubmitted: (value) => _isLoading ? null : _submitQuestion(),
           decoration: InputDecoration(
             labelText: 'Faça sua pergunta',
             border: const OutlineInputBorder(

@@ -32,6 +32,21 @@ export async function getOrdersByStartup(startupId: string): Promise<Order[]> {
   return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }) as Order);
 }
 
+export async function getOrdersByStartupAndType(
+  startupId: string,
+  type: OrderType,
+): Promise<Order[]> {
+  const snapshot = await orderCollection
+    .where("startup_id", "==", startupId)
+    .where("type", "==", type)
+    .limit(50)
+    .get();
+
+  if (snapshot.empty) return [];
+
+  return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }) as Order);
+}
+
 //  getAllByUser
 
 export async function getOrdersByUser(userId: string): Promise<Order[]> {
