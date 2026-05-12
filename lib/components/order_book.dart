@@ -89,6 +89,7 @@ class _OrderBookState extends State<OrderBook> {
               TableRow(children: [SizedBox(height: 8), SizedBox(height: 8)]),
               if (_orders != null)
                 ..._orders!
+                    .where((o) => o.quantity > o.quantityFilled)
                     .take(8)
                     .map(
                       (o) => TableRow(
@@ -109,10 +110,13 @@ class _OrderBookState extends State<OrderBook> {
           ),
           if (_isLoading)
             const Text('Carregando...')
-          else if (_orders == null || _orders!.isEmpty)
+          else if (_orders == null ||
+              _orders!.where((o) => o.quantity > o.quantityFilled).isEmpty)
             const Text('Nenhuma ordem colocada'),
 
-          if ((_orders?.length ?? 0) > 8)
+          if ((_orders?.where((o) => o.quantity > o.quantityFilled).length ??
+                  0) >
+              8)
             const Column(
               children: [
                 Text(

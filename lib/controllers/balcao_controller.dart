@@ -63,7 +63,7 @@ Future<OrderSubmissionResult> placeOrder(CreateOrderDTO dto) async {
 
 Future<List<OrderModel>> listOrders() async {
   try {
-    final callable = _functions.httpsCallable('listOrders');
+    final callable = _functions.httpsCallable('listOrdersCallable');
     final result = await callable.call();
     final data = Map<String, dynamic>.from(result.data as Map);
     final orders = data['orders'] as List<dynamic>? ?? const [];
@@ -112,11 +112,9 @@ Future<List<OrderModel>> callGetOrdersByStartupByType(
 
     final mergedOrders = _mergeOrdersByPrice(orders);
     return _sortOrdersByPrice(mergedOrders, type);
-  } on FirebaseFunctionsException catch (err) {
-    print('FirebaseFunctionsException: ${err.code} - ${err.message}');
+  } on FirebaseFunctionsException {
     return [];
   } catch (e) {
-    print('Error: $e');
     return [];
   }
 }

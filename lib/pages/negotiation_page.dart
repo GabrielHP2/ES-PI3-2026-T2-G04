@@ -2,6 +2,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend/components/order_book.dart';
 import 'package:frontend/components/place_order.dart';
+import 'package:frontend/components/user_order_card.dart';
 import 'package:frontend/controllers/balcao_controller.dart';
 import 'package:frontend/models/order_model.dart';
 import 'package:frontend/models/token.dart';
@@ -26,6 +27,15 @@ class _NegociacaoPageState extends State<NegociacaoPage> {
   bool _isTokenLoading = true;
   List<double> _historicoFiltrado = [];
   double _saldoUsuario = 0;
+  List<OrderModel> _userOrders = [];
+  List<OrderModel> _filteredUserOrders = [];
+  bool _ordersLoaded = false;
+
+  void _filterOpenOrders() {
+    _filteredUserOrders = _userOrders
+        .where((o) => o.status != OrderStatus.filled)
+        .toList();
+  }
 
   @override
   void initState() {
@@ -42,7 +52,8 @@ class _NegociacaoPageState extends State<NegociacaoPage> {
   Future<void> _fetchData() async {
     final token = await buscarTokenPorStartupId(widget.initialToken.startupId);
     final wallet = await callWalletBalance();
-
+    final startupId = token?.startupId ?? widget.initialToken.startupId;
+    final userOrders = await listOrders();
     if (!mounted) return;
 
     setState(() {
@@ -51,6 +62,9 @@ class _NegociacaoPageState extends State<NegociacaoPage> {
         _historicoFiltrado = _filtrarHistorico(token, _periodoSelecionado);
       }
       _saldoUsuario = wallet?.availableBalance ?? 0;
+      _userOrders = userOrders.where((o) => o.startupId == startupId).toList();
+      _filterOpenOrders();
+      _ordersLoaded = true;
     });
   }
 
@@ -132,6 +146,25 @@ class _NegociacaoPageState extends State<NegociacaoPage> {
               OrderBook(type: OrderType.sell, startupId: _token!.startupId),
               const SizedBox(height: 16),
               OrderBook(type: OrderType.buy, startupId: _token!.startupId),
+              const SizedBox(height: 16),
+              const Text(
+                'Suas Ordens Colocadas:',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+              ),
+              const Divider(),
+              if (!_ordersLoaded)
+                const SizedBox(
+                  height: 80,
+                  child: Center(child: CircularProgressIndicator()),
+                )
+              else if (_userOrders.isEmpty)
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 12),
+                  child: Text('Nenhuma ordem encontrada.'),
+                )
+              else
+                ..._filteredUserOrders.map((o) => UserOrder(order: o)),
+              const SizedBox(height: 16),
             ],
           ),
         ),
