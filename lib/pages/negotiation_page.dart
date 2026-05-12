@@ -2,6 +2,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend/components/order_book.dart';
 import 'package:frontend/components/place_order.dart';
+import 'package:frontend/components/user_order.dart';
 import 'package:frontend/controllers/balcao_controller.dart';
 import 'package:frontend/models/order_model.dart';
 import 'package:frontend/models/token.dart';
@@ -26,6 +27,8 @@ class _NegociacaoPageState extends State<NegociacaoPage> {
   bool _isTokenLoading = true;
   List<double> _historicoFiltrado = [];
   double _saldoUsuario = 0;
+  List<OrderModel> _userOrders = [];
+  bool _ordersLoaded = false;
 
   @override
   void initState() {
@@ -42,7 +45,7 @@ class _NegociacaoPageState extends State<NegociacaoPage> {
   Future<void> _fetchData() async {
     final token = await buscarTokenPorStartupId(widget.initialToken.startupId);
     final wallet = await callWalletBalance();
-
+    final userOrders = await listOrders();
     if (!mounted) return;
 
     setState(() {
@@ -51,6 +54,8 @@ class _NegociacaoPageState extends State<NegociacaoPage> {
         _historicoFiltrado = _filtrarHistorico(token, _periodoSelecionado);
       }
       _saldoUsuario = wallet?.availableBalance ?? 0;
+      _userOrders = userOrders;
+      _ordersLoaded = true;
     });
   }
 
@@ -123,6 +128,24 @@ class _NegociacaoPageState extends State<NegociacaoPage> {
               const SizedBox(height: 16),
               _buildActionButtons(context),
               const SizedBox(height: 48),
+              const Text(
+                'Suas Ordens Colocadas:',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+              ),
+              const Divider(),
+              if (!_ordersLoaded)
+                const SizedBox(
+                  height: 80,
+                  child: Center(child: CircularProgressIndicator()),
+                )
+              else if (_userOrders.isEmpty)
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 12),
+                  child: Text('Nenhuma ordem encontrada.'),
+                )
+              else
+                ..._userOrders.map((o) => UserOrder(order: o)),
+              const SizedBox(height: 16),
               const Text(
                 'Livro de ordens:',
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),

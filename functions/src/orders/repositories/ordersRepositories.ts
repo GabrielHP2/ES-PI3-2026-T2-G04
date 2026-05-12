@@ -50,9 +50,18 @@ export async function getOrdersByStartupAndType(
 //  getAllByUser
 
 export async function getOrdersByUser(userId: string): Promise<Order[]> {
-  const snapshot = await orderCollection.where("user_id", "==", userId).get();
-  if (snapshot.empty) return [];
-  return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }) as Order);
+  const [snapshotBySnake, snapshotByCamel] = await Promise.all([
+    orderCollection.where("user_id", "==", userId).get(),
+    orderCollection.where("userId", "==", userId).get(),
+  ]);
+
+  const ordersMap = new Map<string, Order>();
+
+  for (const doc of [...snapshotBySnake.docs, ...snapshotByCamel.docs]) {
+    ordersMap.set(doc.id, { id: doc.id, ...doc.data() } as Order);
+  }
+
+  return [...ordersMap.values()];
 }
 
 //  getAllByUserAndStartup
