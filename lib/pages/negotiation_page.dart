@@ -28,7 +28,16 @@ class _NegociacaoPageState extends State<NegociacaoPage> {
   List<double> _historicoFiltrado = [];
   double _saldoUsuario = 0;
   List<OrderModel> _userOrders = [];
+  List<OrderModel> _filteredUserOrders = [];
   bool _ordersLoaded = false;
+
+  void _filterOpenOrders() {
+    for (final o in _userOrders) {
+      if (o.status != OrderStatus.filled) {
+        _filteredUserOrders.add(o);
+      }
+    }
+  }
 
   @override
   void initState() {
@@ -55,6 +64,7 @@ class _NegociacaoPageState extends State<NegociacaoPage> {
       }
       _saldoUsuario = wallet?.availableBalance ?? 0;
       _userOrders = userOrders;
+      _filterOpenOrders();
       _ordersLoaded = true;
     });
   }
@@ -144,7 +154,7 @@ class _NegociacaoPageState extends State<NegociacaoPage> {
                   child: Text('Nenhuma ordem encontrada.'),
                 )
               else
-                ..._userOrders.map((o) => UserOrder(order: o)),
+                ..._filteredUserOrders.map((o) => UserOrder(order: o)),
               const SizedBox(height: 16),
               const Text(
                 'Livro de ordens:',
