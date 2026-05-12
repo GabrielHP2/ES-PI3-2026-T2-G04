@@ -48,7 +48,6 @@ class _TokenMarketPageState extends State<TokenMarketPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA),
       appBar: AppBar(
         title: const Text('Balcão de tokens'),
         automaticallyImplyLeading: false,
