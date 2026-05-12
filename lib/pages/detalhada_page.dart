@@ -44,15 +44,17 @@ class _PaginaDetalhadaState extends State<PaginaDetalhada> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       floatingActionButton: _isUserInvestor
-          ? FloatingActionButton(
+          ? FloatingActionButton.extended(
+              label: Text('Ir para área do investidor'),
               backgroundColor: Colors.amber,
               onPressed: () => _scrollController.animateTo(
-                1050.0,
+                1500.0,
                 duration: Duration(seconds: 1),
                 curve: Curves.easeInOut,
               ),
-              child: Icon(Icons.monetization_on),
+              //icon: Icon(Icons.monetization_on),
             )
           : SizedBox(),
       backgroundColor: Colors.grey[100],
@@ -113,28 +115,26 @@ class _PaginaDetalhadaState extends State<PaginaDetalhada> {
                   ),
                   const SizedBox(height: 16),
                   _videosShow(_startup!),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 32),
                   _isUserInvestor
                       ? Column(
                           children: [
                             SizedBox(
                               width: double.infinity,
                               child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   Text(
                                     'Área do investidor',
-                                    textAlign: TextAlign.start,
                                     style: TextStyle(
                                       fontWeight: FontWeight.w500,
                                       fontSize: 16,
                                     ),
                                   ),
-                                  Icon(
+                                  /*Icon(
                                     Icons.monetization_on,
                                     color: Colors.amber,
-                                  ),
+                                  ),*/
                                 ],
                               ),
                             ),

@@ -106,20 +106,21 @@ class _NegociacaoPageState extends State<NegociacaoPage> {
     }
 
     return Scaffold(
-      backgroundColor: Colors.white,
       appBar: AppBar(title: const Text('Negociação')),
-      body: SafeArea(
+      body: RefreshIndicator(
+        onRefresh: _fetchData,
         child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               _buildSaldoHeader(),
-              const SizedBox(height: 20),
+              const SizedBox(height: 16),
               _buildTokenInfoCard(),
-              const SizedBox(height: 20),
+              const SizedBox(height: 16),
               _buildChartCard(),
-              const SizedBox(height: 30),
+              const SizedBox(height: 16),
               _buildActionButtons(context),
               const SizedBox(height: 48),
               const Text(
@@ -159,9 +160,12 @@ class _NegociacaoPageState extends State<NegociacaoPage> {
                 ),
                 const SizedBox(width: 8),
                 IconButton(
-                  onPressed: () => Navigator.of(
-                    context,
-                  ).push(MaterialPageRoute(builder: (_) => const WalletPage())),
+                  onPressed: () async {
+                    await Navigator.of(context).push(
+                      MaterialPageRoute(builder: (_) => const WalletPage()),
+                    );
+                    await _fetchData();
+                  },
                   style: ButtonStyle(
                     backgroundColor: WidgetStateProperty.all(Colors.indigo),
                   ),
@@ -182,17 +186,13 @@ class _NegociacaoPageState extends State<NegociacaoPage> {
 
   Widget _buildTokenInfoCard() {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(20),
         border: Border.all(color: Colors.grey.shade300),
         boxShadow: const [
-          BoxShadow(
-            color: Colors.black12,
-            blurRadius: 10,
-            offset: Offset(0, 4),
-          ),
+          BoxShadow(color: Colors.black26, blurRadius: 2, offset: Offset(0, 4)),
         ],
       ),
       child: Row(
@@ -218,17 +218,13 @@ class _NegociacaoPageState extends State<NegociacaoPage> {
 
   Widget _buildChartCard() {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(20),
         border: Border.all(color: Colors.grey.shade300),
         boxShadow: const [
-          BoxShadow(
-            color: Colors.black12,
-            blurRadius: 10,
-            offset: Offset(0, 4),
-          ),
+          BoxShadow(color: Colors.black26, blurRadius: 2, offset: Offset(0, 4)),
         ],
       ),
       child: Column(
