@@ -121,8 +121,16 @@ class _NegociacaoPageState extends State<NegociacaoPage> {
               _buildChartCard(),
               const SizedBox(height: 30),
               _buildActionButtons(context),
+              const SizedBox(height: 48),
+              const Text(
+                'Livro de ordens:',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+              ),
+              const Divider(),
               const SizedBox(height: 16),
               OrderBook(type: OrderType.sell, startupId: _token!.startupId),
+              const SizedBox(height: 16),
+              OrderBook(type: OrderType.buy, startupId: _token!.startupId),
             ],
           ),
         ),
@@ -178,7 +186,7 @@ class _NegociacaoPageState extends State<NegociacaoPage> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey.shade200),
+        border: Border.all(color: Colors.grey.shade300),
         boxShadow: const [
           BoxShadow(
             color: Colors.black12,
@@ -214,7 +222,7 @@ class _NegociacaoPageState extends State<NegociacaoPage> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey.shade200),
+        border: Border.all(color: Colors.grey.shade300),
         boxShadow: const [
           BoxShadow(
             color: Colors.black12,

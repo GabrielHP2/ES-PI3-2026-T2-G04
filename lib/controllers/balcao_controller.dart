@@ -110,7 +110,8 @@ Future<List<OrderModel>> callGetOrdersByStartupByType(
         )
         .toList();
 
-    return _mergeOrdersByPrice(orders);
+    final mergedOrders = _mergeOrdersByPrice(orders);
+    return _sortOrdersByPrice(mergedOrders, type);
   } on FirebaseFunctionsException catch (err) {
     print('FirebaseFunctionsException: ${err.code} - ${err.message}');
     return [];
@@ -136,4 +137,16 @@ List<OrderModel> _mergeOrdersByPrice(List<OrderModel> orders) {
   }
 
   return priceMap.values.toList();
+}
+
+List<OrderModel> _sortOrdersByPrice(List<OrderModel> orders, OrderType type) {
+  final sortedOrders = List<OrderModel>.from(orders)
+    ..sort((a, b) {
+      if (type == OrderType.buy) {
+        return b.price.compareTo(a.price);
+      }
+      return a.price.compareTo(b.price);
+    });
+
+  return sortedOrders;
 }

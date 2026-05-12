@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/controllers/balcao_controller.dart';
 import 'package:frontend/models/order_model.dart';
+import 'package:frontend/services/numberformatter_service.dart';
 
 class OrderBook extends StatefulWidget {
   final OrderType type;
@@ -38,30 +39,85 @@ class _OrderBookState extends State<OrderBook> {
   @override
   Widget build(BuildContext context) {
     return Container(
+      width: double.infinity,
       padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(color: Colors.black26, offset: Offset(0, 4), blurRadius: 2),
+        ],
+        borderRadius: BorderRadius.all(Radius.circular(20)),
+        border: Border.all(color: Colors.grey.shade300, width: 1),
+      ),
       child: Column(
+        crossAxisAlignment: .center,
         children: [
-          Text(widget.type == OrderType.buy ? 'Compras' : 'Vendas'),
+          widget.type == OrderType.buy
+              ? Text(
+                  'Compras',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w800,
+                    color: Colors.green,
+                    fontSize: 24,
+                  ),
+                )
+              : Text(
+                  'Vendas',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w800,
+                    color: Colors.red,
+                    fontSize: 24,
+                  ),
+                ),
+          const SizedBox(height: 16),
           Table(
             children: [
-              const TableRow(children: [Text('Preço'), Text('Quantidade')]),
-              if (_isLoading)
-                const TableRow(children: [Text('Carregando...'), Text('')])
-              else if (_orders == null || _orders!.isEmpty)
-                const TableRow(children: [Text('Nenhuma ordem colocada'), Text('')])
-              else
+              const TableRow(
+                children: [
+                  Text(
+                    'Preço',
+                    textAlign: .center,
+                    style: TextStyle(fontWeight: FontWeight.w700),
+                  ),
+                  Text(
+                    'Quantidade',
+                    textAlign: .center,
+                    style: TextStyle(fontWeight: FontWeight.w700),
+                  ),
+                ],
+              ),
+              TableRow(children: [SizedBox(height: 8), SizedBox(height: 8)]),
+              if (_orders != null)
                 ..._orders!
+                    .take(8)
                     .map(
                       (o) => TableRow(
                         children: [
-                          Text(o.price.toStringAsFixed(2)),
-                          Text(o.quantity.toString()),
+                          Text(
+                            moneyFormatter.format(o.price),
+                            textAlign: .center,
+                          ),
+                          Text(o.quantity.toString(), textAlign: .center),
                         ],
                       ),
                     )
                     .toList(),
             ],
           ),
+          if (_isLoading)
+            const Text('Carregando...')
+          else if (_orders == null || _orders!.isEmpty)
+            const Text('Nenhuma ordem colocada'),
+
+          if ((_orders?.length ?? 0) > 8)
+            const Column(
+              children: [
+                Text(
+                  '...',
+                  style: TextStyle(color: Colors.black, fontWeight: .bold),
+                ),
+              ],
+            ),
         ],
       ),
     );
