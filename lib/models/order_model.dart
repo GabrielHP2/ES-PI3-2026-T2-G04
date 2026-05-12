@@ -82,8 +82,8 @@ class OrderModel {
   final OrderStatus status;
   final String tokenSymbol;
   final OrderType type;
-  final DateTime? createdAt;
-  final DateTime? updatedAt;
+  final Timestamp? createdAt;
+  final Timestamp? updatedAt;
 
   const OrderModel({
     required this.id,
@@ -98,10 +98,26 @@ class OrderModel {
     required this.updatedAt,
   });
 
-  static DateTime? _parseDate(dynamic value) {
-    if (value is Timestamp) return value.toDate();
-    if (value is DateTime) return value;
-    if (value is String) return DateTime.tryParse(value);
+  static Timestamp? _parseTimestamp(dynamic value) {
+    if (value is Timestamp) return value;
+    if (value is DateTime) return Timestamp.fromDate(value);
+    if (value is String) {
+      try {
+        final dt = DateTime.parse(value);
+        return Timestamp.fromDate(dt);
+      } catch (_) {
+        return null;
+      }
+    }
+    if (value is Map) {
+      try {
+        final seconds = (value['_seconds'] as num?)?.toInt();
+        final nanos = (value['_nanoseconds'] as num?)?.toInt();
+        if (seconds != null) {
+          return Timestamp(seconds, nanos ?? 0);
+        }
+      } catch (_) {}
+    }
     return null;
   }
 
@@ -118,8 +134,8 @@ class OrderModel {
       status: OrderStatusX.fromBackend(map['status']),
       tokenSymbol: (map['token_symbol'] ?? '').toString(),
       type: type,
-      createdAt: _parseDate(map['createdAt']),
-      updatedAt: _parseDate(map['updatedAt']),
+      createdAt: _parseTimestamp(map['createdAt']),
+      updatedAt: _parseTimestamp(map['updatedAt']),
     );
   }
 
@@ -132,8 +148,8 @@ class OrderModel {
     OrderStatus? status,
     String? tokenSymbol,
     OrderType? type,
-    DateTime? createdAt,
-    DateTime? updatedAt,
+    Timestamp? createdAt,
+    Timestamp? updatedAt,
   }) {
     return OrderModel(
       id: id ?? this.id,

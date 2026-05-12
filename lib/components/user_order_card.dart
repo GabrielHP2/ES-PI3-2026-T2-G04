@@ -9,10 +9,21 @@ class UserOrder extends StatefulWidget {
 }
 
 class _UserOrderState extends State<UserOrder> {
+  String _formatTimestamp(dynamic timestamp) {
+    if (timestamp == null) return 'Data não disponível';
+    try {
+      final dateTime = timestamp.toDate();
+      return '${dateTime.day.toString().padLeft(2, '0')}/${dateTime.month.toString().padLeft(2, '0')}/${dateTime.year} ${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}';
+    } catch (e) {
+      return 'Data inválida';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     OrderModel order = widget.order;
     return Container(
+      margin: EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.all(Radius.circular(20)),
@@ -43,7 +54,7 @@ class _UserOrderState extends State<UserOrder> {
                 Text('Quantidade: ${order.quantity}'),
                 Text('Preenchido: ${order.quantityFilled}'),
                 Text('Preço por token: ${order.price}'),
-                Text('Criado em: ${order.createdAt}'),
+                Text('Criado em: ${_formatTimestamp(order.createdAt)}'),
               ],
             ),
           ),

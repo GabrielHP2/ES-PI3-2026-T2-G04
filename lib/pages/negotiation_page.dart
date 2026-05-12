@@ -2,7 +2,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend/components/order_book.dart';
 import 'package:frontend/components/place_order.dart';
-import 'package:frontend/components/user_order.dart';
+import 'package:frontend/components/user_order_card.dart';
 import 'package:frontend/controllers/balcao_controller.dart';
 import 'package:frontend/models/order_model.dart';
 import 'package:frontend/models/token.dart';
@@ -139,6 +139,16 @@ class _NegociacaoPageState extends State<NegociacaoPage> {
               _buildActionButtons(context),
               const SizedBox(height: 48),
               const Text(
+                'Livro de ordens:',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+              ),
+              const Divider(),
+              const SizedBox(height: 16),
+              OrderBook(type: OrderType.sell, startupId: _token!.startupId),
+              const SizedBox(height: 16),
+              OrderBook(type: OrderType.buy, startupId: _token!.startupId),
+              const SizedBox(height: 16),
+              const Text(
                 'Suas Ordens Colocadas:',
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
               ),
@@ -156,15 +166,6 @@ class _NegociacaoPageState extends State<NegociacaoPage> {
               else
                 ..._filteredUserOrders.map((o) => UserOrder(order: o)),
               const SizedBox(height: 16),
-              const Text(
-                'Livro de ordens:',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-              ),
-              const Divider(),
-              const SizedBox(height: 16),
-              OrderBook(type: OrderType.sell, startupId: _token!.startupId),
-              const SizedBox(height: 16),
-              OrderBook(type: OrderType.buy, startupId: _token!.startupId),
             ],
           ),
         ),
