@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/models/order_model.dart';
+import 'package:frontend/services/numberformatter_service.dart';
 
 class UserOrder extends StatefulWidget {
   final OrderModel order;
@@ -39,7 +40,9 @@ class _UserOrderState extends State<UserOrder> {
             flex: 1,
             child: Padding(
               padding: EdgeInsets.fromLTRB(0, 0, 16, 0),
-              child: Icon(Icons.add, color: Colors.green, fontWeight: .w900),
+              child: order.type == OrderType.buy
+                  ? Icon(Icons.add, color: Colors.green, fontWeight: .w900)
+                  : Icon(Icons.remove, color: Colors.red, fontWeight: .w900),
             ),
           ),
           Expanded(
@@ -61,7 +64,7 @@ class _UserOrderState extends State<UserOrder> {
           Expanded(
             flex: 3,
             child: Text(
-              'R\$100,00',
+              moneyFormatter.format(order.price * order.quantity),
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
             ),
           ),

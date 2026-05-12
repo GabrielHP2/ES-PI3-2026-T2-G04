@@ -32,11 +32,9 @@ class _NegociacaoPageState extends State<NegociacaoPage> {
   bool _ordersLoaded = false;
 
   void _filterOpenOrders() {
-    for (final o in _userOrders) {
-      if (o.status != OrderStatus.filled) {
-        _filteredUserOrders.add(o);
-      }
-    }
+    _filteredUserOrders = _userOrders
+        .where((o) => o.status != OrderStatus.filled)
+        .toList();
   }
 
   @override
@@ -54,6 +52,7 @@ class _NegociacaoPageState extends State<NegociacaoPage> {
   Future<void> _fetchData() async {
     final token = await buscarTokenPorStartupId(widget.initialToken.startupId);
     final wallet = await callWalletBalance();
+    final startupId = token?.startupId ?? widget.initialToken.startupId;
     final userOrders = await listOrders();
     if (!mounted) return;
 
@@ -63,7 +62,7 @@ class _NegociacaoPageState extends State<NegociacaoPage> {
         _historicoFiltrado = _filtrarHistorico(token, _periodoSelecionado);
       }
       _saldoUsuario = wallet?.availableBalance ?? 0;
-      _userOrders = userOrders;
+      _userOrders = userOrders.where((o) => o.startupId == startupId).toList();
       _filterOpenOrders();
       _ordersLoaded = true;
     });
