@@ -1,6 +1,6 @@
-import {getFirestore} from "firebase-admin/firestore";
+import { getFirestore } from "firebase-admin/firestore";
 import * as logger from "firebase-functions/logger";
-import {onCall, HttpsError} from "firebase-functions/v2/https";
+import { onCall, HttpsError } from "firebase-functions/v2/https";
 
 const db = getFirestore();
 
@@ -18,7 +18,7 @@ export const tradesHistory = onCall(async (request) => {
 
     if (tradesSnapshot.empty) {
       logger.info("Nenhuma trade encontrada");
-      return {trades: []};
+      return { trades: [] };
     }
 
     const trades = tradesSnapshot.docs.map((doc) => ({
@@ -27,7 +27,7 @@ export const tradesHistory = onCall(async (request) => {
     }));
 
     logger.info(`tradesHistory: ${trades.length}`);
-    return {trades};
+    return { trades };
   } catch (error) {
     logger.error("Error from tradesHistory: ", error);
     throw new HttpsError("internal", "Failed to fetch trades history.");

@@ -1,15 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/models/order_model.dart';
 import 'package:frontend/services/numberformatter_service.dart';
+import 'package:frontend/services/token_services.dart';
 
 class UserOrder extends StatefulWidget {
   final OrderModel order;
-  const UserOrder({super.key, required this.order});
+  final ValueChanged<String>? onOrderCancelled;
+
+  const UserOrder({
+    super.key,
+    required this.order,
+    this.onOrderCancelled,
+  });
+
   @override
   State<UserOrder> createState() => _UserOrderState();
 }
 
 class _UserOrderState extends State<UserOrder> {
+  bool _isCancelling = false;
+
   String _formatTimestamp(dynamic timestamp) {
     if (timestamp == null) return 'Data não disponível';
     try {
@@ -23,52 +33,137 @@ class _UserOrderState extends State<UserOrder> {
   @override
   Widget build(BuildContext context) {
     OrderModel order = widget.order;
-    return Container(
-      margin: EdgeInsets.only(bottom: 16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.all(Radius.circular(20)),
-        border: Border.all(color: Colors.grey.shade300, width: 1),
-        boxShadow: [
-          BoxShadow(color: Colors.black26, offset: Offset(0, 2), blurRadius: 2),
-        ],
+
+    return Dismissible(
+      key: ValueKey(order.id),
+      direction: DismissDirection.endToStart,
+      background: Container(
+        alignment: Alignment.centerRight,
+        margin: const EdgeInsets.only(bottom: 16),
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        decoration: BoxDecoration(
+          color: Colors.red.shade600,
+          borderRadius: const BorderRadius.all(Radius.circular(20)),
+        ),
+        child: const Icon(Icons.delete_forever, color: Colors.white, size: 30),
       ),
-      padding: EdgeInsets.fromLTRB(16, 16, 16, 16),
-      child: Row(
-        children: [
-          Expanded(
-            flex: 1,
-            child: Padding(
-              padding: EdgeInsets.fromLTRB(0, 0, 16, 0),
-              child: order.type == OrderType.buy
-                  ? Icon(Icons.add, color: Colors.green, fontWeight: .w900)
-                  : Icon(Icons.remove, color: Colors.red, fontWeight: .w900),
-            ),
-          ),
-          Expanded(
-            flex: 6,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  '\$FNOVA',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+      confirmDismiss: (_) async {
+        if (_isCancelling) return false;
+
+        final shouldCancel =
+            await showDialog<bool>(
+              context: context,
+              builder: (context) => AlertDialog(
+                title: const Text('Cancelar ordem?'),
+                content: const Text(
+                  'Esta ação irá cancelar a ordem selecionada.',
                 ),
-                Text('Quantidade: ${order.quantity}'),
-                Text('Preenchido: ${order.quantityFilled}'),
-                Text('Preço por token: ${order.price}'),
-                Text('Criado em: ${_formatTimestamp(order.createdAt)}'),
-              ],
-            ),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(false),
+                    child: const Text('Voltar'),
+                  ),
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(true),
+                    child: const Text('Confirmar'),
+                  ),
+                ],
+              ),
+            ) ??
+            false;
+
+        if (!shouldCancel) return false;
+
+        setState(() => _isCancelling = true);
+        final result = await callCancelOrder(order.id);
+        if (!mounted) return false;
+        setState(() => _isCancelling = false);
+
+        final messenger = ScaffoldMessenger.of(context);
+        messenger.hideCurrentSnackBar();
+
+        if (!result.success) {
+          messenger.showSnackBar(
+            SnackBar(content: Text(result.message), backgroundColor: Colors.red),
+          );
+          return false;
+        }
+
+        return true;
+      },
+      onDismissed: (_) {
+        widget.onOrderCancelled?.call(order.id);
+        final messenger = ScaffoldMessenger.of(context);
+        messenger.hideCurrentSnackBar();
+        messenger.showSnackBar(
+          const SnackBar(
+            content: Text('Ordem cancelada com sucesso.'),
+            backgroundColor: Colors.green,
           ),
-          Expanded(
-            flex: 3,
-            child: Text(
-              moneyFormatter.format(order.price * order.quantity),
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-            ),
+        );
+      },
+      child: Opacity(
+        opacity: _isCancelling ? 0.5 : 1,
+        child: Container(
+          margin: const EdgeInsets.only(bottom: 16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: const BorderRadius.all(Radius.circular(20)),
+            border: Border.all(color: Colors.grey.shade300, width: 1),
+            boxShadow: const [
+              BoxShadow(
+                color: Colors.black26,
+                offset: Offset(0, 2),
+                blurRadius: 2,
+              ),
+            ],
           ),
-        ],
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
+          child: Row(
+            children: [
+              Expanded(
+                flex: 1,
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(0, 0, 16, 0),
+                  child: order.type == OrderType.buy
+                      ? const Icon(Icons.add, color: Colors.green)
+                      : const Icon(Icons.remove, color: Colors.red),
+                ),
+              ),
+              Expanded(
+                flex: 6,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '\$${order.tokenSymbol}',
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                      ),
+                    ),
+                    Text('Quantidade: ${order.quantity}'),
+                    Text('Preenchido: ${order.quantityFilled}'),
+                    Text(
+                      'Preço por token: ${moneyFormatter.format(order.price)}',
+                    ),
+                    Text('Criado em: ${_formatTimestamp(order.createdAt)}'),
+                  ],
+                ),
+              ),
+              Expanded(
+                flex: 3,
+                child: Text(
+                  moneyFormatter.format(order.price * order.quantity),
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

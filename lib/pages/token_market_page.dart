@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/components/token_card.dart';
-import 'package:frontend/controllers/balcao_controller.dart';
+import 'package:frontend/services/token_services.dart';
 import 'package:frontend/models/token.dart';
 import 'package:frontend/pages/wallet_page.dart';
 import 'package:frontend/services/numberformatter_service.dart';
