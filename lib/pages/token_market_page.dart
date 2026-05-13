@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/components/balance_header.dart';
 import 'package:frontend/components/token_card.dart';
 import 'package:frontend/services/token_services.dart';
 import 'package:frontend/models/token.dart';
-import 'package:frontend/pages/wallet_page.dart';
-import 'package:frontend/services/numberformatter_service.dart';
-import 'package:frontend/services/wallet_services.dart';
 
 class TokenMarketPage extends StatefulWidget {
   const TokenMarketPage({super.key});
@@ -14,7 +12,6 @@ class TokenMarketPage extends StatefulWidget {
 }
 
 class _TokenMarketPageState extends State<TokenMarketPage> {
-  double _saldoUsuario = 0;
   List<Token> _tokens = <Token>[];
   bool _isLoading = true;
 
@@ -28,21 +25,10 @@ class _TokenMarketPageState extends State<TokenMarketPage> {
     });
   }
 
-  Future<void> _fetchData() async {
-    _fetchTokens();
-    final wallet = await callWalletBalance();
-
-    if (!mounted) return;
-
-    setState(() {
-      _saldoUsuario = wallet?.availableBalance ?? 0;
-    });
-  }
-
   @override
   void initState() {
     super.initState();
-    _fetchData();
+    _fetchTokens();
   }
 
   @override
@@ -57,55 +43,7 @@ class _TokenMarketPageState extends State<TokenMarketPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text(
-                      'Saldo disponível:',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    Row(
-                      children: [
-                        Text(
-                          moneyFormatter.format(_saldoUsuario),
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        IconButton(
-                          onPressed: () async {
-                            await Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (_) => const WalletPage(),
-                              ),
-                            );
-                            await _fetchData();
-                          },
-                          style: ButtonStyle(
-                            backgroundColor: WidgetStateProperty.all(
-                              Colors.indigo,
-                            ),
-                          ),
-                          icon: const Icon(
-                            Icons.credit_card,
-                            color: Colors.white,
-                            size: 20,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-                const Divider(color: Colors.black12, height: 20),
-              ],
-            ),
+            BalanceHeader(),
             const Text(
               'Tokens de startups',
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),

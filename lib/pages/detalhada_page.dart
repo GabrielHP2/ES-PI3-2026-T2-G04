@@ -1,6 +1,7 @@
 // Lucas Leonel - RA: 25015188
 
 import 'package:flutter/material.dart';
+import 'package:frontend/components/balance_header.dart';
 import 'package:frontend/components/questions_section.dart';
 import 'package:frontend/components/startup_info_container.dart';
 import 'package:frontend/components/startup_tag.dart';
@@ -141,6 +142,7 @@ class _PaginaDetalhadaState extends State<PaginaDetalhada> {
 
                             const Divider(),
                             const SizedBox(height: 16),
+                            BalanceHeader(),
                             sectionCard(
                               title: 'Perguntas e respostas privadas',
                               child: QuestionsSection(
