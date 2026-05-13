@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/components/balance_header.dart';
+import 'package:frontend/components/card_container.dart';
 import 'package:frontend/services/numberformatter_service.dart';
 import 'package:frontend/services/wallet_services.dart';
 
@@ -48,8 +49,8 @@ class _DashboardPageState extends State<DashboardPage> {
                 : Column(
                     children: [
                       BalanceHeader(),
-                      _card(
-                        Column(
+                      CardContainer(
+                        child: Column(
                           crossAxisAlignment: .center,
                           children: [
                             Text(
@@ -71,28 +72,12 @@ class _DashboardPageState extends State<DashboardPage> {
                           ],
                         ),
                       ),
-                      sectionSeparator('Tokens Comprados'),
+                      sectionSeparator('Seus Tokens'),
                     ],
                   ),
           ),
         ),
       ),
-    );
-  }
-
-  Widget _card(Widget child) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey.shade300, width: 1),
-        boxShadow: [
-          BoxShadow(color: Colors.black26, offset: Offset(0, 2), blurRadius: 1),
-        ],
-      ),
-      child: child,
     );
   }
 
