@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/components/balance_header.dart';
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
@@ -15,7 +16,10 @@ class _DashboardPageState extends State<DashboardPage> {
         title: Text('Dashboard'),
         automaticallyImplyLeading: false,
       ),
-      body: Center(child: Text('Pagina de dashboard em desenvolvimento')),
+      body: Padding(
+        padding: EdgeInsets.all(16),
+        child: Column(children: [BalanceHeader()]),
+      ),
     );
   }
 }

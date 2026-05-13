@@ -1,13 +1,12 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:frontend/components/balance_header.dart';
 import 'package:frontend/components/order_book.dart';
 import 'package:frontend/components/place_order.dart';
 import 'package:frontend/components/user_order_card.dart';
 import 'package:frontend/services/token_services.dart';
 import 'package:frontend/models/order_model.dart';
 import 'package:frontend/models/token.dart';
-import 'package:frontend/pages/wallet_page.dart';
-import 'package:frontend/services/numberformatter_service.dart';
 import 'package:frontend/services/wallet_services.dart';
 
 class NegociacaoPage extends StatefulWidget {
@@ -139,8 +138,7 @@ class _NegociacaoPageState extends State<NegociacaoPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              _buildSaldoHeader(),
-              const SizedBox(height: 16),
+              BalanceHeader(),
               _buildTokenInfoCard(),
               const SizedBox(height: 16),
               _buildChartCard(),
@@ -185,51 +183,6 @@ class _NegociacaoPageState extends State<NegociacaoPage> {
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildSaldoHeader() {
-    return Column(
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            const Text(
-              'Saldo disponível:',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-            ),
-            Row(
-              children: [
-                Text(
-                  moneyFormatter.format(_saldoUsuario),
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(width: 8),
-                IconButton(
-                  onPressed: () async {
-                    await Navigator.of(context).push(
-                      MaterialPageRoute(builder: (_) => const WalletPage()),
-                    );
-                    await _fetchData();
-                  },
-                  style: ButtonStyle(
-                    backgroundColor: WidgetStateProperty.all(Colors.indigo),
-                  ),
-                  icon: const Icon(
-                    Icons.credit_card,
-                    color: Colors.white,
-                    size: 20,
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-        const Divider(color: Colors.black12, height: 20),
-      ],
     );
   }
 
