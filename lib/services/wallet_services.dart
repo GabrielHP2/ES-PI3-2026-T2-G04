@@ -94,3 +94,11 @@ Future<List<TransactionModel>> callWalletTransactions() async {
     return [];
   }
 }
+
+Future<double> getWalletValue() async {
+  // Preciso somar o preço atual * quantidade de token de todos os tokens que o usuário possui
+
+  // function ->
+
+  return 0; // TODO: IMPLEMENTAR!!!
+}

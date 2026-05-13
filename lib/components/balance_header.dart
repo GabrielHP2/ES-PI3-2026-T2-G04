@@ -75,7 +75,7 @@ class _BalanceHeaderState extends State<BalanceHeader> {
             ),
           ],
         ),
-        const Divider(color: Colors.grey),
+        const Divider(),
         const SizedBox(height: 16),
       ],
     );
