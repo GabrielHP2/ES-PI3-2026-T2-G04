@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/controllers/balcao_controller.dart';
+import 'package:frontend/services/token_services.dart';
 import 'package:frontend/models/order_model.dart';
 import 'package:intl/intl.dart';
 
@@ -55,7 +55,8 @@ class _OrderConfirmationPageState extends State<OrderConfirmationPage> {
               Text(_result!.message),
               const SizedBox(height: 8),
               if (_result!.orderId != null) Text('ID: ${_result!.orderId}'),
-              if (_result!.status != null) Text('Status: ${_result!.status!.label}'),
+              if (_result!.status != null)
+                Text('Status: ${_result!.status!.label}'),
               const SizedBox(height: 24),
               SizedBox(
                 width: double.infinity,
@@ -100,7 +101,10 @@ class _OrderConfirmationPageState extends State<OrderConfirmationPage> {
                   _row('Saldo atual', currency.format(order.userBalance)),
                   _row('Saldo após', currency.format(order.balanceAfter)),
                   if (isBuy)
-                    _row('Preço médio após', currency.format(order.avgPriceAfter)),
+                    _row(
+                      'Preço médio após',
+                      currency.format(order.avgPriceAfter),
+                    ),
                 ],
               ),
             ),
@@ -124,7 +128,9 @@ class _OrderConfirmationPageState extends State<OrderConfirmationPage> {
               children: [
                 Expanded(
                   child: OutlinedButton(
-                    onPressed: _isSubmitting ? null : () => Navigator.pop(context),
+                    onPressed: _isSubmitting
+                        ? null
+                        : () => Navigator.pop(context),
                     child: const Text('Cancelar'),
                   ),
                 ),
@@ -132,7 +138,9 @@ class _OrderConfirmationPageState extends State<OrderConfirmationPage> {
                 Expanded(
                   child: ElevatedButton(
                     onPressed: _isSubmitting ? null : _confirmar,
-                    style: ElevatedButton.styleFrom(backgroundColor: primaryColor),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: primaryColor,
+                    ),
                     child: _isSubmitting
                         ? const SizedBox(
                             width: 18,
@@ -158,7 +166,10 @@ class _OrderConfirmationPageState extends State<OrderConfirmationPage> {
       padding: const EdgeInsets.symmetric(vertical: 6),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [Text(label), Flexible(child: Text(value, textAlign: TextAlign.right))],
+        children: [
+          Text(label),
+          Flexible(child: Text(value, textAlign: TextAlign.right)),
+        ],
       ),
     );
   }

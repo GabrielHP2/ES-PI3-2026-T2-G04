@@ -148,3 +148,27 @@ List<OrderModel> _sortOrdersByPrice(List<OrderModel> orders, OrderType type) {
 
   return sortedOrders;
 }
+
+Future<OrderSubmissionResult> callCancelOrder(String orderId) async {
+  try {
+    final callable = _functions.httpsCallable('cancelOrderCallable');
+    final result = await callable.call({'orderId': orderId});
+    final data = Map<String, dynamic>.from(result.data as Map);
+    return OrderSubmissionResult(
+      success: true,
+      message: (data['message'] ?? 'Ordem deletada com sucesso').toString(),
+      orderId: data['orderId']?.toString(),
+      status: OrderStatus.cancelled,
+    );
+  } on FirebaseFunctionsException catch (e) {
+    return OrderSubmissionResult(
+      success: false,
+      message: e.message ?? 'Falha ao deletar ordem',
+    );
+  } catch (_) {
+    return const OrderSubmissionResult(
+      success: false,
+      message: 'Falha ao deletar ordem',
+    );
+  }
+}

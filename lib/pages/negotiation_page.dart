@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:frontend/components/order_book.dart';
 import 'package:frontend/components/place_order.dart';
 import 'package:frontend/components/user_order_card.dart';
-import 'package:frontend/controllers/balcao_controller.dart';
+import 'package:frontend/services/token_services.dart';
 import 'package:frontend/models/order_model.dart';
 import 'package:frontend/models/token.dart';
 import 'package:frontend/pages/wallet_page.dart';
@@ -33,8 +33,18 @@ class _NegociacaoPageState extends State<NegociacaoPage> {
 
   void _filterOpenOrders() {
     _filteredUserOrders = _userOrders
-        .where((o) => o.status != OrderStatus.filled)
+        .where(
+          (o) =>
+              o.status == OrderStatus.open || o.status == OrderStatus.partially,
+        )
         .toList();
+  }
+
+  void _removeUserOrder(String orderId) {
+    setState(() {
+      _userOrders.removeWhere((o) => o.id == orderId);
+      _filterOpenOrders();
+    });
   }
 
   @override
@@ -157,13 +167,19 @@ class _NegociacaoPageState extends State<NegociacaoPage> {
                   height: 80,
                   child: Center(child: CircularProgressIndicator()),
                 )
-              else if (_userOrders.isEmpty)
+              else if (_filteredUserOrders.isEmpty)
                 const Padding(
                   padding: EdgeInsets.symmetric(vertical: 12),
                   child: Text('Nenhuma ordem encontrada.'),
                 )
               else
-                ..._filteredUserOrders.map((o) => UserOrder(order: o)),
+                ..._filteredUserOrders.map(
+                  (o) => UserOrder(
+                    key: ValueKey(o.id),
+                    order: o,
+                    onOrderCancelled: _removeUserOrder,
+                  ),
+                ),
               const SizedBox(height: 16),
             ],
           ),
@@ -331,7 +347,7 @@ class _NegociacaoPageState extends State<NegociacaoPage> {
                         .map((e) => FlSpot(e.key.toDouble(), e.value))
                         .toList(),
                     isCurved: true,
-                    color: const Color(0xFF5C6BC0),
+                    color: Colors.indigo,
                     barWidth: 2.5,
                     isStrokeCapRound: true,
                     dotData: const FlDotData(show: false),
@@ -339,8 +355,8 @@ class _NegociacaoPageState extends State<NegociacaoPage> {
                       show: true,
                       gradient: LinearGradient(
                         colors: [
-                          const Color(0xFF5C6BC0).withValues(alpha: 0.3),
-                          const Color(0xFF5C6BC0).withValues(alpha: 0),
+                          Colors.indigo.withValues(alpha: 0.3),
+                          Colors.indigo.withValues(alpha: 0),
                         ],
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,

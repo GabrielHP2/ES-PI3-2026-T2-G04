@@ -54,16 +54,16 @@ class _PlaceOrderPopUpState extends State<PlaceOrderPopUp> {
     final price = controllerPrice.numberValue;
 
     if (quantity == null || quantity <= 0) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Quantidade inválida')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Quantidade inválida')));
       return;
     }
 
     if (price <= 0) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Preço inválido')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Preço inválido')));
       return;
     }
 
@@ -80,9 +80,7 @@ class _PlaceOrderPopUpState extends State<PlaceOrderPopUp> {
     );
 
     Navigator.of(context).pushReplacement(
-      MaterialPageRoute(
-        builder: (_) => OrderConfirmationPage(order: order),
-      ),
+      MaterialPageRoute(builder: (_) => OrderConfirmationPage(order: order)),
     );
   }
 
@@ -111,7 +109,10 @@ class _PlaceOrderPopUpState extends State<PlaceOrderPopUp> {
                   const SizedBox(width: 8),
                   Text(
                     isBuy ? 'CRIAR ORDEM DE COMPRA' : 'CRIAR ORDEM DE VENDA',
-                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 17,
+                    ),
                   ),
                 ],
               ),
@@ -120,12 +121,18 @@ class _PlaceOrderPopUpState extends State<PlaceOrderPopUp> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    isBuy ? 'Preço de compra atual: ' : 'Preço de venda atual: ',
-                    style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w500),
+                    isBuy ? 'Preço atual: ' : 'Preço atual: ',
+                    style: const TextStyle(
+                      fontSize: 17,
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
                   Text(
                     moneyFormatter.format(widget.currentPrice),
-                    style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                      fontSize: 17,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ],
               ),
@@ -137,7 +144,10 @@ class _PlaceOrderPopUpState extends State<PlaceOrderPopUp> {
                   isBuy
                       ? 'Quantos tokens deseja comprar:'
                       : 'Quantos tokens deseja vender:',
-                  style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
+                  style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
               ),
               Padding(
@@ -160,14 +170,19 @@ class _PlaceOrderPopUpState extends State<PlaceOrderPopUp> {
                   isBuy
                       ? 'Por quanto deseja comprar cada token:'
                       : 'Por quanto deseja vender cada token:',
-                  style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
+                  style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
               ),
               Padding(
                 padding: const EdgeInsets.all(6),
                 child: TextField(
                   controller: controllerPrice,
-                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
+                  ),
                   decoration: const InputDecoration(
                     hintText: 'R\$',
                     border: OutlineInputBorder(
