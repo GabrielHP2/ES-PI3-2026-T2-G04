@@ -102,3 +102,28 @@ Future<double> getWalletValue() async {
 
   return 0; // TODO: IMPLEMENTAR!!!
 }
+
+Future<TokenWalletBalance?> callWalletHoldings() async {
+  try {
+    final HttpsCallable callable = _functions.httpsCallable('walletHoldings');
+
+    final result = await callable.call();
+
+    if (result.data == null) {
+      print('Erro ao carregar os tokens da carteira: resposta vazia da função');
+      return null;
+    }
+
+    final data = Map<String, dynamic>.from(result.data as Map);
+    final walletHoldings = TokenWalletBalance.fromMap(data);
+    return walletHoldings;
+  } on FirebaseFunctionsException catch (e) {
+    print(
+      'Erro ao carregar os tokens da carteira: code=${e.code}, message=${e.message}, details=${e.details}',
+    );
+    return null;
+  } catch (e) {
+    print('Erro ao carregar os tokens da carteira: $e');
+    return null;
+  }
+}

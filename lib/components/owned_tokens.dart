@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/components/card_container.dart';
-import 'package:frontend/models/token.dart';
+import 'package:frontend/models/wallet.dart';
 import 'package:frontend/services/numberformatter_service.dart';
 import 'package:frontend/services/wallet_services.dart';
 
@@ -12,7 +12,7 @@ class OwnedTokensList extends StatefulWidget {
 
 class _OwnedTokensListState extends State<OwnedTokensList> {
   bool _isLoading = true;
-  List<Token?> _userHoldings = []; // Mudar tipo para List<Holdings>
+  List<Holding?> _userHoldings = []; // Mudar tipo para List<Holdings>
 
   @override
   void initState() {
@@ -24,31 +24,46 @@ class _OwnedTokensListState extends State<OwnedTokensList> {
     setState(() {
       _isLoading = true;
     });
-    final wallet =
-        await callWalletBalance(); // Mudar para função que pega as holdings
+    final wallet = await callWalletHoldings();
     if (!mounted) return;
+    if (wallet == null) {
+      setState(() {
+        _userHoldings = [];
+        _isLoading = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Erro ao carregar os tokens da carteira')),
+      );
+      return;
+    }
+    final holdings = wallet.holdings;
 
     setState(() {
-      // _userHoldings = wallet (pegar holdings)
+      _userHoldings = holdings;
       _isLoading = false;
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    return _userHoldings.isEmpty
-        ? Center(child: Text('Você ainda não possui nenhum token'))
+    return _isLoading
+        ? const Center(child: CircularProgressIndicator())
+        : _userHoldings.isEmpty
+        ? const Center(child: Text('Você ainda não possui nenhum token'))
         : ListView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: _userHoldings.length,
             itemBuilder: (context, index) {
               final holding = _userHoldings[index]!;
-              OwnedTokenCard(holding: holding);
+              return OwnedTokenCard(holding: holding);
             },
           );
   }
 }
 
 class OwnedTokenCard extends StatefulWidget {
-  final Token holding; // Criar model Holding
+  final Holding holding; // Criar model Holding
   const OwnedTokenCard({super.key, required this.holding});
   @override
   State<OwnedTokenCard> createState() => _OwnedTokenCardState();
@@ -61,17 +76,43 @@ class _OwnedTokenCardState extends State<OwnedTokenCard> {
       child: Row(
         children: [
           Expanded(
+            flex: 2,
             child: Column(
+              crossAxisAlignment: .start,
               children: [
-                Text('\$${widget.holding.tokenSymbol}'),
-                Text('Quantidade: ${widget.holding}'),
-                Text('Quantidade á venda: ${widget.holding}'),
-                Text('Preço médio por token: ${widget.holding}'),
+                Text(
+                  '\$${widget.holding.tokenSymbol}',
+                  style: TextStyle(fontWeight: .bold, fontSize: 24),
+                ),
+                Text(
+                  'Quantidade: ${widget.holding.tokenBalance}',
+                  style: TextStyle(fontSize: 12),
+                ),
+                Text(
+                  'Quantidade á venda: ${widget.holding.blockedTokenBalance}',
+
+                  style: TextStyle(fontSize: 12),
+                ),
+                Text(
+                  'Preço médio por token: ${moneyFormatter.format(widget.holding.avgPrice)}',
+
+                  style: TextStyle(fontSize: 12),
+                ),
               ],
             ),
           ),
           Expanded(
-            child: Text(moneyFormatter.format(widget.holding.precoAtual)),
+            flex: 1,
+            child: Column(
+              children: [
+                Text(
+                  moneyFormatter.format(
+                    widget.holding.tokenBalance * widget.holding.avgPrice,
+                  ),
+                  style: TextStyle(fontSize: 20, fontWeight: .bold),
+                ),
+              ],
+            ),
           ),
         ],
       ),

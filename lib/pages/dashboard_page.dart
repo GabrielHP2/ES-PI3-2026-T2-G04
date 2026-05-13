@@ -40,9 +40,9 @@ class _DashboardPageState extends State<DashboardPage> {
         title: Text('Dashboard'),
         automaticallyImplyLeading: false,
       ),
-      body: RefreshIndicator(
-        onRefresh: () => _fetchWalletValue(),
-        child: SingleChildScrollView(
+      body: SingleChildScrollView(
+        child: RefreshIndicator(
+          onRefresh: () => _fetchWalletValue(),
           child: Padding(
             padding: EdgeInsets.all(16),
             child: _isLoading
