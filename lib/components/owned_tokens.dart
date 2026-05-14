@@ -50,7 +50,8 @@ class _OwnedTokensListState extends State<OwnedTokensList> {
         ? const Center(child: CircularProgressIndicator())
         : _userHoldings.isEmpty
         ? const Center(child: Text('Você ainda não possui nenhum token'))
-        : ListView.builder(
+        : ListView.separated(
+            separatorBuilder: (context, index) => SizedBox(height: 16),
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             itemCount: _userHoldings.length,
@@ -85,7 +86,7 @@ class _OwnedTokenCardState extends State<OwnedTokenCard> {
                   style: TextStyle(fontWeight: .bold, fontSize: 24),
                 ),
                 Text(
-                  'Quantidade: ${widget.holding.tokenBalance}',
+                  'Quantidade disponível: ${widget.holding.tokenBalance}',
                   style: TextStyle(fontSize: 12),
                 ),
                 Text(
