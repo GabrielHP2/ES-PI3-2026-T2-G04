@@ -11,17 +11,13 @@ final FirebaseFunctions _functions = FirebaseFunctions.instanceFor(
 Future<WalletBalance?> callWalletBalance() async {
   try {
     final HttpsCallable callable = _functions.httpsCallable('walletBalance');
-
     final result = await callable.call();
 
-    final data = result.data as Map<String, dynamic>;
+    if (result.data == null) return null;
+    final data = Map<String, dynamic>.from(result.data as Map);
+
     final balance = WalletBalance.fromMap(data);
     return balance;
-  } on FirebaseFunctionsException catch (e) {
-    print(
-      'Erro ao carregar o saldo da carteira: code=${e.code}, message=${e.message}, details=${e.details}',
-    );
-    return null;
   } catch (e) {
     print('Erro ao carregar o saldo da carteira: $e');
     return null;
@@ -78,23 +74,20 @@ Future<List<TransactionModel>> callWalletTransactions() async {
     final HttpsCallable callable = _functions.httpsCallable(
       'walletTransaction',
     );
-
     final result = await callable.call();
 
-    final List data = result.data as List;
+    if (result.data == null) return [];
 
-    return data
-        .map(
-          (e) => TransactionModel.fromMap(Map<String, dynamic>.from(e as Map)),
-        )
-        .toList();
-  } on FirebaseFunctionsException catch (e) {
-    print(
-      'Erro ao carregar o saldo da carteira: code=${e.code}, message=${e.message}, details=${e.details}',
-    );
-    return [];
+    // Converte para List de forma segura
+    final List rawData = result.data as List;
+
+    return rawData.map((e) {
+      // Garante que cada item da lista seja um Map<String, dynamic>
+      final mapItem = Map<String, dynamic>.from(e as Map);
+      return TransactionModel.fromMap(mapItem);
+    }).toList();
   } catch (e) {
-    print('Erro ao carregar o saldo da carteira: $e');
+    print('Erro ao carregar as transações: $e');
     return [];
   }
 }
