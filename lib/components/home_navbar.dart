@@ -10,11 +10,11 @@ class HomeNavbar extends StatelessWidget {
   Widget build(BuildContext context) {
     return NavigationBar(
       destinations: <Widget>[
-        NavigationDestination(icon: Icon(Icons.storage), label: 'Catalogo'),
         NavigationDestination(
           icon: Icon(Icons.trending_up),
           label: 'Dashboard',
         ),
+        NavigationDestination(icon: Icon(Icons.storage), label: 'Catalogo'),
         NavigationDestination(icon: Icon(Icons.storefront), label: 'Balcão'),
         NavigationDestination(
           icon: Icon(Icons.account_circle),

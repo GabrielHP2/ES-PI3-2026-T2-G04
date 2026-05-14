@@ -16,8 +16,8 @@ class _HomeShellState extends State<HomeShell> {
   int _currentIndex = 0;
 
   final List<Widget> _pages = const [
-    CatalogoPage(),
     DashboardPage(),
+    CatalogoPage(),
     TokenMarketPage(),
     ProfilePage(),
   ];
@@ -42,4 +42,4 @@ class _HomeShellState extends State<HomeShell> {
       ),
     );
   }
-} 
+}
