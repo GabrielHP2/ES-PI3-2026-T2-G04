@@ -27,25 +27,6 @@ class _NegociacaoPageState extends State<NegociacaoPage> {
   bool _isTokenLoading = true;
   List<Decimal> _historicoFiltrado = [];
   double _saldoUsuario = 0;
-  List<OrderModel> _userOrders = [];
-  List<OrderModel> _filteredUserOrders = [];
-  bool _ordersLoaded = false;
-
-  void _filterOpenOrders() {
-    _filteredUserOrders = _userOrders
-        .where(
-          (o) =>
-              o.status == OrderStatus.open || o.status == OrderStatus.partially,
-        )
-        .toList();
-  }
-
-  void _removeUserOrder(String orderId) {
-    setState(() {
-      _userOrders.removeWhere((o) => o.id == orderId);
-      _filterOpenOrders();
-    });
-  }
 
   @override
   void initState() {
@@ -62,8 +43,6 @@ class _NegociacaoPageState extends State<NegociacaoPage> {
   Future<void> _fetchData() async {
     final token = await buscarTokenPorStartupId(widget.initialToken.startupId);
     final wallet = await callWalletBalance();
-    final startupId = token?.startupId ?? widget.initialToken.startupId;
-    final userOrders = await listOrders();
     if (!mounted) return;
 
     setState(() {
@@ -72,9 +51,6 @@ class _NegociacaoPageState extends State<NegociacaoPage> {
         _historicoFiltrado = _filtrarHistorico(token, _periodoSelecionado);
       }
       _saldoUsuario = wallet?.availableBalance ?? 0;
-      _userOrders = userOrders.where((o) => o.startupId == startupId).toList();
-      _filterOpenOrders();
-      _ordersLoaded = true;
     });
   }
 
@@ -161,24 +137,7 @@ class _NegociacaoPageState extends State<NegociacaoPage> {
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
               ),
               const Divider(),
-              if (!_ordersLoaded)
-                const SizedBox(
-                  height: 80,
-                  child: Center(child: CircularProgressIndicator()),
-                )
-              else if (_filteredUserOrders.isEmpty)
-                const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 12),
-                  child: Text('Nenhuma ordem encontrada.'),
-                )
-              else
-                ..._filteredUserOrders.map(
-                  (o) => UserOrder(
-                    key: ValueKey(o.id),
-                    order: o,
-                    onOrderCancelled: _removeUserOrder,
-                  ),
-                ),
+              UserOrderList(startupId: _token!.startupId),
               const SizedBox(height: 16),
             ],
           ),
