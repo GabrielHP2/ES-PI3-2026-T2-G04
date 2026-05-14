@@ -24,7 +24,7 @@ export interface Startup {
   stage: StartupStage;
   visibility: StartupVisibility;
   tags: string[];
-  last_price: number;
+  last_price: string; // Armazenado como string para precisão
   short_description: string;
   full_description: string;
   executive_summary: string;
@@ -32,7 +32,7 @@ export interface Startup {
   pitch_video_url: string;
   website?: string;
   founded_at?: Timestamp | string;
-  current_raised: number;
+  current_raised: string; // Armazenado como string para precisão
   tokens_issued: number;
   investors_count: number;
   updated_at: Timestamp;
@@ -47,14 +47,14 @@ export interface SimplifiedStartup {
   tags: string[];
   short_description: string;
   corporate_structure: CorporateMember[];
-  current_raised: number;
+  current_raised: string; // Armazenado como string para precisão
   tokens_issued: number;
   investors_count: number;
 }
 
 export interface StartupPriceHistory {
   // Isso vai ser uma sub-collection.
-  price: number; // Preço registrado no momento
+  price: string; // Armazenado como string para precisão
   quantity: number;
   executed_at: Timestamp; // Momento do registro
 }

@@ -1,3 +1,4 @@
+import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend/components/balance_header.dart';
 import 'package:frontend/components/card_container.dart';
@@ -13,7 +14,7 @@ class DashboardPage extends StatefulWidget {
 }
 
 class _DashboardPageState extends State<DashboardPage> {
-  double _walletValue = 0;
+  Decimal? _walletValue;
   bool _isLoading = true;
 
   Future<void> _fetchWalletValue() async {
@@ -63,7 +64,9 @@ class _DashboardPageState extends State<DashboardPage> {
                               ),
                             ),
                             Text(
-                              moneyFormatter.format(_walletValue),
+                              moneyFormatter.format(
+                                _walletValue?.toDouble() ?? 0.0,
+                              ),
                               style: TextStyle(
                                 color: Colors.black,
                                 fontSize: 24,

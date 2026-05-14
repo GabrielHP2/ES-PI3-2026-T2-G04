@@ -1,3 +1,5 @@
+import 'package:frontend/services/decimal_service.dart';
+
 enum PaymentType { credit, debit, pix, none }
 
 class WalletBalance {
@@ -8,8 +10,8 @@ class WalletBalance {
 
   factory WalletBalance.fromMap(Map<String, dynamic> map) {
     return WalletBalance(
-      availableBalance: map['availableBalance'].toDouble(),
-      blockedBalance: map['blockedBalance'].toDouble(),
+      availableBalance: double.parse(map['availableBalance']),
+      blockedBalance: double.parse(map['blockedBalance']),
     );
   }
 }
@@ -27,17 +29,12 @@ class TokenWalletBalance {
 
   factory TokenWalletBalance.fromMap(Map<String, dynamic> map) {
     return TokenWalletBalance(
-      // Using .toDouble() or 'as num' to handle both int and double from JSON
-      availableBalance: (map['availableBalance'] ?? 0.0).toDouble(),
-      blockedBalance: (map['blockedBalance'] ?? 0.0).toDouble(),
-      // Mapping the list of holdings
+      availableBalance: toDouble(map['availableBalance']),
+      blockedBalance: toDouble(map['blockedBalance']),
       holdings:
-          ((map['holdings'] ?? map['Holdings']) as List<dynamic>?)?.map((x) {
-            if (x is Map<String, dynamic>) {
-              return Holding.fromMap(x);
-            }
-            return Holding.fromMap(Map<String, dynamic>.from(x as Map));
-          }).toList() ??
+          (map['holdings'] as List?)
+              ?.map((x) => Holding.fromMap(Map<String, dynamic>.from(x)))
+              .toList() ??
           [],
     );
   }
@@ -60,14 +57,11 @@ class Holding {
 
   factory Holding.fromMap(Map<String, dynamic> map) {
     return Holding(
-      avgPrice: (map['avgPrice'] ?? map['avg_price'] ?? 0.0).toDouble(),
-      blockedTokenBalance:
-          (map['blockedTokenBalance'] ?? map['blocked_token_balance'] ?? 0.0)
-              .toDouble(),
+      avgPrice: toDouble(map['avg_price']),
+      blockedTokenBalance: toDouble(map['blocked_token_balance']),
       startupId: map['startupId'] ?? map['startup_id'] ?? '',
-      tokenBalance: (map['tokenBalance'] ?? map['token_balance'] ?? 0.0)
-          .toDouble(),
-      tokenSymbol: map['tokenSymbol'] ?? map['token_symbol'] ?? '',
+      tokenBalance: toDouble(map['token_balance']),
+      tokenSymbol: map['token_symbol'] ?? '',
     );
   }
 }

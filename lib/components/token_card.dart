@@ -1,3 +1,4 @@
+import 'package:decimal/decimal.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend/models/token.dart';
@@ -59,7 +60,7 @@ class TokenCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Text(
-                      'R\$${token.precoAtual.toStringAsFixed(2)}',
+                      'R\$${token.precoAtual.toDouble().toStringAsFixed(2)}',
                       style: const TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
@@ -124,11 +125,11 @@ class TokenCard extends StatelessWidget {
     );
   }
 
-  List<FlSpot> _gerarPontosDoGrafico(List<double> dados) {
+  List<FlSpot> _gerarPontosDoGrafico(List<Decimal> dados) {
     return dados
         .asMap()
         .entries
-        .map((entry) => FlSpot(entry.key.toDouble(), entry.value))
+        .map((entry) => FlSpot(entry.key.toDouble(), entry.value.toDouble()))
         .toList();
   }
 }

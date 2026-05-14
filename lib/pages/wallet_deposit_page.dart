@@ -124,7 +124,7 @@ class _WalletDepositPageState extends State<WalletDepositPage> {
                       });
 
                       final result = await callWalletDeposit(
-                        controller.numberValue,
+                        controller.numberValue.toString(),
                         _toPaymentType(_paymentMethod),
                       );
 

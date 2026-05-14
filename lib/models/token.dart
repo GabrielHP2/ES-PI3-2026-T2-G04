@@ -1,8 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:decimal/decimal.dart';
+import 'package:frontend/services/decimal_service.dart';
 
 class TokenPricePoint {
   final String id;
-  final double price;
+  final Decimal price;
   final int? quantity;
   final Timestamp executedAt;
 
@@ -29,7 +31,7 @@ class TokenPricePoint {
   factory TokenPricePoint.fromMap(Map<String, dynamic> map) {
     return TokenPricePoint(
       id: (map['id'] ?? '').toString(),
-      price: (map['price'] as num?)?.toDouble() ?? 0,
+      price: toDecimal((map['price'] ?? '0').toString()),
       quantity: (map['quantity'] as num?)?.toInt(),
       executedAt: _parseTimestamp(map['executed_at']),
     );
@@ -40,8 +42,8 @@ class Token {
   final String startupId;
   final String nome;
   final String tokenSymbol;
-  final double precoAtual;
-  final double currentRaised;
+  final Decimal precoAtual;
+  final Decimal currentRaised;
   final List<TokenPricePoint> priceHistory;
   final double variacao;
 
@@ -55,37 +57,29 @@ class Token {
     required this.variacao,
   });
 
-  List<double> get historicoPrecos =>
+  List<Decimal> get historicoPrecos =>
       priceHistory.map((p) => p.price).toList(growable: false);
 
   static double _computeVariationFromSeries(
     List<TokenPricePoint> history,
-    double currentPrice,
+    Decimal currentPrice,
   ) {
-    if (currentPrice <= 0) return 0.0;
+    if (currentPrice <= Decimal.zero) return 0.0;
 
-    final valid = history.where((p) => p.price > 0).toList()
+    final valid = history.where((p) => p.price > Decimal.zero).toList()
       ..sort((a, b) => a.executedAt.compareTo(b.executedAt));
 
     if (valid.isEmpty) return 0.0;
 
-    final last = valid.last;
-    final sameAsLast = (last.price - currentPrice).abs() < 0.0000001;
+    final base = valid.last.price;
 
-    double? base;
-    if (sameAsLast) {
-      for (var i = valid.length - 2; i >= 0; i--) {
-        if (valid[i].price > 0) {
-          base = valid[i].price;
-          break;
-        }
-      }
-    } else {
-      base = last.price;
-    }
-
-    if (base == null || base <= 0) return 0.0;
-    return ((currentPrice - base) / base) * 100;
+    if (base <= Decimal.zero) return 0.0;
+    // Evita operações que retornem `Rational` — calcula em double com segurança
+    final baseDouble = base.toDouble();
+    final currentDouble = currentPrice.toDouble();
+    if (baseDouble == 0.0) return 0.0;
+    final variationDouble = (currentDouble - baseDouble) / baseDouble;
+    return variationDouble * 100.0;
   }
 
   factory Token.fromBackendMap(Map<String, dynamic> map) {
@@ -99,9 +93,11 @@ class Token {
             .toList()
           ..sort((a, b) => a.executedAt.compareTo(b.executedAt));
 
-    final backendLastPrice = (map['last_price'] as num?)?.toDouble() ?? 0.0;
-    final historyLastPrice = history.isNotEmpty ? history.last.price : 0.0;
-    final currentPrice = backendLastPrice > 0
+    final backendLastPrice = toDecimal((map['last_price'] ?? '0').toString());
+    final historyLastPrice = history.isNotEmpty
+        ? history.last.price
+        : Decimal.zero;
+    final currentPrice = backendLastPrice > Decimal.zero
         ? backendLastPrice
         : historyLastPrice;
 
@@ -112,7 +108,7 @@ class Token {
       nome: (map['name'] ?? map['nome'] ?? '').toString(),
       tokenSymbol: (map['token_symbol'] ?? '').toString(),
       precoAtual: currentPrice,
-      currentRaised: (map['current_raised'] as num?)?.toDouble() ?? 0,
+      currentRaised: toDecimal((map['current_raised'] ?? '0').toString()),
       priceHistory: history,
       variacao: variation,
     );

@@ -1,6 +1,8 @@
 import 'package:cloud_functions/cloud_functions.dart';
+import 'package:decimal/decimal.dart';
 import 'package:frontend/models/transactions.dart';
 import 'package:frontend/models/wallet.dart';
+import 'package:frontend/services/decimal_service.dart';
 
 final FirebaseFunctions _functions = FirebaseFunctions.instanceFor(
   region: 'southamerica-east1',
@@ -9,17 +11,13 @@ final FirebaseFunctions _functions = FirebaseFunctions.instanceFor(
 Future<WalletBalance?> callWalletBalance() async {
   try {
     final HttpsCallable callable = _functions.httpsCallable('walletBalance');
-
     final result = await callable.call();
 
-    final data = result.data as Map<String, dynamic>;
+    if (result.data == null) return null;
+    final data = Map<String, dynamic>.from(result.data as Map);
+
     final balance = WalletBalance.fromMap(data);
     return balance;
-  } on FirebaseFunctionsException catch (e) {
-    print(
-      'Erro ao carregar o saldo da carteira: code=${e.code}, message=${e.message}, details=${e.details}',
-    );
-    return null;
   } catch (e) {
     print('Erro ao carregar o saldo da carteira: $e');
     return null;
@@ -27,14 +25,14 @@ Future<WalletBalance?> callWalletBalance() async {
 }
 
 Future<Map<String, dynamic>?> callWalletDeposit(
-  double depositQuantity,
+  String depositQuantity,
   PaymentType paymentMethod,
 ) async {
   try {
     final HttpsCallable callable = _functions.httpsCallable('walletDeposit');
 
     final result = await callable.call({
-      'depositQuantity': depositQuantity,
+      'depositQuantity': toDecimal(depositQuantity),
       'paymentMethod': paymentMethod.name,
     });
 
@@ -51,11 +49,13 @@ Future<Map<String, dynamic>?> callWalletDeposit(
 }
 
 Future<Map<String, dynamic>?> callWalletWithdraw(
-  double withdrawQuantity,
+  String withdrawQuantity,
 ) async {
   try {
     final HttpsCallable callable = _functions.httpsCallable('walletWithdraw');
-    final result = await callable.call({'withdrawQuantity': withdrawQuantity});
+    final result = await callable.call({
+      'withdrawQuantity': toDecimal(withdrawQuantity),
+    });
 
     return result.data as Map<String, dynamic>;
   } on FirebaseFunctionsException catch (e) {
@@ -74,33 +74,30 @@ Future<List<TransactionModel>> callWalletTransactions() async {
     final HttpsCallable callable = _functions.httpsCallable(
       'walletTransaction',
     );
-
     final result = await callable.call();
 
-    final List data = result.data as List;
+    if (result.data == null) return [];
 
-    return data
-        .map(
-          (e) => TransactionModel.fromMap(Map<String, dynamic>.from(e as Map)),
-        )
-        .toList();
-  } on FirebaseFunctionsException catch (e) {
-    print(
-      'Erro ao carregar o saldo da carteira: code=${e.code}, message=${e.message}, details=${e.details}',
-    );
-    return [];
+    // Converte para List de forma segura
+    final List rawData = result.data as List;
+
+    return rawData.map((e) {
+      // Garante que cada item da lista seja um Map<String, dynamic>
+      final mapItem = Map<String, dynamic>.from(e as Map);
+      return TransactionModel.fromMap(mapItem);
+    }).toList();
   } catch (e) {
-    print('Erro ao carregar o saldo da carteira: $e');
+    print('Erro ao carregar as transações: $e');
     return [];
   }
 }
 
-Future<double> getWalletValue() async {
+Future<Decimal> getWalletValue() async {
   // Preciso somar o preço atual * quantidade de token de todos os tokens que o usuário possui
 
   // function ->
 
-  return 0; // TODO: IMPLEMENTAR!!!
+  return toDecimal('0'); // TODO: IMPLEMENTAR!!!
 }
 
 Future<TokenWalletBalance?> callWalletHoldings() async {

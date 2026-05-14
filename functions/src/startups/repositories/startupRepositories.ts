@@ -1,9 +1,9 @@
 // João Pedro Panza Mainieri - RA: 25006642
 
-import {FieldValue} from "firebase-admin/firestore";
-import {Startup} from "../types/startupType";
+import { FieldValue } from "firebase-admin/firestore";
+import { Startup } from "../types/startupType";
 
-import {db} from "../shared/firebase";
+import { db } from "../shared/firebase";
 
 const startupCol = db.collection("startups");
 
@@ -31,7 +31,7 @@ const demoStartups = [
     stage: "operacao",
     visibility: "publica",
     tags: ["fintech", "gestão financeira", "IA"],
-    last_price: 1.25,
+    last_price: "1.25",
     short_description:
       "Plataforma de gestão financeira pessoal com IA para análise de gastos e metas de investimento.",
     full_description:
@@ -55,7 +55,7 @@ const demoStartups = [
     pitch_video_url: "https://exemplo.com/finnova/demo",
     website: "https://exemplo.com/finnova",
     founded_at: "2021-05-05T00:00:00Z",
-    current_raised: 280000,
+    current_raised: "280000.00",
     tokens_issued: 95000,
     investors_count: 18,
   },
@@ -68,7 +68,7 @@ const demoStartups = [
     stage: "operacao",
     visibility: "publica",
     tags: ["healthtech", "triagem médica", "IA"],
-    last_price: 2.1,
+    last_price: "2.10",
     short_description:
       "Triagem clínica assistida por IA para reduzir tempo de espera em pronto atendimento.",
 
@@ -93,7 +93,7 @@ const demoStartups = [
     pitch_video_url: "https://exemplo.com/saudeai/demo",
     website: "https://exemplo.com/saudeai",
     founded_at: "2020-03-01T00:00:00Z",
-    current_raised: 450000,
+    current_raised: "450000.00",
     tokens_issued: 150000,
     investors_count: 27,
   },
@@ -106,7 +106,7 @@ const demoStartups = [
     stage: "expansao",
     visibility: "publica",
     tags: ["logtech", "blockchain", "rastreabilidade"],
-    last_price: 3.5,
+    last_price: "3.50",
     short_description:
       "Rastreabilidade de logística com blockchain e auditoria de cadeia de suprimentos.",
     full_description:
@@ -136,7 +136,7 @@ const demoStartups = [
     pitch_video_url: "https://exemplo.com/logichain/demo",
     website: "https://exemplo.com/logichain",
     founded_at: "2018-09-20T00:00:00Z",
-    current_raised: 80000,
+    current_raised: "80000.00",
     tokens_issued: 250000,
     investors_count: 34,
   },
@@ -149,7 +149,7 @@ const demoStartups = [
     stage: "nova",
     visibility: "publica",
     tags: ["edtech", "microlearning", "capacitação corporativa"],
-    last_price: 0.4,
+    last_price: "0.40",
     short_description:
       "Microcursos adaptativos para capacitação corporativa com trilhas personalizadas.",
     full_description:
@@ -173,7 +173,7 @@ const demoStartups = [
     pitch_video_url: "https://exemplo.com/eduflex/demo",
     website: "https://exemplo.com/eduflex",
     founded_at: "2025-01-10T00:00:00Z",
-    current_raised: 120000,
+    current_raised: "120000.00",
     tokens_issued: 60000,
     investors_count: 9,
   },
@@ -186,7 +186,7 @@ const demoStartups = [
     stage: "operacao",
     visibility: "publica",
     tags: ["agritech", "sensores", "irrigação inteligente"],
-    last_price: 1.1,
+    last_price: "1.10",
     short_description:
       "Sensoriamento de solo e irrigação inteligente para pequenas e médias fazendas.",
     full_description:
@@ -216,7 +216,7 @@ const demoStartups = [
     pitch_video_url: "https://exemplo.com/agrosense/demo",
     website: "https://exemplo.com/agrosense",
     founded_at: "2021-05-05T00:00:00Z",
-    current_raised: 520000,
+    current_raised: "520000.00",
     tokens_issued: 180000,
     investors_count: 22,
   },
@@ -226,7 +226,7 @@ export async function seedDemoStartups() {
   const batch = db.batch();
 
   for (const startup of demoStartups) {
-    const {id, ...data} = startup;
+    const { id, ...data } = startup;
     const startupRef = startupCol.doc(id);
 
     batch.set(
@@ -237,7 +237,7 @@ export async function seedDemoStartups() {
         createdt: FieldValue.serverTimestamp(),
         updatedAt: FieldValue.serverTimestamp(),
       },
-      {merge: true},
+      { merge: true },
     );
   }
 

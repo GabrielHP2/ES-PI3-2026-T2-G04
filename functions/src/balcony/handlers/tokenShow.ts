@@ -9,10 +9,7 @@ import {
   HttpsError,
   CallableRequest,
 } from "firebase-functions/v2/https";
-import {
-  PriceHistoryResponseItem,
-  TokenResponse,
-} from "../types/tokenType";
+import { PriceHistoryResponseItem, TokenResponse } from "../types/tokenType";
 
 const db = getFirestore();
 
@@ -31,7 +28,7 @@ async function getPriceHistory(
 
     return {
       id: doc.id,
-      price: Number(data["price"] ?? 0),
+      price: String(data["price"] ?? "0.00"), // Manter como string para precisão
       quantity: (data["quantity"] as number | null) ?? null,
       executed_at: data["executed_at"],
     };
@@ -45,7 +42,9 @@ export const tokensCatalog = onCall(async () => {
     .get();
 
   if (querySnap.empty) {
-    logger.error("Error from tokensCatalog: Falha ao buscar dados das startups");
+    logger.error(
+      "Error from tokensCatalog: Falha ao buscar dados das startups",
+    );
     throw new HttpsError("data-loss", "Falha ao buscar dados das startups");
   }
 
@@ -59,19 +58,19 @@ export const tokensCatalog = onCall(async () => {
           id: startupDoc.id,
           name: String(data["name"] ?? ""),
           token_symbol: String(data["token_symbol"] ?? ""),
-          last_price: Number(data["last_price"] ?? 0),
-          current_raised: Number(data["current_raised"] ?? 0),
+          last_price: String(data["last_price"] ?? "0.00"), // Manter como string para precisão
+          current_raised: String(data["current_raised"] ?? "0.00"), // Manter como string para precisão
           price_history: history,
         };
       },
     ),
   );
 
-  return {startups};
+  return { startups };
 });
 
 export const getTokenByStartupId = onCall(
-  async (request: CallableRequest<{id: string}>) => {
+  async (request: CallableRequest<{ id: string }>) => {
     const startupDoc = await db
       .collection("startups")
       .doc(request.data.id)
@@ -91,8 +90,8 @@ export const getTokenByStartupId = onCall(
       id: request.data.id,
       name: String(data["name"] ?? ""),
       token_symbol: String(data["token_symbol"] ?? ""),
-      last_price: Number(data["last_price"] ?? 0),
-      current_raised: Number(data["current_raised"] ?? 0),
+      last_price: String(data["last_price"] ?? "0.00"),
+      current_raised: String(data["current_raised"] ?? "0.00"),
       price_history: history,
     };
 

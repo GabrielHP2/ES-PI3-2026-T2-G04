@@ -12,6 +12,13 @@ import {
   DocumentReference,
   Timestamp,
 } from "firebase-admin/firestore";
+import {
+  toString,
+  toDecimal,
+  multiply,
+  add,
+  subtract,
+} from "../../shared/decimalUtils";
 
 const orderCollection = db.collection("orders");
 
@@ -83,7 +90,7 @@ export async function getOrdersByUserAndStartup(
 //  addOrder
 // Argumento: Order, ou argumento
 export async function createOrder(
-  price: number,
+  price: number | string,
   quantity: number,
   startupId: string,
   type: OrderType,
@@ -91,7 +98,7 @@ export async function createOrder(
   userId: string,
 ): Promise<DocumentReference<DocumentData>> {
   const data: CreateOrderDTO = {
-    price: price,
+    price: toString(toDecimal(price)), // Armazenar como string com precisão
     quantity: quantity,
     quantity_filled: 0,
     startup_id: startupId,
@@ -148,11 +155,17 @@ export async function cancelOrder(orderId: string): Promise<void> {
       }
 
       if (orderData.type === OrderType.buy) {
-        const refund = remaining * orderData.price;
+        // Calcula reembolso com precisão: remaining * orderData.price
+        const refund = multiply(
+          toDecimal(remaining),
+          toDecimal(orderData.price),
+        );
+        const newAvailable = add(toDecimal(wallet.availableBalance), refund);
+        const newBlocked = subtract(toDecimal(wallet.blockedBalance), refund);
 
         tx.update(walletRef, {
-          availableBalance: wallet.availableBalance + refund,
-          blockedBalance: wallet.blockedBalance - refund,
+          availableBalance: toString(newAvailable),
+          blockedBalance: toString(newBlocked),
         });
       }
 
