@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:frontend/components/balance_header.dart';
 import 'package:frontend/components/card_container.dart';
 import 'package:frontend/components/owned_tokens.dart';
+import 'package:frontend/components/user_order_card.dart';
 import 'package:frontend/services/numberformatter_service.dart';
 import 'package:frontend/services/wallet_services.dart';
 
@@ -78,6 +79,8 @@ class _DashboardPageState extends State<DashboardPage> {
                       ),
                       sectionSeparator('Seus Tokens'),
                       OwnedTokensList(),
+                      sectionSeparator('Suas Ordens Abertas'),
+                      UserOrderList(),
                     ],
                   ),
           ),
