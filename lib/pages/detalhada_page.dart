@@ -2,14 +2,17 @@
 
 import 'package:flutter/material.dart';
 import 'package:frontend/components/balance_header.dart';
+import 'package:frontend/components/owned_tokens.dart';
 import 'package:frontend/components/questions_section.dart';
 import 'package:frontend/components/startup_info_container.dart';
 import 'package:frontend/components/startup_tag.dart';
 import 'package:frontend/controllers/startup_controller.dart';
 import 'package:frontend/models/startup.dart';
+import 'package:frontend/models/wallet.dart';
 import 'package:frontend/services/is_investor_service.dart';
 import 'package:frontend/services/numberformatter_service.dart';
 import 'package:frontend/services/startup_services.dart';
+import 'package:frontend/services/wallet_services.dart';
 import 'package:video_player/video_player.dart';
 
 class PaginaDetalhada extends StatefulWidget {
@@ -24,8 +27,10 @@ class PaginaDetalhada extends StatefulWidget {
 class _PaginaDetalhadaState extends State<PaginaDetalhada> {
   Startup? _startup;
   bool _isLoading = true;
+
   ScrollController _scrollController = ScrollController();
   bool _isUserInvestor = false;
+  Holding? _userHolding;
 
   @override
   void initState() {
@@ -34,11 +39,29 @@ class _PaginaDetalhadaState extends State<PaginaDetalhada> {
   }
 
   Future<void> _fetchStartups() async {
+    setState(() {
+      _isLoading = true;
+    });
     final result = await callStartupDetail(widget.startupId);
     _isUserInvestor = await callIsUserInvestor(widget.startupId);
+    if (_isUserInvestor) await _fetchHolding();
     setState(() {
       _startup = result;
       _isLoading = false;
+    });
+  }
+
+  Future<void> _fetchHolding() async {
+    final result = await callWalletHoldings();
+    if (result == null) return;
+    if (result.holdings.isEmpty) {
+      return;
+    }
+    final Holding tokenHolding = result.holdings.firstWhere(
+      (h) => h.startupId == widget.startupId,
+    );
+    setState(() {
+      _userHolding = tokenHolding;
     });
   }
 
@@ -143,6 +166,9 @@ class _PaginaDetalhadaState extends State<PaginaDetalhada> {
                             const Divider(),
                             const SizedBox(height: 16),
                             BalanceHeader(),
+                            const SizedBox(height: 16),
+                            OwnedTokenCard(holding: _userHolding!),
+                            const SizedBox(height: 16),
                             sectionCard(
                               title: 'Perguntas e respostas privadas',
                               child: QuestionsSection(
