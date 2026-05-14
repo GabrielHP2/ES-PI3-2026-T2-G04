@@ -8,19 +8,24 @@ import {
   TransactionModel,
   TransactionData,
 } from "../types/walletType";
+import { toDecimal, toString } from "../../shared/decimalUtils";
 
 const db = getFirestore();
 
 export async function makeTransaction(
   userId: string,
   type: TransactionType,
-  amount: number,
+  amount: number | string,
   payMethod?: PaymentType,
   tradeId?: string,
 ) {
-  // Cria um objeto com os dados da transação
+  // Cria um objeto com os dados da transação com precisão decimal
+  const amountDecimal = toDecimal(amount);
+  const finalAmount =
+    type === "expense" ? amountDecimal.negated() : amountDecimal;
+
   const transactionData: TransactionData = {
-    amountBRL: type === "expense" ? -amount : amount, // Caso seja uma despesa, o valor vira negativo
+    amountBRL: toString(finalAmount), // Armazenado como string com precisão
     description:
       type === "expense"
         ? "Saque realizado" // Alterna a descrição dependendo do tipo da transação

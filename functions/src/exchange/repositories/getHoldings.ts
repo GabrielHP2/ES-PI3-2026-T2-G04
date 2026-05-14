@@ -23,8 +23,8 @@ export async function getHoldings(userId: string): Promise<TokenWalletType> {
       if (snapshot.exists) {
         const result = snapshot.data()!;
         const data: TokenWalletType = {
-          availableBalance: result.availableBalance ?? 0,
-          blockedBalance: result.blockedBalance ?? 0,
+          availableBalance: result.availableBalance ?? "0.00",
+          blockedBalance: result.blockedBalance ?? "0.00",
           holdings: result.holdings ?? result.Holdings ?? [],
         };
 
@@ -41,8 +41,8 @@ export async function getHoldings(userId: string): Promise<TokenWalletType> {
       });
 
       return {
-        availableBalance: 0,
-        blockedBalance: 0,
+        availableBalance: "0.00",
+        blockedBalance: "0.00",
         holdings: [],
       } as TokenWalletType;
     });

@@ -35,8 +35,8 @@ export const walletHoldings = onCall(async (request) => {
     });
 
     await walletRef.set({
-      availableBalance: 0,
-      blockedBalance: 0,
+      availableBalance: "0.00",
+      blockedBalance: "0.00",
       holdings: [],
     });
   }

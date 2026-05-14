@@ -9,6 +9,15 @@ import {
 } from "../../exchange/types/walletType";
 import { FieldValue, Timestamp } from "firebase-admin/firestore";
 import { StartupPriceHistory } from "../../startups/types/startupType";
+import {
+  toDecimal,
+  multiply,
+  add,
+  subtract,
+  isGreaterThanOrEqual,
+  isLessThan,
+  toString,
+} from "../../shared/decimalUtils";
 
 export async function matchOrders(startupId: string): Promise<MatchesExecuted> {
   const startupOrders: Order[] = await getOrdersByStartup(startupId);
@@ -61,20 +70,29 @@ function findMatchingOrders(buys: Order[], sells: Order[]): MatchOrder[] {
   if (buys.length == 0 || sells.length == 0) {
     return [];
   }
-  buys.sort((a, b) =>
-    b.price - a.price !== 0
-      ? b.price - a.price
-      : a.createdAt.toMillis() - b.createdAt.toMillis(),
-  );
-  sells.sort((a, b) =>
-    a.price - b.price !== 0
-      ? a.price - b.price
-      : a.createdAt.toMillis() - b.createdAt.toMillis(),
-  );
+  buys.sort((a, b) => {
+    const priceDiff = toDecimal(b.price).minus(toDecimal(a.price));
+    if (!priceDiff.isZero()) {
+      return priceDiff.isPositive() ? 1 : -1;
+    }
+    return a.createdAt.toMillis() - b.createdAt.toMillis();
+  });
+  sells.sort((a, b) => {
+    const priceDiff = toDecimal(a.price).minus(toDecimal(b.price));
+    if (!priceDiff.isZero()) {
+      return priceDiff.isPositive() ? 1 : -1;
+    }
+    return a.createdAt.toMillis() - b.createdAt.toMillis();
+  });
   let matchingOrders: MatchOrder[] = [];
   for (let i: number = 0; i < buys.length; i++) {
     for (let j: number = 0; j < sells.length; j++) {
-      if (buys[i].price >= sells[j].price) {
+      if (
+        isGreaterThanOrEqual(
+          toDecimal(buys[i].price),
+          toDecimal(sells[j].price),
+        )
+      ) {
         if (buys[i].user_id === sells[j].user_id) {
           continue;
         }
@@ -122,7 +140,12 @@ async function settleMatch(buy: Order, sell: Order): Promise<boolean> {
       return false;
     }
 
-    if (currentBuyOrder.price < currentSellOrder.price) {
+    if (
+      isLessThan(
+        toDecimal(currentBuyOrder.price),
+        toDecimal(currentSellOrder.price),
+      )
+    ) {
       return false;
     }
 
@@ -136,8 +159,8 @@ async function settleMatch(buy: Order, sell: Order): Promise<boolean> {
       return false;
     }
 
-    const price = currentSellOrder.price;
-    const totalValue = qty * price;
+    const price = toDecimal(currentSellOrder.price);
+    const totalValue = multiply(price, qty);
 
     // Validações de consistência
     const sellerHolding = sellerWallet.holdings.find(
@@ -160,12 +183,12 @@ async function settleMatch(buy: Order, sell: Order): Promise<boolean> {
       );
       return false;
     }
-    if (buyerWallet.blockedBalance < totalValue) {
+    if (isLessThan(toDecimal(buyerWallet.blockedBalance), totalValue)) {
       console.error(
         "[settleMatch] Inconsistência: blockedBalance insuficiente",
         {
           buyOrderId: buy.id,
-          expected: totalValue,
+          expected: toString(totalValue),
           found: buyerWallet.blockedBalance,
         },
       );
@@ -173,11 +196,19 @@ async function settleMatch(buy: Order, sell: Order): Promise<boolean> {
     }
 
     // transferFunds
+    const newBuyerBlockedBalance = subtract(
+      toDecimal(buyerWallet.blockedBalance),
+      totalValue,
+    );
     tx.update(walletRefBuyer, {
-      blockedBalance: buyerWallet.blockedBalance - totalValue,
+      blockedBalance: toString(newBuyerBlockedBalance),
     });
+    const newSellerAvailableBalance = add(
+      toDecimal(sellerWallet.availableBalance),
+      totalValue,
+    );
     tx.update(walletRefSeller, {
-      availableBalance: sellerWallet.availableBalance + totalValue,
+      availableBalance: toString(newSellerAvailableBalance),
     });
 
     // transferTokens
@@ -198,15 +229,22 @@ async function settleMatch(buy: Order, sell: Order): Promise<boolean> {
       (h) => h.startup_id === currentBuyOrder.startup_id,
     );
 
+    const priceDecimal = toDecimal(currentSellOrder.price);
     const updatedBuyerHoldings = buyerHoldingExists
       ? buyerHoldings.map((h) =>
           h.startup_id === currentBuyOrder.startup_id
             ? {
                 ...h,
                 token_balance: h.token_balance + qty,
-                avg_price:
-                  (h.token_balance * (h.avg_price || price) + qty * price) /
-                  (h.token_balance + qty),
+                avg_price: toString(
+                  add(
+                    multiply(
+                      toDecimal(h.token_balance),
+                      h.avg_price ? toDecimal(h.avg_price) : priceDecimal,
+                    ),
+                    multiply(qty, priceDecimal),
+                  ).dividedBy(h.token_balance + qty),
+                ),
               }
             : h,
         )
@@ -217,7 +255,7 @@ async function settleMatch(buy: Order, sell: Order): Promise<boolean> {
             blocked_token_balance: 0,
             startup_id: currentBuyOrder.startup_id,
             token_symbol: currentBuyOrder.token_symbol,
-            avg_price: price,
+            avg_price: toString(priceDecimal),
           },
         ];
 
@@ -246,13 +284,13 @@ async function settleMatch(buy: Order, sell: Order): Promise<boolean> {
       buyerId: currentBuyOrder.user_id,
       sellerId: currentSellOrder.user_id,
       qty,
-      price,
-      totalValue,
+      price: toString(price),
+      totalValue: toString(totalValue),
       executedAt: new Date(),
     });
 
     const buyTransaction = {
-      amountBRL: totalValue,
+      amountBRL: toString(totalValue),
       createdAt: Timestamp.now(),
       description: `Compra de \$${currentBuyOrder.token_symbol}`,
       tradeId: tradeRef.id,
@@ -264,7 +302,7 @@ async function settleMatch(buy: Order, sell: Order): Promise<boolean> {
     tx.create(buyTransactionRef, buyTransaction);
 
     const sellTransaction = {
-      amountBRL: totalValue,
+      amountBRL: toString(totalValue),
       createdAt: Timestamp.now(),
       description: `Venda de \$${currentSellOrder.token_symbol}`,
       tradeId: tradeRef.id,
@@ -282,7 +320,7 @@ async function settleMatch(buy: Order, sell: Order): Promise<boolean> {
     tx.set(
       startupRef,
       {
-        last_price: price,
+        last_price: toString(price),
         updatedAt: FieldValue.serverTimestamp(),
       },
       { merge: true },
@@ -295,7 +333,7 @@ async function settleMatch(buy: Order, sell: Order): Promise<boolean> {
       .collection("price_history")
       .doc();
     const newPriceHistoryEntry: StartupPriceHistory = {
-      price: price,
+      price: toString(price),
       quantity: qty,
       executed_at: Timestamp.now(),
     };

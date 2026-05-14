@@ -3,6 +3,14 @@ import { createOrder } from "../repositories/ordersRepositories";
 import { CreateOrderDTO, OrderType } from "../types/orderType";
 import { db } from "../../startups/shared/firebase";
 import { matchOrders } from "../../orderBook_engine/handlers/matchEngine";
+import {
+  multiply,
+  subtract,
+  add,
+  toString,
+  toDecimal,
+  isLessThan,
+} from "../../shared/decimalUtils";
 
 /**
  * Creates a new order in the system.
@@ -42,17 +50,26 @@ export const placeOrder = onCall(async (request) => {
     const wallet = walletSnap.data()!;
 
     if (order.type == OrderType.buy) {
-      const totalcost = order.price * order.quantity;
+      // Calcula o custo total com precisão: price * quantity
+      const totalcost = multiply(
+        toDecimal(order.price),
+        toDecimal(order.quantity),
+      );
+      const availableBalance = toDecimal(wallet.availableBalance);
 
-      if (wallet.availableBalance < totalcost) {
+      if (isLessThan(availableBalance, totalcost)) {
         throw new HttpsError("failed-precondition", "Saldo insuficiente");
       }
-      const newBalance = wallet.availableBalance - totalcost;
-      const newBlockedBalance = wallet.blockedBalance + totalcost;
+
+      const newBalance = subtract(availableBalance, totalcost);
+      const newBlockedBalance = add(
+        toDecimal(wallet.blockedBalance),
+        totalcost,
+      );
 
       transaction.update(walletRef, {
-        availableBalance: newBalance,
-        blockedBalance: newBlockedBalance,
+        availableBalance: toString(newBalance),
+        blockedBalance: toString(newBlockedBalance),
       });
     } else if (order.type == OrderType.sell) {
       const holdings: any[] = wallet.holdings ?? [];
