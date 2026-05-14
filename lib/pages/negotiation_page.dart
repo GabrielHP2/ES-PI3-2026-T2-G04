@@ -1,3 +1,4 @@
+import 'package:decimal/decimal.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend/components/balance_header.dart';
@@ -24,7 +25,7 @@ class _NegociacaoPageState extends State<NegociacaoPage> {
   String _periodoSelecionado = '1M';
   Token? _token;
   bool _isTokenLoading = true;
-  List<double> _historicoFiltrado = [];
+  List<Decimal> _historicoFiltrado = [];
   double _saldoUsuario = 0;
   List<OrderModel> _userOrders = [];
   List<OrderModel> _filteredUserOrders = [];
@@ -77,7 +78,7 @@ class _NegociacaoPageState extends State<NegociacaoPage> {
     });
   }
 
-  List<double> _filtrarHistorico(Token token, String periodo) {
+  List<Decimal> _filtrarHistorico(Token token, String periodo) {
     final now = DateTime.now();
     DateTime? inicio;
 
@@ -246,7 +247,7 @@ class _NegociacaoPageState extends State<NegociacaoPage> {
                     ),
                   ),
                   Text(
-                    'R\$ ${_token!.precoAtual.toStringAsFixed(2).replaceAll('.', ',')}',
+                    'R\$ ${_token!.precoAtual.toDouble().toStringAsFixed(2).replaceAll('.', ',')}',
                     style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w900,
@@ -297,7 +298,9 @@ class _NegociacaoPageState extends State<NegociacaoPage> {
                     spots: _historicoFiltrado
                         .asMap()
                         .entries
-                        .map((e) => FlSpot(e.key.toDouble(), e.value))
+                        .map(
+                          (e) => FlSpot(e.key.toDouble(), e.value.toDouble()),
+                        )
                         .toList(),
                     isCurved: true,
                     color: Colors.indigo,

@@ -80,7 +80,7 @@ class _WalletWithdrawPageState extends State<WalletWithdrawPage> {
                       });
 
                       final result = await callWalletWithdraw(
-                        controller.numberValue,
+                        controller.numberValue.toString(),
                       );
 
                       if (!mounted) return;

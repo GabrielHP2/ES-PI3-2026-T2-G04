@@ -1,3 +1,4 @@
+import 'package:decimal/decimal.dart';
 import 'package:extended_masked_text/extended_masked_text.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend/models/order_model.dart';
@@ -7,7 +8,7 @@ import 'package:frontend/services/numberformatter_service.dart';
 
 class PlaceOrderPopUp extends StatefulWidget {
   final Token token;
-  final double currentPrice;
+  final Decimal currentPrice;
   final OrderType type;
   final double userAvailableBalance;
   final int userTokenBalance;
@@ -38,7 +39,7 @@ class _PlaceOrderPopUpState extends State<PlaceOrderPopUp> {
       leftSymbol: 'R\$ ',
       decimalSeparator: ',',
       thousandSeparator: '.',
-      initialValue: widget.currentPrice,
+      initialValue: widget.currentPrice.toDouble(),
     );
   }
 
@@ -128,7 +129,7 @@ class _PlaceOrderPopUpState extends State<PlaceOrderPopUp> {
                     ),
                   ),
                   Text(
-                    moneyFormatter.format(widget.currentPrice),
+                    moneyFormatter.format(widget.currentPrice.toDouble()),
                     style: const TextStyle(
                       fontSize: 17,
                       fontWeight: FontWeight.bold,
