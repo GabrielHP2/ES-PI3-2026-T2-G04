@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart'; // logout
 import 'package:flutter/material.dart'; 
 import 'package:frontend/pages/wallet_page.dart'; // navegação ate a carteira
 import 'package:frontend/services/two_factor_services.dart'; // 2fa
+import 'package:frontend/controllers/wallet_perfil.dart'; // controlador para o saldo da carteira funcionar (aguardando o back)
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -18,6 +19,8 @@ class _ProfilePageState extends State<ProfilePage> {
   
   // Leitor campo da senha
   final TextEditingController _passwordController = TextEditingController();
+  
+  Color? get textColor => null;
 
   @override
   void dispose() {
@@ -214,10 +217,24 @@ class _ProfilePageState extends State<ProfilePage> {
                   ),
                   const SizedBox(height: 8),
                   
-                  // PARA QUEM FOR INTEGRAR O DADO ESTÁ MOCKADO 
-                  // ========================================================
-                  const Text('R\$676767,00', style: TextStyle(fontSize: 36, fontWeight: FontWeight.bold)),
-                  const SizedBox(height: 24),
+                  // Integração com saldo
+                  FutureBuilder<double>(  //constroi o valor de acordo com os dados recebidos
+                    future: WalletController().buscarSaldoReal(), // Chama o controlador
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const SizedBox(
+                          height: 43, 
+                          child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
+                        );
+                      }
+                      
+                      final double saldoReal = snapshot.data ?? 0.0;
+                      return Text(
+                        'R\$ ${saldoReal.toStringAsFixed(2).replaceAll('.', ',')}', 
+                        style: TextStyle(fontSize: 36, fontWeight: FontWeight.bold, color: textColor)
+                      );
+                    },
+                  ),
                   // =================================================================
                   // botão da pagina da carteira
                   SizedBox(
@@ -243,8 +260,8 @@ class _ProfilePageState extends State<ProfilePage> {
 
             Row(
               children: [
-                // Botão Modo Escuro
-                Expanded(child: _buildActionButton(label: 'MODO ESCURO', onPressed: () => _showSnack('Modo escuro em breve!'))),
+                // Botão modo escuro (não funciona) !!!!
+                Expanded(child: _buildActionButton(label: 'MODO ESCURO', onPressed: () => _showSnack('PRECISA FAZER!!!!'))),
                 const SizedBox(width: 16),
                 
                 // Botão logout 
