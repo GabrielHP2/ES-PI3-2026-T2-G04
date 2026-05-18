@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:firebase_auth/firebase_auth.dart';
 
 Future<void> activateSMS2FA(
@@ -32,75 +34,97 @@ Future<void> activateSMS2FA(
 
   // Obter sessão multifator
   final multifactorSession = await user.multiFactor.getSession();
-  String? verificationId;
-  FirebaseAuthException? verificationFailure;
+  final verificationIdCompleter = Completer<String?>();
 
   // Verificar número de telefone com reCAPTCHA
   // O reCAPTCHA será exibido automaticamente no iOS
   try {
-    await FirebaseAuth.instance.verifyPhoneNumber(
-      multiFactorSession: multifactorSession,
-      phoneNumber: user.phoneNumber!,
-      timeout: const Duration(seconds: 120),
-      verificationCompleted: (PhoneAuthCredential credential) async {
-        // Callback de verificação automática (SMS auto-retrieval)
-        final assertion = PhoneMultiFactorGenerator.getAssertion(credential);
-        await user.multiFactor.enroll(
-          assertion,
-          displayName: 'Celular principal',
+    unawaited(
+      FirebaseAuth.instance.verifyPhoneNumber(
+        multiFactorSession: multifactorSession,
+        phoneNumber: user.phoneNumber!,
+        timeout: const Duration(seconds: 120),
+        verificationCompleted: (PhoneAuthCredential credential) async {
+          try {
+            final assertion = PhoneMultiFactorGenerator.getAssertion(credential);
+            await user.multiFactor.enroll(
+              assertion,
+              displayName: 'Celular principal',
+            );
+            if (!verificationIdCompleter.isCompleted) {
+              verificationIdCompleter.complete(null);
+            }
+          } catch (e) {
+            if (!verificationIdCompleter.isCompleted) {
+              verificationIdCompleter.completeError(e);
+            }
+          }
+        },
+        verificationFailed: (FirebaseAuthException e) {
+          if (!verificationIdCompleter.isCompleted) {
+            verificationIdCompleter.completeError(e);
+          }
+        },
+        codeSent: (String verificationIdFromServer, int? forceResendingToken) {
+          if (!verificationIdCompleter.isCompleted) {
+            verificationIdCompleter.complete(verificationIdFromServer);
+          }
+        },
+        codeAutoRetrievalTimeout: (String verificationIdFromServer) {
+          if (!verificationIdCompleter.isCompleted) {
+            verificationIdCompleter.complete(verificationIdFromServer);
+          }
+        },
+      ),
+    );
+
+      final verificationId = await verificationIdCompleter.future.timeout(
+      const Duration(seconds: 150),
+      onTimeout: () {
+        throw Exception(
+            'O envio do SMS demorou mais do que o esperado. Tente novamente e conclua o desafio de verificação, se ele aparecer.',
         );
       },
-      verificationFailed: (FirebaseAuthException e) {
-        verificationFailure = e;
-      },
-      codeSent: (String verificationIdFromServer, int? forceResendingToken) {
-        // Callback disparado quando o SMS é enviado (após reCAPTCHA)
-        verificationId = verificationIdFromServer;
-      },
-      codeAutoRetrievalTimeout: (String verificationIdFromServer) {
-        // Fallback se o SMS não for recuperado automaticamente
-        verificationId = verificationIdFromServer;
-      },
     );
-  } catch (e) {
-    throw Exception('Erro ao enviar SMS: $e');
-  }
 
-  if (verificationFailure != null) {
-    final code = verificationFailure!.code;
-    final message = verificationFailure!.message ?? 'Falha desconhecida';
-
-    if (code == 'app-not-authorized') {
-      throw Exception(
-        'Este app não está autorizado no Firebase Authentication. Confira package name, SHA-1 e SHA-256 no Firebase Console. [$message]',
-      );
+      if (verificationId == null || verificationId.isEmpty) {
+      return;
     }
 
-    throw Exception('Erro de verificação: $code - $message');
-  }
+    // Solicitar código SMS ao usuário
+    final smsCode = await requestSmsCode();
+    if (smsCode == null || smsCode.trim().length != 6) {
+      throw Exception('Código SMS inválido. Deve conter 6 dígitos.');
+    }
 
-  // Validar se o código foi enviado
-  if (verificationId == null || verificationId!.isEmpty) {
-    throw Exception(
-      'Não foi possível enviar o código SMS. Verifique se o número está correto.',
-    );
-  }
+    // Verificar e inscrever no 2FA
+    try {
+      final phoneCredential = PhoneAuthProvider.credential(
+        verificationId: verificationId,
+        smsCode: smsCode.trim(),
+      );
+      final assertion = PhoneMultiFactorGenerator.getAssertion(phoneCredential);
+      await user.multiFactor.enroll(
+        assertion,
+        displayName: 'Celular principal',
+      );
+    } on FirebaseAuthException catch (e) {
+      throw Exception('Erro ao ativar 2FA: ${e.message}');
+    }
+  } catch (e) {
+    if (e is FirebaseAuthException) {
+      final code = e.code;
+      final message = e.message ?? 'Falha desconhecida';
 
-  // Solicitar código SMS ao usuário
-  final smsCode = await requestSmsCode();
-  if (smsCode == null || smsCode.trim().length != 6) {
-    throw Exception('Código SMS inválido. Deve conter 6 dígitos.');
-  }
+      if (code == 'app-not-authorized') {
+        throw Exception(
+          'Este app não está autorizado no Firebase Authentication. Confira package name, SHA-1 e SHA-256 no Firebase Console. [$message]',
+        );
+      }
 
-  // Verificar e inscrever no 2FA
-  try {
-    final phoneCredential = PhoneAuthProvider.credential(
-      verificationId: verificationId!,
-      smsCode: smsCode.trim(),
-    );
-    final assertion = PhoneMultiFactorGenerator.getAssertion(phoneCredential);
-    await user.multiFactor.enroll(assertion, displayName: 'Celular principal');
-  } on FirebaseAuthException catch (e) {
-    throw Exception('Erro ao ativar 2FA: ${e.message}');
+      throw Exception('Erro de verificação: $code - $message');
+    }
+
+    rethrow;
   }
 }

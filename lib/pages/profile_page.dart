@@ -13,6 +13,12 @@ class ProfilePage extends StatefulWidget {
 class _ProfilePageState extends State<ProfilePage> {
   final TextEditingController _passwordController = TextEditingController();
 
+  @override
+  void dispose() {
+    _passwordController.dispose();
+    super.dispose();
+  }
+
   void _showSnack(String message, {Color? backgroundColor}) {
     if (!mounted) return;
     final messenger = ScaffoldMessenger.of(context);
@@ -57,7 +63,6 @@ class _ProfilePageState extends State<ProfilePage> {
       },
     );
 
-    smsCodeController.dispose();
     return smsCode;
   }
 
