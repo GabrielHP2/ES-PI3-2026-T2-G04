@@ -257,8 +257,8 @@ class _ProfilePageState extends State<ProfilePage> {
                   _buildSwitchRow(
                     label: 'Por SMS:',
                     value: _isSmsAuthEnabled,
-                    activeColor: Color.fromARGB(255, 90, 101, 255),
-                    inactiveColor: const Color.fromARGB(255, 255, 30, 0),
+                    activeColor: Colors.indigo,
+                    inactiveColor: Colors.red,
                     onChanged: (bool newValue) {
                       _iniciarFluxo2FA(newValue);
                     },
@@ -325,6 +325,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   ),
                   // =================================================================
                   // botão da pagina da carteira
+                  SizedBox(height: 16),
                   SizedBox(
                     width: double.infinity,
                     height: 48,
@@ -337,7 +338,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         );
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF5759E0),
+                        backgroundColor: Colors.indigo,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(24),
                         ),
@@ -374,12 +375,42 @@ class _ProfilePageState extends State<ProfilePage> {
 */
                 // Botão logout
                 Expanded(
-                  child: _buildActionButton(
-                    label: 'LOG-OUT',
-                    onPressed: () async {
-                      await FirebaseAuth.instance
-                          .signOut(); // Desloga do firebase
-                    },
+                  child: Container(
+                    height: 120,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(
+                        color: const Color(0xFFCACACA),
+                        width: 1,
+                      ),
+                    ),
+                    child: ElevatedButton(
+                      onPressed: () async =>
+                          await FirebaseAuth.instance.signOut(),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.white,
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.logout, color: Colors.black, size: 24),
+                          SizedBox(width: 16),
+                          Text(
+                            'LOG-OUT',
+                            style: const TextStyle(
+                              color: Colors.black,
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
                 ),
               ],
@@ -401,7 +432,10 @@ class _ProfilePageState extends State<ProfilePage> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFCACACA), width: 1),
+        border: Border.all(color: Colors.grey.shade300, width: 1),
+        boxShadow: [
+          BoxShadow(color: Colors.black26, offset: Offset(0, 2), blurRadius: 2),
+        ],
       ),
       child: child,
     );
@@ -433,39 +467,6 @@ class _ProfilePageState extends State<ProfilePage> {
             onChanged: onChanged,
           ),
         ],
-      ),
-    );
-  }
-
-  // Cria os botões grandes e quadrados do modo escuro e logout
-  Widget _buildActionButton({
-    required String label,
-    required VoidCallback onPressed,
-  }) {
-    return Container(
-      height: 120,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFCACACA), width: 1),
-      ),
-      child: ElevatedButton(
-        onPressed: onPressed,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.white,
-          elevation: 0,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-        ),
-        child: Text(
-          label,
-          style: const TextStyle(
-            color: Colors.black,
-            fontSize: 14,
-            fontWeight: FontWeight.bold,
-          ),
-          textAlign: TextAlign.center,
-        ),
       ),
     );
   }
