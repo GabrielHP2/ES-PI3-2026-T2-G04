@@ -5,10 +5,14 @@ import 'package:frontend/components/balance_header.dart';
 import 'package:frontend/components/order_book.dart';
 import 'package:frontend/components/place_order.dart';
 import 'package:frontend/components/user_order_card.dart';
+import 'package:frontend/services/numberformatter_service.dart';
 import 'package:frontend/services/token_services.dart';
 import 'package:frontend/models/order_model.dart';
 import 'package:frontend/models/token.dart';
 import 'package:frontend/services/wallet_services.dart';
+import 'package:frontend/services/variation_service.dart';
+
+typedef PriceSpot = ({double x, double y});
 
 class NegociacaoPage extends StatefulWidget {
   final Token initialToken;
@@ -20,41 +24,62 @@ class NegociacaoPage extends StatefulWidget {
 }
 
 class _NegociacaoPageState extends State<NegociacaoPage> {
-  final List<String> _periodos = ['1D', '1W', '1M', '1Y', '5Y', 'ALL'];
-
   String _periodoSelecionado = '1M';
   Token? _token;
   bool _isTokenLoading = true;
-  List<Decimal> _historicoFiltrado = [];
+  bool _isChartLoading = true;
+
+  List<PriceSpot> _pontosGrafico = [];
+
+  bool _isWalletLoading = true;
   double _saldoUsuario = 0;
+  double _variacaoPeriodo = 0;
+
+  final List<String> _periodos = ['1D', '1W', '1M', '1Y', '5Y', 'ALL'];
 
   @override
   void initState() {
     super.initState();
     _token = widget.initialToken;
-    _historicoFiltrado = _filtrarHistorico(
+    _isTokenLoading = false;
+    _pontosGrafico = _filtrarParaPontos(
       widget.initialToken,
       _periodoSelecionado,
     );
-    _isTokenLoading = false;
+    _variacaoPeriodo = _variacaoDePontos(_pontosGrafico);
     _fetchData();
   }
 
   Future<void> _fetchData() async {
-    final token = await buscarTokenPorStartupId(widget.initialToken.startupId);
+    setState(() {
+      _isWalletLoading = true;
+    });
+
     final wallet = await callWalletBalance();
     if (!mounted) return;
-
     setState(() {
-      if (token != null) {
-        _token = token;
-        _historicoFiltrado = _filtrarHistorico(token, _periodoSelecionado);
-      }
       _saldoUsuario = wallet?.availableBalance ?? 0;
+      _isWalletLoading = false;
+    });
+    _fetchChart();
+  }
+
+  Future<void> _fetchChart() async {
+    if (_token == null) return;
+    setState(() => _isChartLoading = true);
+
+    final pontos = _filtrarParaPontos(_token!, _periodoSelecionado);
+    final variacao = _variacaoDePontos(pontos);
+
+    if (!mounted) return;
+    setState(() {
+      _pontosGrafico = pontos;
+      _variacaoPeriodo = variacao;
+      _isChartLoading = false;
     });
   }
 
-  List<Decimal> _filtrarHistorico(Token token, String periodo) {
+  List<PriceSpot> _filtrarParaPontos(Token token, String periodo) {
     final now = DateTime.now();
     DateTime? inicio;
 
@@ -82,21 +107,54 @@ class _NegociacaoPageState extends State<NegociacaoPage> {
     final pontos = token.priceHistory.where((p) {
       if (inicio == null) return true;
       final d = p.executedAt.toDate();
-      return d.isAfter(inicio) || d.isAtSameMomentAs(inicio);
-    });
+      return d.isAfter(inicio!) || d.isAtSameMomentAs(inicio!);
+    }).toList();
 
-    final precos = pontos.map((p) => p.price).toList();
-    if (precos.isEmpty) return token.historicoPrecos;
-    if (precos.length == 1) return [precos.first, precos.first];
-    return precos;
+    if (pontos.isEmpty) {
+      if (token.priceHistory.isEmpty) return [];
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted && _periodoSelecionado != 'ALL') {
+          setState(() => _periodoSelecionado = 'ALL');
+        }
+      });
+      return token.priceHistory
+          .map(
+            (p) => (
+              x: p.executedAt.toDate().millisecondsSinceEpoch.toDouble(),
+              y: p.price.toDouble(),
+            ),
+          )
+          .toList();
+    }
+
+    if (pontos.length == 1) {
+      final unico = (
+        x: pontos.first.executedAt.toDate().millisecondsSinceEpoch.toDouble(),
+        y: pontos.first.price.toDouble(),
+      );
+      return [unico, unico];
+    }
+
+    return pontos
+        .map(
+          (p) => (
+            x: p.executedAt.toDate().millisecondsSinceEpoch.toDouble(),
+            y: p.price.toDouble(),
+          ),
+        )
+        .toList();
+  }
+
+  double _variacaoDePontos(List<PriceSpot> pontos) {
+    if (pontos.length < 2) return 0.0;
+    return calcularVariacaoPercentual(pontos.first.y, pontos.last.y);
   }
 
   void _selecionarPeriodo(String periodo) {
-    if (_token == null) return;
-    setState(() {
-      _periodoSelecionado = periodo;
-      _historicoFiltrado = _filtrarHistorico(_token!, periodo);
-    });
+    if (_token == null || periodo == _periodoSelecionado) return;
+
+    setState(() => _periodoSelecionado = periodo);
+    _fetchChart();
   }
 
   @override
@@ -161,7 +219,7 @@ class _NegociacaoPageState extends State<NegociacaoPage> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
-            '\$ ${_token!.tokenSymbol}',
+            '\$${_token!.tokenSymbol}',
             style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w900),
           ),
           const SizedBox(width: 8),
@@ -206,7 +264,7 @@ class _NegociacaoPageState extends State<NegociacaoPage> {
                     ),
                   ),
                   Text(
-                    'R\$ ${_token!.precoAtual.toDouble().toStringAsFixed(2).replaceAll('.', ',')}',
+                    moneyFormatter.format(_token!.precoAtual.toDouble()),
                     style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w900,
@@ -218,7 +276,7 @@ class _NegociacaoPageState extends State<NegociacaoPage> {
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   const Text(
-                    'VALORIZAÇÃO RELATIVA',
+                    'VARIAÇÃO NO PERÍODO',
                     style: TextStyle(
                       fontSize: 10,
                       color: Colors.grey,
@@ -226,10 +284,12 @@ class _NegociacaoPageState extends State<NegociacaoPage> {
                     ),
                   ),
                   Text(
-                    '${_token!.variacao >= 0 ? '+' : ''}${_token!.variacao.toStringAsFixed(2)}%',
-                    style: const TextStyle(
+                    '${_variacaoPeriodo >= 0 ? '+' : ''}${_variacaoPeriodo.toStringAsFixed(2)}%',
+                    style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w900,
+
+                      color: _variacaoPeriodo >= 0 ? Colors.green : Colors.red,
                     ),
                   ),
                 ],
@@ -247,59 +307,98 @@ class _NegociacaoPageState extends State<NegociacaoPage> {
                 bottom: BorderSide(color: Colors.grey.shade100),
               ),
             ),
-            child: LineChart(
-              LineChartData(
-                gridData: const FlGridData(show: false),
-                titlesData: const FlTitlesData(show: false),
-                borderData: FlBorderData(show: false),
-                lineBarsData: [
-                  LineChartBarData(
-                    spots: _historicoFiltrado
-                        .asMap()
-                        .entries
-                        .map(
-                          (e) => FlSpot(e.key.toDouble(), e.value.toDouble()),
-                        )
-                        .toList(),
-                    isCurved: true,
-                    color: Colors.indigo,
-                    barWidth: 2.5,
-                    isStrokeCapRound: true,
-                    dotData: const FlDotData(show: false),
-                    belowBarData: BarAreaData(
-                      show: true,
-                      gradient: LinearGradient(
-                        colors: [
-                          Colors.indigo.withValues(alpha: 0.3),
-                          Colors.indigo.withValues(alpha: 0),
-                        ],
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
+            child: _isChartLoading
+                ? const Center(child: CircularProgressIndicator(strokeWidth: 2))
+                : _pontosGrafico.isEmpty
+                ? const Center(
+                    child: Text(
+                      'Sem dados para o período',
+                      style: TextStyle(color: Colors.grey, fontSize: 12),
+                    ),
+                  )
+                : LineChart(
+                    LineChartData(
+                      gridData: const FlGridData(show: false),
+                      titlesData: const FlTitlesData(show: false),
+                      borderData: FlBorderData(show: false),
+                      minX: _pontosGrafico.first.x,
+                      maxX: _pontosGrafico.last.x,
+
+                      minY:
+                          _pontosGrafico
+                              .map((p) => p.y)
+                              .reduce((a, b) => a < b ? a : b) *
+                          0.995,
+                      maxY:
+                          _pontosGrafico
+                              .map((p) => p.y)
+                              .reduce((a, b) => a > b ? a : b) *
+                          1.005,
+                      lineBarsData: [
+                        LineChartBarData(
+                          spots:
+                              (_pontosGrafico.toList()
+                                    ..sort((a, b) => a.x.compareTo(b.x)))
+                                  .map((p) => FlSpot(p.x, p.y))
+                                  .toList(),
+
+                          isCurved: false,
+                          color: Colors.indigo,
+                          barWidth: 2.5,
+                          isStrokeCapRound: true,
+                          dotData: const FlDotData(show: false),
+                          belowBarData: BarAreaData(
+                            show: true,
+                            gradient: LinearGradient(
+                              colors: [
+                                Colors.indigo.withValues(alpha: 0.3),
+                                Colors.indigo.withValues(alpha: 0),
+                              ],
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                            ),
+                          ),
+                        ),
+                      ],
+                      lineTouchData: LineTouchData(
+                        enabled: true,
+                        touchTooltipData: LineTouchTooltipData(
+                          fitInsideHorizontally: true,
+                          fitInsideVertically: true,
+                          getTooltipColor: (_) => Colors.black87,
+                          getTooltipItems: (touchedSpots) {
+                            return touchedSpots.map((spot) {
+                              final data = DateTime.fromMillisecondsSinceEpoch(
+                                spot.x.toInt(),
+                              );
+                              final dataFormatada =
+                                  '${data.day.toString().padLeft(2, '0')}/'
+                                  '${data.month.toString().padLeft(2, '0')}/'
+                                  '${data.year}';
+                              return LineTooltipItem(
+                                '${moneyFormatter.format(spot.y)}\n',
+                                const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 13,
+                                ),
+                                children: [
+                                  TextSpan(
+                                    text: dataFormatada,
+                                    style: const TextStyle(
+                                      color: Colors.white70,
+                                      fontWeight: FontWeight.normal,
+                                      fontSize: 11,
+                                    ),
+                                  ),
+                                ],
+                              );
+                            }).toList();
+                          },
+                        ),
                       ),
                     ),
                   ),
-                ],
-                lineTouchData: LineTouchData(
-                  enabled: true,
-                  touchTooltipData: LineTouchTooltipData(
-                    fitInsideHorizontally: true,
-                    fitInsideVertically: true,
-                    getTooltipColor: (_) => Colors.black87,
-                    getTooltipItems: (touchedSpots) {
-                      return touchedSpots.map((spot) {
-                        return LineTooltipItem(
-                          'R\$ ${spot.y.toStringAsFixed(2)}',
-                          const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        );
-                      }).toList();
-                    },
-                  ),
-                ),
-              ),
-            ),
           ),
           const SizedBox(height: 20),
           Row(
@@ -314,9 +413,7 @@ class _NegociacaoPageState extends State<NegociacaoPage> {
                     vertical: 6,
                   ),
                   decoration: BoxDecoration(
-                    color: isSelected
-                        ? const Color(0xFF5C6BC0)
-                        : Colors.transparent,
+                    color: isSelected ? Colors.indigo : Colors.transparent,
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
