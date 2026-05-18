@@ -46,7 +46,9 @@ Future<void> activateSMS2FA(
         timeout: const Duration(seconds: 120),
         verificationCompleted: (PhoneAuthCredential credential) async {
           try {
-            final assertion = PhoneMultiFactorGenerator.getAssertion(credential);
+            final assertion = PhoneMultiFactorGenerator.getAssertion(
+              credential,
+            );
             await user.multiFactor.enroll(
               assertion,
               displayName: 'Celular principal',
@@ -78,16 +80,16 @@ Future<void> activateSMS2FA(
       ),
     );
 
-      final verificationId = await verificationIdCompleter.future.timeout(
+    final verificationId = await verificationIdCompleter.future.timeout(
       const Duration(seconds: 150),
       onTimeout: () {
         throw Exception(
-            'O envio do SMS demorou mais do que o esperado. Tente novamente e conclua o desafio de verificação, se ele aparecer.',
+          'O envio do SMS demorou mais do que o esperado. Tente novamente e conclua o desafio de verificação, se ele aparecer.',
         );
       },
     );
 
-      if (verificationId == null || verificationId.isEmpty) {
+    if (verificationId == null || verificationId.isEmpty) {
       return;
     }
 
@@ -125,6 +127,35 @@ Future<void> activateSMS2FA(
       throw Exception('Erro de verificação: $code - $message');
     }
 
+    rethrow;
+  }
+}
+
+Future<void> desactivateSMS2FA() async {
+  try {
+    User? user = FirebaseAuth.instance.currentUser;
+
+    if (user != null) {
+      List<MultiFactorInfo> enrolledFactors = await user.multiFactor
+          .getEnrolledFactors();
+
+      if (enrolledFactors.isEmpty) {
+        throw Exception("O usuário não possui nenhum 2FA ativo.");
+      }
+
+      // 2. Encontre o fator de telefone (ou outro cadastrado)
+      final phoneFactor = enrolledFactors.firstWhere(
+        (factor) => factor.factorId == 'phone',
+        orElse: () => throw Exception("Fator de telefone não encontrado."),
+      );
+
+      // 3. O método 'unenroll' fica direto no 'user.multiFactor', e não na lista!
+      await user.multiFactor.unenroll(factorUid: phoneFactor.uid);
+    }
+  } catch (e) {
+    if (e is FirebaseAuthException) {
+      throw Exception("Erro ao desativar: ${e.message}");
+    }
     rethrow;
   }
 }

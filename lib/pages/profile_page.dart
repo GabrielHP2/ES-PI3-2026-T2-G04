@@ -14,9 +14,18 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   // Estado da página
-  bool _isEmailAuthEnabled =
-      true; // controlador do opção ligada e desligada do email
+  //bool _isEmailAuthEnabled = true; // controlador do opção ligada e desligada do email
   bool _isSmsAuthEnabled = false; // do 2fa
+
+  Future<void> _is2faEnabled() async {
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      final result = await user.multiFactor.getEnrolledFactors();
+      setState(() {
+        _isSmsAuthEnabled = result.isNotEmpty;
+      });
+    }
+  }
 
   // Leitor campo da senha
   final TextEditingController _passwordController = TextEditingController();
@@ -27,6 +36,12 @@ class _ProfilePageState extends State<ProfilePage> {
   void dispose() {
     _passwordController.dispose();
     super.dispose();
+  }
+
+  @override
+  void initState() {
+    _is2faEnabled();
+    super.initState();
   }
 
   // Notificação de erro ou sucesso em baixo da tela
@@ -97,7 +112,7 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   // FUNCAO de inicio do fluxo de segurança SE o 2FA for ativado (!!!!)
-  void _iniciarFluxo2FA() {
+  void _iniciarFluxo2FA(bool action) {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
@@ -132,36 +147,52 @@ class _ProfilePageState extends State<ProfilePage> {
             ),
             onPressed: () async {
               Navigator.of(context).pop();
-              try {
-                // Tenta ativar via Backend
-                await activateSMS2FA(
-                  _passwordController.text.trim(),
-                  _askForSmsCode,
-                );
-                if (!mounted) return;
-                // aviso sucesso
-                _showSnack(
-                  'Autenticação por SMS configurada com sucesso.',
-                  backgroundColor: const Color(0xff7AE058),
-                );
-                setState(() => _isSmsAuthEnabled = true);
-              } catch (e) {
-                if (!mounted) return;
-                // aviso erro
-                _showSnack(
-                  'Falha ao ativar 2FA: $e',
-                  backgroundColor: Colors.red,
-                );
-                setState(
-                  () => _isSmsAuthEnabled = false,
-                ); // devolve o switch ao desligado
-              }
+              action ? _fluxoAtivar2FA() : _fluxoDesativar2FA();
               _passwordController.clear(); // Limpa a senha
             },
           ),
         ],
       ),
     );
+  }
+
+  Future<void> _fluxoAtivar2FA() async {
+    try {
+      // Tenta ativar via Backend
+      await activateSMS2FA(_passwordController.text.trim(), _askForSmsCode);
+      if (!mounted) return;
+      // aviso sucesso
+      _showSnack(
+        'Autenticação por SMS configurada com sucesso.',
+        backgroundColor: const Color(0xff7AE058),
+      );
+      setState(() => _isSmsAuthEnabled = true);
+    } catch (e) {
+      if (!mounted) return;
+      // aviso erro
+      _showSnack('Falha ao ativar 2FA: $e', backgroundColor: Colors.red);
+      setState(
+        () => _isSmsAuthEnabled = false,
+      ); // devolve o switch ao desligado
+    }
+  }
+
+  Future<void> _fluxoDesativar2FA() async {
+    try {
+      await desactivateSMS2FA();
+      if (!mounted) return;
+      // aviso sucesso
+      _showSnack(
+        'Autenticação por SMS desativada com sucesso.',
+        backgroundColor: const Color(0xff7AE058),
+      );
+      setState(() => _isSmsAuthEnabled = false);
+    } catch (e) {
+      if (!mounted) return;
+      // aviso erro
+      _showSnack('Falha ao desativar 2FA: $e', backgroundColor: Colors.red);
+      setState(() => _isSmsAuthEnabled = true);
+    }
   }
 
   // CONSTRUÇÃO DA TELA --
@@ -209,6 +240,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   ),
                   const SizedBox(height: 24),
 
+                  /*
                   // Switch email
                   _buildSwitchRow(
                     label: 'Por email:',
@@ -219,6 +251,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       setState(() => _isEmailAuthEnabled = newValue);
                     },
                   ),
+                  */
 
                   // Switch 2fa
                   _buildSwitchRow(
@@ -227,12 +260,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     activeColor: Color.fromARGB(255, 90, 101, 255),
                     inactiveColor: const Color.fromARGB(255, 255, 30, 0),
                     onChanged: (bool newValue) {
-                      if (newValue) {
-                        _iniciarFluxo2FA(); // inicia o fluxo de segurança
-                      } else {
-                        setState(() => _isSmsAuthEnabled = false);
-                        _showSnack('2FA Desativado');
-                      }
+                      _iniciarFluxo2FA(newValue);
                     },
                   ),
                 ],
