@@ -4,6 +4,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:frontend/pages/home_shell.dart';
 
 class Autenticacao2FAPage extends StatefulWidget {
   final MultiFactorResolver resolver;
@@ -56,6 +57,12 @@ class _Autenticacao2FAPageState extends State<Autenticacao2FAPage> {
           try {
             await widget.resolver.resolveSignIn(
               PhoneMultiFactorGenerator.getAssertion(credential),
+            );
+            if (!mounted) return;
+            // Navega para HomeShell automaticamente em caso de auto-verificação
+            Navigator.of(context).pushAndRemoveUntil(
+              MaterialPageRoute(builder: (_) => const HomeShell()),
+              (route) => false,
             );
           } on FirebaseAuthException catch (e) {
             if (!mounted) return;
@@ -121,6 +128,12 @@ class _Autenticacao2FAPageState extends State<Autenticacao2FAPage> {
     try {
       await widget.resolver.resolveSignIn(
         PhoneMultiFactorGenerator.getAssertion(credential),
+      );
+      if (!mounted) return;
+      // Navega para a tela principal e limpa a pilha de rotas anteriores
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (_) => const HomeShell()),
+        (route) => false,
       );
     } on FirebaseAuthException catch (e) {
       _showSnack(e.message ?? e.code);
@@ -226,6 +239,7 @@ class _Autenticacao2FAPageState extends State<Autenticacao2FAPage> {
                   onPressed: (_isLoading || _isSendingCode)
                       ? null
                       : () async => await signIn(),
+
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF5759E0),
                     shape: RoundedRectangleBorder(
