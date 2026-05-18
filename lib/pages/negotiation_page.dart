@@ -1,4 +1,3 @@
-import 'package:decimal/decimal.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend/components/balance_header.dart';
@@ -6,7 +5,6 @@ import 'package:frontend/components/order_book.dart';
 import 'package:frontend/components/place_order.dart';
 import 'package:frontend/components/user_order_card.dart';
 import 'package:frontend/services/numberformatter_service.dart';
-import 'package:frontend/services/token_services.dart';
 import 'package:frontend/models/order_model.dart';
 import 'package:frontend/models/token.dart';
 import 'package:frontend/services/wallet_services.dart';
@@ -30,8 +28,6 @@ class _NegociacaoPageState extends State<NegociacaoPage> {
   bool _isChartLoading = true;
 
   List<PriceSpot> _pontosGrafico = [];
-
-  bool _isWalletLoading = true;
   double _saldoUsuario = 0;
   double _variacaoPeriodo = 0;
 
@@ -51,15 +47,10 @@ class _NegociacaoPageState extends State<NegociacaoPage> {
   }
 
   Future<void> _fetchData() async {
-    setState(() {
-      _isWalletLoading = true;
-    });
-
     final wallet = await callWalletBalance();
     if (!mounted) return;
     setState(() {
       _saldoUsuario = wallet?.availableBalance ?? 0;
-      _isWalletLoading = false;
     });
     _fetchChart();
   }
@@ -107,7 +98,7 @@ class _NegociacaoPageState extends State<NegociacaoPage> {
     final pontos = token.priceHistory.where((p) {
       if (inicio == null) return true;
       final d = p.executedAt.toDate();
-      return d.isAfter(inicio!) || d.isAtSameMomentAs(inicio!);
+      return d.isAfter(inicio) || d.isAtSameMomentAs(inicio);
     }).toList();
 
     if (pontos.isEmpty) {
