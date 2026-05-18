@@ -225,7 +225,10 @@ class _Autenticacao2FAPageState extends State<Autenticacao2FAPage> {
                 child: ElevatedButton(
                   onPressed: (_isLoading || _isSendingCode)
                       ? null
-                      : () async => await signIn(),
+                      : () async {
+                          await signIn();
+                          Navigator.pop(context);
+                        },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF5759E0),
                     shape: RoundedRectangleBorder(
