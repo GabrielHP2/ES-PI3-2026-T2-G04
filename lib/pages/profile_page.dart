@@ -361,6 +361,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
             Row(
               children: [
+                /*
                 // Botão modo escuro (não funciona) !!!!
                 Expanded(
                   child: _buildActionButton(
@@ -368,8 +369,9 @@ class _ProfilePageState extends State<ProfilePage> {
                     onPressed: () => _showSnack('PRECISA FAZER!!!!'),
                   ),
                 ),
+                
                 const SizedBox(width: 16),
-
+*/
                 // Botão logout
                 Expanded(
                   child: _buildActionButton(
