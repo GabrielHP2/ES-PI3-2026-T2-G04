@@ -1,8 +1,10 @@
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:decimal/decimal.dart';
+import 'package:frontend/models/token.dart';
 import 'package:frontend/models/transactions.dart';
 import 'package:frontend/models/wallet.dart';
 import 'package:frontend/services/decimal_service.dart';
+import 'package:frontend/services/token_services.dart';
 
 final FirebaseFunctions _functions = FirebaseFunctions.instanceFor(
   region: 'southamerica-east1',
@@ -94,10 +96,21 @@ Future<List<TransactionModel>> callWalletTransactions() async {
 
 Future<Decimal> getWalletValue() async {
   // Preciso somar o preço atual * quantidade de token de todos os tokens que o usuário possui
+  TokenWalletBalance? tokenWalletBalance = await callWalletHoldings();
+  if (tokenWalletBalance == null) return toDecimal('0');
 
-  // function ->
+  Decimal walletValue = toDecimal('0');
 
-  return toDecimal('0'); // TODO: IMPLEMENTAR!!!
+  for (final h in tokenWalletBalance.holdings) {
+    final Token? token = await buscarTokenPorStartupId(h.startupId);
+    if (token == null) {
+      throw Error();
+    }
+    walletValue =
+        walletValue + toDecimal(h.tokenBalance.toString()) * token.precoAtual;
+  }
+
+  return walletValue;
 }
 
 Future<TokenWalletBalance?> callWalletHoldings() async {
