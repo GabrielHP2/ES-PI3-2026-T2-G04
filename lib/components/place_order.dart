@@ -92,124 +92,134 @@ class _PlaceOrderPopUpState extends State<PlaceOrderPopUp> {
     return MediaQuery.removeViewInsets(
       removeBottom: true,
       context: context,
-      child: Dialog(
-        backgroundColor: Colors.grey[100],
-        insetPadding: const EdgeInsets.symmetric(vertical: 100, horizontal: 16),
-        shadowColor: Colors.black,
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Row(
-                children: [
-                  IconButton(
-                    onPressed: () => Navigator.pop(context),
-                    icon: const Icon(Icons.close),
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    isBuy ? 'CRIAR ORDEM DE COMPRA' : 'CRIAR ORDEM DE VENDA',
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 17,
+      child: GestureDetector(
+        onTap: () {
+          FocusScope.of(context).unfocus();
+        },
+        child: Dialog(
+          backgroundColor: Colors.grey[100],
+          insetPadding: const EdgeInsets.symmetric(
+            vertical: 100,
+            horizontal: 16,
+          ),
+          shadowColor: Colors.black,
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
+                  children: [
+                    IconButton(
+                      onPressed: () => Navigator.pop(context),
+                      icon: const Icon(Icons.close),
                     ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 13),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    isBuy ? 'Preço atual: ' : 'Preço atual: ',
+                    const SizedBox(width: 8),
+                    Text(
+                      isBuy ? 'CRIAR ORDEM DE COMPRA' : 'CRIAR ORDEM DE VENDA',
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 17,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 13),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      isBuy ? 'Preço atual: ' : 'Preço atual: ',
+                      style: const TextStyle(
+                        fontSize: 17,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    Text(
+                      moneyFormatter.format(widget.currentPrice.toDouble()),
+                      style: const TextStyle(
+                        fontSize: 17,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                Container(
+                  alignment: Alignment.centerLeft,
+                  padding: const EdgeInsets.all(10),
+                  child: Text(
+                    isBuy
+                        ? 'Quantos tokens deseja comprar:'
+                        : 'Quantos tokens deseja vender:',
                     style: const TextStyle(
-                      fontSize: 17,
+                      fontSize: 15,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
-                  Text(
-                    moneyFormatter.format(widget.currentPrice.toDouble()),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(6),
+                  child: TextField(
+                    controller: controllerQuantity,
+                    keyboardType: TextInputType.number,
+                    decoration: const InputDecoration(
+                      hintText: 'min: 1',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(200)),
+                      ),
+                    ),
+                  ),
+                ),
+                Container(
+                  alignment: Alignment.centerLeft,
+                  padding: const EdgeInsets.all(10),
+                  child: Text(
+                    isBuy
+                        ? 'Por quanto deseja comprar cada token:'
+                        : 'Por quanto deseja vender cada token:',
                     style: const TextStyle(
-                      fontSize: 17,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(6),
+                  child: TextField(
+                    controller: controllerPrice,
+                    keyboardType: const TextInputType.numberWithOptions(
+                      decimal: true,
+                    ),
+                    decoration: const InputDecoration(
+                      hintText: 'R\$',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(200)),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                ElevatedButton(
+                  onPressed: _continuar,
+                  style: ButtonStyle(
+                    backgroundColor: WidgetStatePropertyAll(
+                      isBuy ? Colors.green : Colors.red,
+                    ),
+                  ),
+                  child: Text(
+                    isBuy
+                        ? ' Criar ordem de compra '
+                        : ' Criar ordem de venda ',
+                    style: const TextStyle(
+                      color: Colors.white,
                       fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 10),
-              Container(
-                alignment: Alignment.centerLeft,
-                padding: const EdgeInsets.all(10),
-                child: Text(
-                  isBuy
-                      ? 'Quantos tokens deseja comprar:'
-                      : 'Quantos tokens deseja vender:',
-                  style: const TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(6),
-                child: TextField(
-                  controller: controllerQuantity,
-                  keyboardType: TextInputType.number,
-                  decoration: const InputDecoration(
-                    hintText: 'min: 1',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(200)),
+                      fontSize: 18,
                     ),
                   ),
                 ),
-              ),
-              Container(
-                alignment: Alignment.centerLeft,
-                padding: const EdgeInsets.all(10),
-                child: Text(
-                  isBuy
-                      ? 'Por quanto deseja comprar cada token:'
-                      : 'Por quanto deseja vender cada token:',
-                  style: const TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(6),
-                child: TextField(
-                  controller: controllerPrice,
-                  keyboardType: const TextInputType.numberWithOptions(
-                    decimal: true,
-                  ),
-                  decoration: const InputDecoration(
-                    hintText: 'R\$',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(200)),
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 12),
-              ElevatedButton(
-                onPressed: _continuar,
-                style: ButtonStyle(
-                  backgroundColor: WidgetStatePropertyAll(
-                    isBuy ? Colors.green : Colors.red,
-                  ),
-                ),
-                child: Text(
-                  isBuy ? ' Criar ordem de compra ' : ' Criar ordem de venda ',
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 18,
-                  ),
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
