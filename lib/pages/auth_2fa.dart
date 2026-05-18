@@ -122,6 +122,8 @@ class _Autenticacao2FAPageState extends State<Autenticacao2FAPage> {
       await widget.resolver.resolveSignIn(
         PhoneMultiFactorGenerator.getAssertion(credential),
       );
+      if (!mounted) return;
+      Navigator.of(context).pop();
     } on FirebaseAuthException catch (e) {
       _showSnack(e.message ?? e.code);
     } catch (e) {
@@ -225,10 +227,8 @@ class _Autenticacao2FAPageState extends State<Autenticacao2FAPage> {
                 child: ElevatedButton(
                   onPressed: (_isLoading || _isSendingCode)
                       ? null
-                      : () async {
-                          await signIn();
-                          Navigator.pop(context);
-                        },
+                      : () async => await signIn(),
+
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF5759E0),
                     shape: RoundedRectangleBorder(
