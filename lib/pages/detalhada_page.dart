@@ -14,6 +14,11 @@ import 'package:frontend/services/numberformatter_service.dart';
 import 'package:frontend/services/startup_services.dart';
 import 'package:frontend/services/wallet_services.dart';
 import 'package:video_player/video_player.dart';
+import 'package:decimal/decimal.dart';
+import 'package:frontend/components/place_order.dart';
+import 'package:frontend/models/order_model.dart';
+import 'package:frontend/models/token.dart';
+import 'package:frontend/pages/negotiation_page.dart';
 
 class PaginaDetalhada extends StatefulWidget {
   final String startupId;
@@ -30,6 +35,7 @@ class _PaginaDetalhadaState extends State<PaginaDetalhada> {
 
   ScrollController _scrollController = ScrollController();
   bool _isUserInvestor = false;
+  double _userAvailableBalance = 0;
   Holding? _userHolding;
 
   @override
@@ -44,7 +50,14 @@ class _PaginaDetalhadaState extends State<PaginaDetalhada> {
     });
     final result = await callStartupDetail(widget.startupId);
     _isUserInvestor = await callIsUserInvestor(widget.startupId);
-    if (_isUserInvestor) await _fetchHolding();
+
+    if (_isUserInvestor) {
+
+      final wallet = await callWalletBalance();
+      _userAvailableBalance = wallet?.availableBalance ?? 0;
+      await _fetchHolding();
+    }
+
     setState(() {
       _startup = result;
       _isLoading = false;
@@ -168,6 +181,68 @@ class _PaginaDetalhadaState extends State<PaginaDetalhada> {
                             BalanceHeader(),
                             const SizedBox(height: 16),
                             OwnedTokenCard(holding: _userHolding!),
+                            const SizedBox(height: 16),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                ElevatedButton(
+                                  onPressed: () => _showPlaceOrderPopup(OrderType.buy), // TODO: finalizar a func
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.green,
+                                    padding: const EdgeInsets.symmetric(horizontal: 15),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                  ),
+                                  child: const Text(
+                                    'Comprar',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 57),
+                                ElevatedButton(
+                                  onPressed: () => _showPlaceOrderPopup(OrderType.sell), // TODO: finalizar a func
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.red,
+                                    padding: const EdgeInsets.symmetric(horizontal: 21),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                  ),
+                                  child: const Text(
+                                    'Vender',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 10),
+                            ElevatedButton(
+                              onPressed: _goToNegotiationPage, // TODO: finalizar a func
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.indigo,
+                                padding: const EdgeInsets.symmetric(horizontal: 18),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                              child: const Text(
+                                'Ir para página de negociação',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
                             const SizedBox(height: 16),
                             sectionCard(
                               title: 'Perguntas e respostas privadas',
@@ -506,5 +581,51 @@ class _PaginaDetalhadaState extends State<PaginaDetalhada> {
     if (parts.length == 1) return parts.first.substring(0, 1).toUpperCase();
     return (parts.first.substring(0, 1) + parts.last.substring(0, 1))
         .toUpperCase();
+  }
+
+  // TODO: passar o histórico do token
+  void _showPlaceOrderPopup(OrderType orderType) {
+
+    final token = Token(
+      startupId: _startup!.id,
+      nome: _startup!.name,
+      tokenSymbol: _startup!.tokenSymbol,
+      precoAtual: Decimal.parse(_startup!.lastPrice.toString()),
+      currentRaised: Decimal.parse(_startup!.currentRaised.toString()),
+      priceHistory: [],
+      variacao: 0.0,
+    );
+
+    showDialog(
+      context: context,
+      builder: (context) => PlaceOrderPopUp(
+        token: token,
+        currentPrice: Decimal.parse(_startup!.lastPrice.toString()),
+        type: orderType,
+        userAvailableBalance: _userAvailableBalance,
+        userTokenBalance: (_userHolding?.tokenBalance ?? 0).toInt(),
+        userAvgPrice: _userHolding?.avgPrice ?? 0,
+      ),
+    );
+  }
+
+  // TODO: passar o histórico do token
+  void _goToNegotiationPage() {
+
+    final token = Token(
+      startupId: _startup!.id,
+      nome: _startup!.name,
+      tokenSymbol: _startup!.tokenSymbol,
+      precoAtual: Decimal.parse(_startup!.lastPrice.toString()),
+      currentRaised: Decimal.parse(_startup!.currentRaised.toString()),
+      priceHistory: [],
+      variacao: 0.0,
+    );
+
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => NegociacaoPage(initialToken: token),
+      ),
+    );
   }
 }
