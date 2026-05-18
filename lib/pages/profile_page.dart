@@ -2,8 +2,9 @@
 import 'package:firebase_auth/firebase_auth.dart'; // logout
 import 'package:flutter/material.dart';
 import 'package:frontend/pages/wallet_page.dart'; // navegação ate a carteira
+import 'package:frontend/services/numberformatter_service.dart';
 import 'package:frontend/services/two_factor_services.dart'; // 2fa
-import 'package:frontend/controllers/wallet_perfil.dart'; // controlador para o saldo da carteira funcionar (aguardando o back)
+import 'package:frontend/services/wallet_services.dart'; // controlador para o saldo da carteira funcionar (aguardando o back)
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -16,6 +17,8 @@ class _ProfilePageState extends State<ProfilePage> {
   // Estado da página
   //bool _isEmailAuthEnabled = true; // controlador do opção ligada e desligada do email
   bool _isSmsAuthEnabled = false; // do 2fa
+  bool _isLoading = true;
+  double _saldoUsuario = 0;
 
   Future<void> _is2faEnabled() async {
     User? user = FirebaseAuth.instance.currentUser;
@@ -41,6 +44,7 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   void initState() {
     _is2faEnabled();
+    _fetchWallet();
     super.initState();
   }
 
@@ -195,22 +199,26 @@ class _ProfilePageState extends State<ProfilePage> {
     }
   }
 
+  Future<void> _fetchWallet() async {
+    setState(() {
+      _isLoading = true;
+    });
+    final wallet = await callWalletBalance();
+    if (!mounted) return;
+
+    setState(() {
+      _saldoUsuario = wallet?.availableBalance ?? 0;
+      _isLoading = false;
+    });
+  }
+
   // CONSTRUÇÃO DA TELA --
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
-
       // cabeçalho
       appBar: AppBar(
-        title: const Text(
-          'PERFIL',
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-        ),
-        centerTitle: true,
-        backgroundColor: Colors.white,
-        elevation: 0,
-        foregroundColor: Colors.black,
+        title: const Text('Perfil'),
         automaticallyImplyLeading: false,
       ),
 
@@ -219,6 +227,79 @@ class _ProfilePageState extends State<ProfilePage> {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
+            _buildCardContainer(
+              Column(
+                children: [
+                  const Row(
+                    children: [
+                      Icon(Icons.credit_card, color: Colors.black, size: 28),
+                      SizedBox(width: 12),
+                      Text(
+                        'CARTEIRA',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 1.2,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 24),
+                  const Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      'Saldo disponível:',
+                      style: TextStyle(fontSize: 14, color: Colors.grey),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+
+                  // Integração com saldo
+                  !_isLoading
+                      ? Text(
+                          moneyFormatter.format(_saldoUsuario),
+                          style: const TextStyle(
+                            fontSize: 32,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        )
+                      : CircularProgressIndicator(),
+
+                  // =================================================================
+                  // botão da pagina da carteira
+                  SizedBox(height: 16),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 48,
+                    child: ElevatedButton(
+                      onPressed: () async {
+                        await Navigator.of(context).push(
+                          MaterialPageRoute(builder: (_) => const WalletPage()),
+                        );
+                        await _fetchWallet();
+                      },
+
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.indigo,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(24),
+                        ),
+                        elevation: 0,
+                      ),
+                      child: const Text(
+                        'Acessar Carteira',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(height: 16),
             // Autenticação
             _buildCardContainer(
               Column(
@@ -268,97 +349,6 @@ class _ProfilePageState extends State<ProfilePage> {
             ),
 
             const SizedBox(height: 16),
-
-            // carteira
-            _buildCardContainer(
-              Column(
-                children: [
-                  const Row(
-                    children: [
-                      Icon(Icons.credit_card, color: Colors.black, size: 28),
-                      SizedBox(width: 12),
-                      Text(
-                        'CARTEIRA',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 1.2,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 24),
-                  const Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      'Saldo disponível:',
-                      style: TextStyle(fontSize: 14, color: Colors.grey),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-
-                  // Integração com saldo
-                  FutureBuilder<double>(
-                    //constroi o valor de acordo com os dados recebidos
-                    future: WalletController()
-                        .buscarSaldoReal(), // Chama o controlador
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return const SizedBox(
-                          height: 43,
-                          child: Center(
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          ),
-                        );
-                      }
-
-                      final double saldoReal = snapshot.data ?? 0.0;
-                      return Text(
-                        'R\$ ${saldoReal.toStringAsFixed(2).replaceAll('.', ',')}',
-                        style: TextStyle(
-                          fontSize: 36,
-                          fontWeight: FontWeight.bold,
-                          color: textColor,
-                        ),
-                      );
-                    },
-                  ),
-                  // =================================================================
-                  // botão da pagina da carteira
-                  SizedBox(height: 16),
-                  SizedBox(
-                    width: double.infinity,
-                    height: 48,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (context) => const WalletPage(),
-                          ),
-                        );
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.indigo,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(24),
-                        ),
-                        elevation: 0,
-                      ),
-                      child: const Text(
-                        'Acessar Carteira',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 24),
 
             Row(
               children: [
@@ -450,7 +440,7 @@ class _ProfilePageState extends State<ProfilePage> {
     required ValueChanged<bool> onChanged,
   }) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
+      padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
