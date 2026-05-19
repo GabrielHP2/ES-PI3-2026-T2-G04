@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/services/token_services.dart';
 import 'package:frontend/models/order_model.dart';
+import 'package:frontend/services/portfolio_refresh_service.dart';
 import 'package:intl/intl.dart';
 
 class OrderConfirmationPage extends StatefulWidget {
@@ -25,6 +26,10 @@ class _OrderConfirmationPageState extends State<OrderConfirmationPage> {
       _isSubmitting = false;
       _result = result;
     });
+
+    if (result.success) {
+      requestPortfolioRefresh();
+    }
   }
 
   @override
@@ -61,7 +66,10 @@ class _OrderConfirmationPageState extends State<OrderConfirmationPage> {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: () => Navigator.pop(context, true),
+                  onPressed: () {
+                    requestPortfolioRefresh();
+                    Navigator.pop(context, true);
+                  },
                   child: const Text('Fechar'),
                 ),
               ),

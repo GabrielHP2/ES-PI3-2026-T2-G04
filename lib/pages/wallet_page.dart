@@ -4,6 +4,7 @@ import 'package:frontend/models/transactions.dart';
 import 'package:frontend/models/wallet.dart';
 import 'package:frontend/pages/wallet_deposit_page.dart';
 import 'package:frontend/pages/wallet_withdraw_page.dart';
+import 'package:frontend/services/numberformatter_service.dart';
 import 'package:frontend/services/wallet_services.dart';
 
 class WalletPage extends StatefulWidget {
@@ -46,7 +47,7 @@ class _WalletPageState extends State<WalletPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('CARTEIRA')),
+      appBar: AppBar(title: Text('Carteira')),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator(color: Colors.indigo))
           : Padding(
@@ -74,7 +75,7 @@ class _WalletPageState extends State<WalletPage> {
                       children: [
                         Text('SALDO DISPONÍVEL'),
                         Text(
-                          'R\$${balance!.availableBalance}',
+                          moneyFormatter.format(balance!.availableBalance),
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 32,
@@ -109,7 +110,7 @@ class _WalletPageState extends State<WalletPage> {
                           style: TextStyle(fontSize: 11),
                         ),
                         Text(
-                          'R\$${balance!.blockedBalance}',
+                          moneyFormatter.format(balance!.blockedBalance),
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 32,

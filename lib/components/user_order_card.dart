@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/models/order_model.dart';
 import 'package:frontend/services/numberformatter_service.dart';
+import 'package:frontend/services/portfolio_refresh_service.dart';
 import 'package:frontend/services/token_services.dart';
 
 class UserOrder extends StatefulWidget {
@@ -92,6 +93,7 @@ class _UserOrderState extends State<UserOrder> {
       },
       onDismissed: (_) {
         widget.onOrderCancelled?.call(order.id);
+        requestPortfolioRefresh();
         final messenger = ScaffoldMessenger.of(context);
         messenger.hideCurrentSnackBar();
         messenger.showSnackBar(
@@ -180,6 +182,10 @@ class _UserOrderListState extends State<UserOrderList> {
   List<OrderModel> _filteredUserOrders = [];
   bool _ordersLoaded = false;
 
+  void _handlePortfolioRefresh() {
+    _fetchData();
+  }
+
   void _filterOpenOrders() {
     if (widget.startupId == null) {
       _filteredUserOrders = _userOrders
@@ -211,7 +217,14 @@ class _UserOrderListState extends State<UserOrderList> {
   @override
   void initState() {
     super.initState();
+    portfolioRefreshNotifier.addListener(_handlePortfolioRefresh);
     _fetchData();
+  }
+
+  @override
+  void dispose() {
+    portfolioRefreshNotifier.removeListener(_handlePortfolioRefresh);
+    super.dispose();
   }
 
   Future<void> _fetchData() async {
