@@ -5,6 +5,7 @@ import 'package:frontend/pages/auth_2fa.dart';
 import 'package:frontend/pages/cadastro_page.dart';
 import 'package:frontend/pages/recuperar_senha.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:frontend/pages/home_shell.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -114,6 +115,11 @@ class _LoginPageState extends State<LoginPage> {
                       email: _emailController.text.trim(),
                       password: _passwordController.text.trim(),
                     ); //checa e-mail e senha
+
+                    if (!mounted) return;
+                    navigator.pushReplacement(
+                      MaterialPageRoute(builder: (_) => const HomeShell()),
+                    );
 
                     messenger.hideCurrentSnackBar();
                     messenger.showSnackBar(
