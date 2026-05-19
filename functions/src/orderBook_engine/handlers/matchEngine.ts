@@ -162,6 +162,9 @@ async function settleMatch(buy: Order, sell: Order): Promise<boolean> {
     const price = toDecimal(currentSellOrder.price);
     const totalValue = multiply(price, qty);
 
+    // total reservado pelo comprador (preço limite do buy * qty)
+    const reservedTotal = multiply(toDecimal(currentBuyOrder.price), qty);
+
     // Validações de consistência
     const sellerHolding = sellerWallet.holdings.find(
       (h) => h.startup_id === currentSellOrder.startup_id,
@@ -183,12 +186,13 @@ async function settleMatch(buy: Order, sell: Order): Promise<boolean> {
       );
       return false;
     }
-    if (isLessThan(toDecimal(buyerWallet.blockedBalance), totalValue)) {
+    // O usuário deve ter reservado ao menos o total baseado no preço do buy
+    if (isLessThan(toDecimal(buyerWallet.blockedBalance), reservedTotal)) {
       console.error(
         "[settleMatch] Inconsistência: blockedBalance insuficiente",
         {
           buyOrderId: buy.id,
-          expected: toString(totalValue),
+          expected: toString(reservedTotal),
           found: buyerWallet.blockedBalance,
         },
       );
@@ -198,10 +202,16 @@ async function settleMatch(buy: Order, sell: Order): Promise<boolean> {
     // transferFunds
     const newBuyerBlockedBalance = subtract(
       toDecimal(buyerWallet.blockedBalance),
-      totalValue,
+      reservedTotal,
+    );
+    const refundedToBuyer = subtract(reservedTotal, totalValue);
+    const newBuyerAvailableBalance = add(
+      toDecimal(buyerWallet.availableBalance),
+      refundedToBuyer,
     );
     tx.update(walletRefBuyer, {
       blockedBalance: toString(newBuyerBlockedBalance),
+      availableBalance: toString(newBuyerAvailableBalance),
     });
     const newSellerAvailableBalance = add(
       toDecimal(sellerWallet.availableBalance),
