@@ -45,6 +45,7 @@ class _DashboardPageState extends State<DashboardPage> {
       body: RefreshIndicator(
         onRefresh: () => _fetchWalletValue(),
         child: SingleChildScrollView(
+          physics: AlwaysScrollableScrollPhysics(),
           child: Padding(
             padding: EdgeInsets.all(16),
             child: _isLoading
