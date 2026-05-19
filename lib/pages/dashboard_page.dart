@@ -5,6 +5,7 @@ import 'package:frontend/components/card_container.dart';
 import 'package:frontend/components/owned_tokens.dart';
 import 'package:frontend/components/user_order_card.dart';
 import 'package:frontend/services/numberformatter_service.dart';
+import 'package:frontend/services/portfolio_refresh_service.dart';
 import 'package:frontend/services/wallet_services.dart';
 
 class DashboardPage extends StatefulWidget {
@@ -18,11 +19,16 @@ class _DashboardPageState extends State<DashboardPage> {
   Decimal? _walletValue;
   bool _isLoading = true;
 
+  void _handlePortfolioRefresh() {
+    _fetchWalletValue();
+  }
+
   Future<void> _fetchWalletValue() async {
     setState(() {
       _isLoading = true;
     });
     final result = await getWalletValue();
+    if (!mounted) return;
     setState(() {
       _walletValue = result;
       _isLoading = false;
@@ -32,7 +38,14 @@ class _DashboardPageState extends State<DashboardPage> {
   @override
   void initState() {
     super.initState();
+    portfolioRefreshNotifier.addListener(_handlePortfolioRefresh);
     _fetchWalletValue();
+  }
+
+  @override
+  void dispose() {
+    portfolioRefreshNotifier.removeListener(_handlePortfolioRefresh);
+    super.dispose();
   }
 
   @override
@@ -42,9 +55,10 @@ class _DashboardPageState extends State<DashboardPage> {
         title: Text('Dashboard'),
         automaticallyImplyLeading: false,
       ),
-      body: SingleChildScrollView(
-        child: RefreshIndicator(
-          onRefresh: () => _fetchWalletValue(),
+      body: RefreshIndicator(
+        onRefresh: () => _fetchWalletValue(),
+        child: SingleChildScrollView(
+          physics: AlwaysScrollableScrollPhysics(),
           child: Padding(
             padding: EdgeInsets.all(16),
             child: _isLoading

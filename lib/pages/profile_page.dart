@@ -24,6 +24,7 @@ class _ProfilePageState extends State<ProfilePage> {
     User? user = FirebaseAuth.instance.currentUser;
     if (user != null) {
       final result = await user.multiFactor.getEnrolledFactors();
+      if (!mounted) return;
       setState(() {
         _isSmsAuthEnabled = result.isNotEmpty;
       });
@@ -200,6 +201,7 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Future<void> _fetchWallet() async {
+    if (!mounted) return;
     setState(() {
       _isLoading = true;
     });
@@ -276,6 +278,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         await Navigator.of(context).push(
                           MaterialPageRoute(builder: (_) => const WalletPage()),
                         );
+                        if (!mounted) return;
                         await _fetchWallet();
                       },
 

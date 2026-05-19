@@ -6,6 +6,7 @@ import 'package:frontend/components/owned_tokens.dart';
 import 'package:frontend/components/questions_section.dart';
 import 'package:frontend/components/startup_info_container.dart';
 import 'package:frontend/components/startup_tag.dart';
+import 'package:frontend/components/token_chart_card.dart';
 import 'package:frontend/controllers/startup_controller.dart';
 import 'package:frontend/models/startup.dart';
 import 'package:frontend/models/wallet.dart';
@@ -52,7 +53,6 @@ class _PaginaDetalhadaState extends State<PaginaDetalhada> {
     _isUserInvestor = await callIsUserInvestor(widget.startupId);
 
     if (_isUserInvestor) {
-
       final wallet = await callWalletBalance();
       _userAvailableBalance = wallet?.availableBalance ?? 0;
       await _fetchHolding();
@@ -110,6 +110,7 @@ class _PaginaDetalhadaState extends State<PaginaDetalhada> {
               padding: const EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   _header(_startup!),
                   const SizedBox(height: 16),
@@ -152,6 +153,30 @@ class _PaginaDetalhadaState extends State<PaginaDetalhada> {
                   ),
                   const SizedBox(height: 16),
                   _videosShow(_startup!),
+                  const SizedBox(height: 16),
+                  Center(
+                    child: ElevatedButton(
+                      onPressed: _goToNegotiationPage, // TODO: finalizar a func
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.indigo,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 32,
+                          vertical: 16,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: const Text(
+                        'Ir para página de negociação',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
                   const SizedBox(height: 32),
                   _isUserInvestor
                       ? Column(
@@ -164,8 +189,8 @@ class _PaginaDetalhadaState extends State<PaginaDetalhada> {
                                   Text(
                                     'Área do investidor',
                                     style: TextStyle(
-                                      fontWeight: FontWeight.w500,
-                                      fontSize: 16,
+                                      fontWeight: FontWeight.w700,
+                                      fontSize: 18,
                                     ),
                                   ),
                                   /*Icon(
@@ -182,14 +207,19 @@ class _PaginaDetalhadaState extends State<PaginaDetalhada> {
                             const SizedBox(height: 16),
                             OwnedTokenCard(holding: _userHolding!),
                             const SizedBox(height: 16),
+                            TokenChartCard(startupId: widget.startupId),
+                            const SizedBox(height: 16),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 ElevatedButton(
-                                  onPressed: () => _showPlaceOrderPopup(OrderType.buy), // TODO: finalizar a func
+                                  onPressed: () =>
+                                      _showPlaceOrderPopup(OrderType.buy),
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: Colors.green,
-                                    padding: const EdgeInsets.symmetric(horizontal: 15),
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 15,
+                                    ),
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(12),
                                     ),
@@ -205,10 +235,13 @@ class _PaginaDetalhadaState extends State<PaginaDetalhada> {
                                 ),
                                 const SizedBox(width: 57),
                                 ElevatedButton(
-                                  onPressed: () => _showPlaceOrderPopup(OrderType.sell), // TODO: finalizar a func
+                                  onPressed: () =>
+                                      _showPlaceOrderPopup(OrderType.sell),
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: Colors.red,
-                                    padding: const EdgeInsets.symmetric(horizontal: 21),
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 21,
+                                    ),
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(12),
                                     ),
@@ -223,25 +256,6 @@ class _PaginaDetalhadaState extends State<PaginaDetalhada> {
                                   ),
                                 ),
                               ],
-                            ),
-                            const SizedBox(height: 10),
-                            ElevatedButton(
-                              onPressed: _goToNegotiationPage, // TODO: finalizar a func
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.indigo,
-                                padding: const EdgeInsets.symmetric(horizontal: 18),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                              ),
-                              child: const Text(
-                                'Ir para página de negociação',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
-                                ),
-                              ),
                             ),
                             const SizedBox(height: 16),
                             sectionCard(
@@ -585,7 +599,6 @@ class _PaginaDetalhadaState extends State<PaginaDetalhada> {
 
   // TODO: passar o histórico do token
   void _showPlaceOrderPopup(OrderType orderType) {
-
     final token = Token(
       startupId: _startup!.id,
       nome: _startup!.name,
@@ -611,7 +624,6 @@ class _PaginaDetalhadaState extends State<PaginaDetalhada> {
 
   // TODO: passar o histórico do token
   void _goToNegotiationPage() {
-
     final token = Token(
       startupId: _startup!.id,
       nome: _startup!.name,
@@ -623,9 +635,7 @@ class _PaginaDetalhadaState extends State<PaginaDetalhada> {
     );
 
     Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => NegociacaoPage(initialToken: token),
-      ),
+      MaterialPageRoute(builder: (_) => NegociacaoPage(initialToken: token)),
     );
   }
 }

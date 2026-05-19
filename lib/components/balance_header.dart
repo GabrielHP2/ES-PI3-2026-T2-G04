@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/pages/wallet_page.dart';
 import 'package:frontend/services/numberformatter_service.dart';
+import 'package:frontend/services/portfolio_refresh_service.dart';
 import 'package:frontend/services/wallet_services.dart';
 
 class BalanceHeader extends StatefulWidget {
@@ -13,10 +14,21 @@ class _BalanceHeaderState extends State<BalanceHeader> {
   bool _isLoading = true;
   double _saldoUsuario = 0;
 
+  void _handlePortfolioRefresh() {
+    _fetchData();
+  }
+
   @override
   void initState() {
     super.initState();
+    portfolioRefreshNotifier.addListener(_handlePortfolioRefresh);
     _fetchData();
+  }
+
+  @override
+  void dispose() {
+    portfolioRefreshNotifier.removeListener(_handlePortfolioRefresh);
+    super.dispose();
   }
 
   Future<void> _fetchData() async {

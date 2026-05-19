@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:extended_masked_text/extended_masked_text.dart';
 import 'package:frontend/services/numberformatter_service.dart';
+import 'package:frontend/services/portfolio_refresh_service.dart';
 import 'package:frontend/services/wallet_services.dart';
 
 class WalletWithdrawPage extends StatefulWidget {
@@ -86,6 +87,7 @@ class _WalletWithdrawPageState extends State<WalletWithdrawPage> {
                       if (!mounted) return;
 
                       if (result != null) {
+                        requestPortfolioRefresh();
                         Navigator.of(context).pop(result);
                         return;
                       }

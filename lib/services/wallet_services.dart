@@ -34,7 +34,7 @@ Future<Map<String, dynamic>?> callWalletDeposit(
     final HttpsCallable callable = _functions.httpsCallable('walletDeposit');
 
     final result = await callable.call({
-      'depositQuantity': toDecimal(depositQuantity),
+      'depositQuantity': depositQuantity,
       'paymentMethod': paymentMethod.name,
     });
 
@@ -55,9 +55,7 @@ Future<Map<String, dynamic>?> callWalletWithdraw(
 ) async {
   try {
     final HttpsCallable callable = _functions.httpsCallable('walletWithdraw');
-    final result = await callable.call({
-      'withdrawQuantity': toDecimal(withdrawQuantity),
-    });
+    final result = await callable.call({'withdrawQuantity': withdrawQuantity});
 
     return result.data as Map<String, dynamic>;
   } on FirebaseFunctionsException catch (e) {
