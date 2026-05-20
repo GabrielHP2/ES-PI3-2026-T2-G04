@@ -17,6 +17,7 @@ export const walletTransaction = onCall(async (request) => {
     const snapshot = await db
       .collection("transactions")
       .where("userId", "==", request.auth.uid)
+      .orderBy("createdAt", "desc")
       .get();
 
     if (snapshot.empty) {
