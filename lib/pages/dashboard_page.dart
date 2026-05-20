@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:frontend/components/balance_header.dart';
 import 'package:frontend/components/card_container.dart';
 import 'package:frontend/components/owned_tokens.dart';
+import 'package:frontend/components/trade_history.dart';
 import 'package:frontend/components/user_order_card.dart';
 import 'package:frontend/services/numberformatter_service.dart';
 import 'package:frontend/services/portfolio_refresh_service.dart';
@@ -95,6 +96,8 @@ class _DashboardPageState extends State<DashboardPage> {
                       OwnedTokensList(),
                       sectionSeparator('Suas Ordens Abertas'),
                       UserOrderList(),
+                      sectionSeparator('Histórico de Trades'),
+                      TradeHistory(),
                     ],
                   ),
           ),

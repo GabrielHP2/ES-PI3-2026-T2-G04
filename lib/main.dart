@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:frontend/components/trade_history.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'firebase_options.dart';
 import 'pages/home_shell.dart';
@@ -41,7 +42,8 @@ class MyApp extends StatelessWidget {
         // tested with just a hot reload.
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.white),
       ),
-      home: const AuthGate(),
+      // home: const AuthGate(),
+      home: TradeHistory()
     );
   }
 }
