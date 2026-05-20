@@ -1,6 +1,7 @@
 // Autor: Gabriel Henrique Pacagnelli Pagliato   RA: 25016528
 
 import 'package:flutter/material.dart';
+import 'package:frontend/services/numberformatter_service.dart';
 
 class TradeHistory extends StatefulWidget {
   const TradeHistory({super.key});
@@ -17,7 +18,10 @@ class _TradeHistoryState extends State<TradeHistory> {
   final token = '\$FNOVA';
   final date = '20/02/2024';
   final qtd = 5;
+  final isBuy = false;
 
+  // usar o sellerId e buyerId pra mostra o Icon.add ou Icon.remove
+  // criar func q pega o simbolo do token
 
   @override
   Widget build(BuildContext context) {
@@ -27,16 +31,25 @@ class _TradeHistoryState extends State<TradeHistory> {
       itemCount: 4,
       itemBuilder: (context, index) {
         return Card(
-          child: ListTile(
-            tileColor: Colors.white,
-            leading: Icon(
-              Icons.add, 
-              color: Colors.green,
+          elevation: 2,
+          shape: RoundedRectangleBorder(
+            borderRadius: .circular(20), 
+            side: BorderSide(
+              color: Colors.grey.shade300, 
+              width: 1
+              )
             ),
+          child: ListTile(
+            dense: true,
+            tileColor: Colors.white,
+            shape: RoundedRectangleBorder(borderRadius: .circular(20)),
+            leading: isBuy 
+            ? Icon(Icons.add, color: Colors.green)
+            : Icon(Icons.remove, color: Colors.red),
             title: Text(
               token, 
               style: TextStyle(
-                fontSize: 12,
+                fontSize: 18,
                 fontWeight: .bold
               )
             ),
@@ -44,11 +57,21 @@ class _TradeHistoryState extends State<TradeHistory> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text('Quantidade: $qtd'),
-                Text('Preço por Token: R\$ $price'),
-                Text('Executado em $date'),
+                Text('Preço por Token: ${moneyFormatter.format(price)}'),
+                Text('Executado em: $date'),
               ],
             ),
-            trailing: Text('R\$ ${qtd * price}'),
+            subtitleTextStyle: TextStyle(
+              color: Colors.black87
+            ),
+            trailing: Text(
+              moneyFormatter.format(price * qtd), 
+              style: TextStyle(
+                color: Colors.black,
+                fontWeight: .bold,
+                fontSize: 18
+              ),
+            ),
           ),
         );
       }
