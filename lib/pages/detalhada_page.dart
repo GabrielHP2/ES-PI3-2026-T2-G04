@@ -2,15 +2,24 @@
 
 import 'package:flutter/material.dart';
 import 'package:frontend/components/balance_header.dart';
+import 'package:frontend/components/owned_tokens.dart';
 import 'package:frontend/components/questions_section.dart';
 import 'package:frontend/components/startup_info_container.dart';
 import 'package:frontend/components/startup_tag.dart';
+import 'package:frontend/components/token_chart_card.dart';
 import 'package:frontend/controllers/startup_controller.dart';
 import 'package:frontend/models/startup.dart';
+import 'package:frontend/models/wallet.dart';
 import 'package:frontend/services/is_investor_service.dart';
 import 'package:frontend/services/numberformatter_service.dart';
 import 'package:frontend/services/startup_services.dart';
+import 'package:frontend/services/wallet_services.dart';
 import 'package:video_player/video_player.dart';
+import 'package:decimal/decimal.dart';
+import 'package:frontend/components/place_order.dart';
+import 'package:frontend/models/order_model.dart';
+import 'package:frontend/models/token.dart';
+import 'package:frontend/pages/negotiation_page.dart';
 
 class PaginaDetalhada extends StatefulWidget {
   final String startupId;
@@ -24,8 +33,11 @@ class PaginaDetalhada extends StatefulWidget {
 class _PaginaDetalhadaState extends State<PaginaDetalhada> {
   Startup? _startup;
   bool _isLoading = true;
+
   ScrollController _scrollController = ScrollController();
   bool _isUserInvestor = false;
+  double _userAvailableBalance = 0;
+  Holding? _userHolding;
 
   @override
   void initState() {
@@ -34,11 +46,35 @@ class _PaginaDetalhadaState extends State<PaginaDetalhada> {
   }
 
   Future<void> _fetchStartups() async {
+    setState(() {
+      _isLoading = true;
+    });
     final result = await callStartupDetail(widget.startupId);
     _isUserInvestor = await callIsUserInvestor(widget.startupId);
+
+    if (_isUserInvestor) {
+      final wallet = await callWalletBalance();
+      _userAvailableBalance = wallet?.availableBalance ?? 0;
+      await _fetchHolding();
+    }
+
     setState(() {
       _startup = result;
       _isLoading = false;
+    });
+  }
+
+  Future<void> _fetchHolding() async {
+    final result = await callWalletHoldings();
+    if (result == null) return;
+    if (result.holdings.isEmpty) {
+      return;
+    }
+    final Holding tokenHolding = result.holdings.firstWhere(
+      (h) => h.startupId == widget.startupId,
+    );
+    setState(() {
+      _userHolding = tokenHolding;
     });
   }
 
@@ -74,6 +110,7 @@ class _PaginaDetalhadaState extends State<PaginaDetalhada> {
               padding: const EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   _header(_startup!),
                   const SizedBox(height: 16),
@@ -116,6 +153,30 @@ class _PaginaDetalhadaState extends State<PaginaDetalhada> {
                   ),
                   const SizedBox(height: 16),
                   _videosShow(_startup!),
+                  const SizedBox(height: 16),
+                  Center(
+                    child: ElevatedButton(
+                      onPressed: _goToNegotiationPage, // TODO: finalizar a func
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.indigo,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 32,
+                          vertical: 16,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: const Text(
+                        'Ir para página de negociação',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
                   const SizedBox(height: 32),
                   _isUserInvestor
                       ? Column(
@@ -128,8 +189,8 @@ class _PaginaDetalhadaState extends State<PaginaDetalhada> {
                                   Text(
                                     'Área do investidor',
                                     style: TextStyle(
-                                      fontWeight: FontWeight.w500,
-                                      fontSize: 16,
+                                      fontWeight: FontWeight.w700,
+                                      fontSize: 18,
                                     ),
                                   ),
                                   /*Icon(
@@ -143,6 +204,60 @@ class _PaginaDetalhadaState extends State<PaginaDetalhada> {
                             const Divider(),
                             const SizedBox(height: 16),
                             BalanceHeader(),
+                            const SizedBox(height: 16),
+                            OwnedTokenCard(holding: _userHolding!),
+                            const SizedBox(height: 16),
+                            TokenChartCard(startupId: widget.startupId),
+                            const SizedBox(height: 16),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                ElevatedButton(
+                                  onPressed: () =>
+                                      _showPlaceOrderPopup(OrderType.buy),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.green,
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 15,
+                                    ),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                  ),
+                                  child: const Text(
+                                    'Comprar',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 57),
+                                ElevatedButton(
+                                  onPressed: () =>
+                                      _showPlaceOrderPopup(OrderType.sell),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.red,
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 21,
+                                    ),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                  ),
+                                  child: const Text(
+                                    'Vender',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 16),
                             sectionCard(
                               title: 'Perguntas e respostas privadas',
                               child: QuestionsSection(
@@ -480,5 +595,47 @@ class _PaginaDetalhadaState extends State<PaginaDetalhada> {
     if (parts.length == 1) return parts.first.substring(0, 1).toUpperCase();
     return (parts.first.substring(0, 1) + parts.last.substring(0, 1))
         .toUpperCase();
+  }
+
+  // TODO: passar o histórico do token
+  void _showPlaceOrderPopup(OrderType orderType) {
+    final token = Token(
+      startupId: _startup!.id,
+      nome: _startup!.name,
+      tokenSymbol: _startup!.tokenSymbol,
+      precoAtual: Decimal.parse(_startup!.lastPrice.toString()),
+      currentRaised: Decimal.parse(_startup!.currentRaised.toString()),
+      priceHistory: [],
+      variacao: 0.0,
+    );
+
+    showDialog(
+      context: context,
+      builder: (context) => PlaceOrderPopUp(
+        token: token,
+        currentPrice: Decimal.parse(_startup!.lastPrice.toString()),
+        type: orderType,
+        userAvailableBalance: _userAvailableBalance,
+        userTokenBalance: (_userHolding?.tokenBalance ?? 0).toInt(),
+        userAvgPrice: _userHolding?.avgPrice ?? 0,
+      ),
+    );
+  }
+
+  // TODO: passar o histórico do token
+  void _goToNegotiationPage() {
+    final token = Token(
+      startupId: _startup!.id,
+      nome: _startup!.name,
+      tokenSymbol: _startup!.tokenSymbol,
+      precoAtual: Decimal.parse(_startup!.lastPrice.toString()),
+      currentRaised: Decimal.parse(_startup!.currentRaised.toString()),
+      priceHistory: [],
+      variacao: 0.0,
+    );
+
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => NegociacaoPage(initialToken: token)),
+    );
   }
 }

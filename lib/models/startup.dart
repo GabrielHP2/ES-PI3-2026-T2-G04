@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:frontend/services/decimal_service.dart';
 
 // ENUMS
 enum StartupStatus { ativa, inativa, encerrada }
@@ -25,7 +26,7 @@ class CorporateMember {
     return CorporateMember(
       name: map['name'] ?? '',
       role: map['role'] ?? '',
-      equityPercent: (map['equity_percent'] as num? ?? 0).toDouble(),
+      equityPercent: toDouble(map['equity_percent']),
       bio: map['bio'] ?? '',
     );
   }
@@ -102,7 +103,7 @@ class Startup {
         orElse: () => StartupVisibility.privada,
       ),
       tags: List<String>.from(map['tags'] ?? []),
-      lastPrice: (map['last_price'] as num? ?? 0).toDouble(),
+      lastPrice: toDouble(map['last_price']),
       shortDescription: map['short_description'] ?? '',
       fullDescription: map['full_description'] ?? '',
       executiveSummary: map['executive_summary'] ?? '',
@@ -112,8 +113,8 @@ class Startup {
       pitchVideoUrl: map['pitch_video_url'] ?? '',
       website: map['website'],
       foundedAt: _parseDate(map['founded_at']),
-      currentRaised: (map['current_raised'] as num? ?? 0).toDouble(),
-      tokensIssued: (map['tokens_issued'] as num? ?? 0).toDouble(),
+      currentRaised: toDouble(map['current_raised'] as num? ?? 0),
+      tokensIssued: toDouble(map['tokens_issued'] as num? ?? 0),
       investorsCount: map['investors_count'] as int? ?? 0,
       updatedAt: _parseDate(map['updated_at']) ?? DateTime.now(),
     );

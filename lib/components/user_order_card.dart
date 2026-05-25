@@ -1,17 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/models/order_model.dart';
 import 'package:frontend/services/numberformatter_service.dart';
+import 'package:frontend/services/portfolio_refresh_service.dart';
 import 'package:frontend/services/token_services.dart';
 
 class UserOrder extends StatefulWidget {
   final OrderModel order;
   final ValueChanged<String>? onOrderCancelled;
 
-  const UserOrder({
-    super.key,
-    required this.order,
-    this.onOrderCancelled,
-  });
+  const UserOrder({super.key, required this.order, this.onOrderCancelled});
 
   @override
   State<UserOrder> createState() => _UserOrderState();
@@ -84,7 +81,10 @@ class _UserOrderState extends State<UserOrder> {
 
         if (!result.success) {
           messenger.showSnackBar(
-            SnackBar(content: Text(result.message), backgroundColor: Colors.red),
+            SnackBar(
+              content: Text(result.message),
+              backgroundColor: Colors.red,
+            ),
           );
           return false;
         }
@@ -93,6 +93,7 @@ class _UserOrderState extends State<UserOrder> {
       },
       onDismissed: (_) {
         widget.onOrderCancelled?.call(order.id);
+        requestPortfolioRefresh();
         final messenger = ScaffoldMessenger.of(context);
         messenger.hideCurrentSnackBar();
         messenger.showSnackBar(
@@ -165,6 +166,102 @@ class _UserOrderState extends State<UserOrder> {
           ),
         ),
       ),
+    );
+  }
+}
+
+class UserOrderList extends StatefulWidget {
+  final String? startupId;
+  const UserOrderList({super.key, this.startupId});
+  @override
+  State<UserOrderList> createState() => _UserOrderListState();
+}
+
+class _UserOrderListState extends State<UserOrderList> {
+  List<OrderModel> _userOrders = [];
+  List<OrderModel> _filteredUserOrders = [];
+  bool _ordersLoaded = false;
+
+  void _handlePortfolioRefresh() {
+    _fetchData();
+  }
+
+  void _filterOpenOrders() {
+    if (widget.startupId == null) {
+      _filteredUserOrders = _userOrders
+          .where(
+            (o) =>
+                o.status == OrderStatus.open ||
+                o.status == OrderStatus.partially,
+          )
+          .toList();
+    } else {
+      _filteredUserOrders = _userOrders
+          .where(
+            (o) =>
+                (o.status == OrderStatus.open ||
+                    o.status == OrderStatus.partially) &&
+                (o.startupId == widget.startupId),
+          )
+          .toList();
+    }
+  }
+
+  void _removeUserOrder(String orderId) {
+    setState(() {
+      _userOrders.removeWhere((o) => o.id == orderId);
+      _filterOpenOrders();
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    portfolioRefreshNotifier.addListener(_handlePortfolioRefresh);
+    _fetchData();
+  }
+
+  @override
+  void dispose() {
+    portfolioRefreshNotifier.removeListener(_handlePortfolioRefresh);
+    super.dispose();
+  }
+
+  Future<void> _fetchData() async {
+    final result = await listOrders();
+    if (!mounted) return;
+
+    setState(() {
+      _userOrders = result;
+      _filterOpenOrders();
+      _ordersLoaded = true;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        if (!_ordersLoaded)
+          const SizedBox(
+            height: 80,
+            child: Center(child: CircularProgressIndicator()),
+          )
+        else if (_filteredUserOrders.isEmpty)
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 12),
+            child: Text('Nenhuma ordem encontrada.'),
+          )
+        else
+          ..._filteredUserOrders.map(
+            (o) => UserOrder(
+              key: ValueKey(o.id),
+              order: o,
+              onOrderCancelled: _removeUserOrder,
+            ),
+          ),
+        const SizedBox(height: 16),
+      ],
     );
   }
 }

@@ -125,9 +125,20 @@ class OrderModel {
     final rawType = (map['type'] ?? '').toString().toLowerCase().trim();
     final type = rawType == 'sell' ? OrderType.sell : OrderType.buy;
 
+    // Converter price: pode ser string ou number
+    double priceValue = 0;
+    final priceRaw = map['price'];
+    if (priceRaw != null) {
+      if (priceRaw is String) {
+        priceValue = double.tryParse(priceRaw) ?? 0;
+      } else if (priceRaw is num) {
+        priceValue = priceRaw.toDouble();
+      }
+    }
+
     return OrderModel(
       id: (map['id'] ?? '').toString(),
-      price: (map['price'] as num?)?.toDouble() ?? 0,
+      price: priceValue,
       quantity: (map['quantity'] as num?)?.toInt() ?? 0,
       quantityFilled: (map['quantity_filled'] as num?)?.toInt() ?? 0,
       startupId: (map['startup_id'] ?? '').toString(),

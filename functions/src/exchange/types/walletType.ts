@@ -9,7 +9,7 @@ export type BalanceType = "available" | "blocked" | "both";
 export type PaymentType = "credit" | "debit" | "pix" | "none";
 
 export interface TransactionModel {
-  amountBRL: number;
+  amountBRL: string; // Armazenado como string para precisão
   createdAt: Timestamp;
   description: string;
   tradeId?: string;
@@ -21,13 +21,13 @@ export interface TransactionModel {
 export type TransactionData = TransactionModel & { tradeId?: string };
 
 export interface WalletType {
-  availableBalance: number;
-  blockedBalance: number;
+  availableBalance: string; // Armazenado como string para precisão
+  blockedBalance: string; // Armazenado como string para precisão
 }
 
 export interface TokenWalletType {
-  availableBalance: number;
-  blockedBalance: number;
+  availableBalance: string; // Armazenado como string para precisão
+  blockedBalance: string; // Armazenado como string para precisão
   holdings: Holding[];
 }
 
@@ -36,5 +36,5 @@ type Holding = {
   token_symbol: string;
   token_balance: number;
   blocked_token_balance: number;
-  avg_price: number;
+  avg_price: string; // Armazenado como string para precisão
 };

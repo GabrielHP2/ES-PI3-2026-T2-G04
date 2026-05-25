@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:extended_masked_text/extended_masked_text.dart';
 import 'package:frontend/models/wallet.dart';
+import 'package:frontend/services/portfolio_refresh_service.dart';
 import 'package:frontend/services/wallet_services.dart';
 
 enum PaymentMethods { debit, credit, pix, none }
@@ -124,13 +125,14 @@ class _WalletDepositPageState extends State<WalletDepositPage> {
                       });
 
                       final result = await callWalletDeposit(
-                        controller.numberValue,
+                        controller.numberValue.toString(),
                         _toPaymentType(_paymentMethod),
                       );
 
                       if (!mounted) return;
 
                       if (result != null) {
+                        requestPortfolioRefresh();
                         Navigator.of(context).pop(result);
                         return;
                       }

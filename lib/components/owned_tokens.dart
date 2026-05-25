@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:frontend/components/card_container.dart';
 import 'package:frontend/models/wallet.dart';
 import 'package:frontend/services/numberformatter_service.dart';
+import 'package:frontend/services/portfolio_refresh_service.dart';
 import 'package:frontend/services/wallet_services.dart';
 
 class OwnedTokensList extends StatefulWidget {
@@ -14,10 +15,21 @@ class _OwnedTokensListState extends State<OwnedTokensList> {
   bool _isLoading = true;
   List<Holding?> _userHoldings = []; // Mudar tipo para List<Holdings>
 
+  void _handlePortfolioRefresh() {
+    _fetchData();
+  }
+
   @override
   void initState() {
     super.initState();
+    portfolioRefreshNotifier.addListener(_handlePortfolioRefresh);
     _fetchData();
+  }
+
+  @override
+  void dispose() {
+    portfolioRefreshNotifier.removeListener(_handlePortfolioRefresh);
+    super.dispose();
   }
 
   Future<void> _fetchData() async {

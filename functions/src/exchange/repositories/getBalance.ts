@@ -16,11 +16,17 @@ export async function getBalance(userId: string): Promise<WalletType> {
       if (snapshot.exists) {
         const { availableBalance, blockedBalance } = snapshot.data()!;
         const data: WalletType = {
-          availableBalance,
-          blockedBalance,
+          availableBalance:
+            typeof availableBalance === "string"
+              ? availableBalance
+              : availableBalance.toString(),
+          blockedBalance:
+            typeof blockedBalance === "string"
+              ? blockedBalance
+              : blockedBalance.toString(),
         } as WalletType;
         return data;
       }
-      return { availableBalance: 0, blockedBalance: 0 } as WalletType;
+      return { availableBalance: "0.00", blockedBalance: "0.00" } as WalletType;
     });
 }

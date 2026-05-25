@@ -1,8 +1,12 @@
+import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend/components/balance_header.dart';
 import 'package:frontend/components/card_container.dart';
 import 'package:frontend/components/owned_tokens.dart';
+import 'package:frontend/components/trade_history.dart';
+import 'package:frontend/components/user_order_card.dart';
 import 'package:frontend/services/numberformatter_service.dart';
+import 'package:frontend/services/portfolio_refresh_service.dart';
 import 'package:frontend/services/wallet_services.dart';
 
 class DashboardPage extends StatefulWidget {
@@ -13,14 +17,19 @@ class DashboardPage extends StatefulWidget {
 }
 
 class _DashboardPageState extends State<DashboardPage> {
-  double _walletValue = 0;
+  Decimal? _walletValue;
   bool _isLoading = true;
+
+  void _handlePortfolioRefresh() {
+    _fetchWalletValue();
+  }
 
   Future<void> _fetchWalletValue() async {
     setState(() {
       _isLoading = true;
     });
     final result = await getWalletValue();
+    if (!mounted) return;
     setState(() {
       _walletValue = result;
       _isLoading = false;
@@ -30,7 +39,14 @@ class _DashboardPageState extends State<DashboardPage> {
   @override
   void initState() {
     super.initState();
+    portfolioRefreshNotifier.addListener(_handlePortfolioRefresh);
     _fetchWalletValue();
+  }
+
+  @override
+  void dispose() {
+    portfolioRefreshNotifier.removeListener(_handlePortfolioRefresh);
+    super.dispose();
   }
 
   @override
@@ -40,9 +56,10 @@ class _DashboardPageState extends State<DashboardPage> {
         title: Text('Dashboard'),
         automaticallyImplyLeading: false,
       ),
-      body: SingleChildScrollView(
-        child: RefreshIndicator(
-          onRefresh: () => _fetchWalletValue(),
+      body: RefreshIndicator(
+        onRefresh: () => _fetchWalletValue(),
+        child: SingleChildScrollView(
+          physics: AlwaysScrollableScrollPhysics(),
           child: Padding(
             padding: EdgeInsets.all(16),
             child: _isLoading
@@ -63,7 +80,9 @@ class _DashboardPageState extends State<DashboardPage> {
                               ),
                             ),
                             Text(
-                              moneyFormatter.format(_walletValue),
+                              moneyFormatter.format(
+                                _walletValue?.toDouble() ?? 0.0,
+                              ),
                               style: TextStyle(
                                 color: Colors.black,
                                 fontSize: 24,
@@ -75,6 +94,10 @@ class _DashboardPageState extends State<DashboardPage> {
                       ),
                       sectionSeparator('Seus Tokens'),
                       OwnedTokensList(),
+                      sectionSeparator('Suas Ordens Abertas'),
+                      UserOrderList(),
+                      sectionSeparator('Histórico de Trades'),
+                      TradeHistory(),
                     ],
                   ),
           ),

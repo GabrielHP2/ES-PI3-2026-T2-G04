@@ -14,7 +14,7 @@ export enum OrderType {
 
 export interface Order {
   id: string;
-  price: number;
+  price: string; // Armazenado como string para precisão
   quantity: number;
   quantity_filled: number;
   startup_id: string;

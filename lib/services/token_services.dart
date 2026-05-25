@@ -12,17 +12,29 @@ Token _mapToken(dynamic data) {
 }
 
 List<Token> _mapTokenList(dynamic data) {
-  final startups =
-      (data as Map<String, dynamic>)['startups'] as List<dynamic>? ?? const [];
-  return startups.map(_mapToken).toList();
+  try {
+    if (data is Map<String, dynamic> && data['startups'] is List<dynamic>) {
+      final startups = data['startups'] as List<dynamic>;
+      return startups.map(_mapToken).toList();
+    }
+
+    if (data is List<dynamic>) {
+      return data.map(_mapToken).toList();
+    }
+
+    // fallback: empty
+    return const [];
+  } catch (e) {
+    return const [];
+  }
 }
 
 Future<List<Token>> buscarTokens() async {
   try {
     final callable = _functions.httpsCallable('tokensCatalog');
     final result = await callable.call();
-    return _mapTokenList(Map<String, dynamic>.from(result.data as Map));
-  } catch (_) {
+    return _mapTokenList(result.data);
+  } catch (e) {
     return [];
   }
 }

@@ -1,8 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:decimal/decimal.dart';
+import 'package:frontend/services/decimal_service.dart';
+import 'package:frontend/services/variation_service.dart';
 
 class TokenPricePoint {
   final String id;
-  final double price;
+  final Decimal price;
   final int? quantity;
   final Timestamp executedAt;
 
@@ -16,20 +19,38 @@ class TokenPricePoint {
   static Timestamp _parseTimestamp(dynamic value) {
     if (value is Timestamp) return value;
     if (value is DateTime) return Timestamp.fromDate(value);
-    if (value is Map<String, dynamic>) {
-      final seconds = value['_seconds'];
-      if (seconds is int) {
-        final nanos = (value['_nanoseconds'] as int?) ?? 0;
+    if (value is Map) {
+      // Firestore REST/serializado manda 'seconds'/'nanoseconds' (sem underscore)
+      // Firestore SDK às vezes manda '_seconds'/'_nanoseconds' (com underscore)
+      final seconds = (value['seconds'] ?? value['_seconds']) as int?;
+      if (seconds != null) {
+        final nanos =
+            ((value['nanoseconds'] ?? value['_nanoseconds']) as int?) ?? 0;
         return Timestamp(seconds, nanos);
       }
     }
     return Timestamp.now();
   }
 
+  /// Converte qualquer representação de preço (num, String) para Decimal
+  /// sem perder precisão nem quebrar com notação científica de doubles.
+  static Decimal _parsePrice(dynamic value) {
+    if (value == null) return Decimal.zero;
+    if (value is int) return Decimal.fromInt(value);
+    // num/double: converte via toStringAsFixed para evitar representações
+    // como "0.30000000000000004" que quebram Decimal.parse silenciosamente.
+    if (value is double) {
+      if (value.isNaN || value.isInfinite) return Decimal.zero;
+      return toDecimal(value.toStringAsFixed(10));
+    }
+    // String: repassa direto para toDecimal
+    return toDecimal(value.toString());
+  }
+
   factory TokenPricePoint.fromMap(Map<String, dynamic> map) {
     return TokenPricePoint(
       id: (map['id'] ?? '').toString(),
-      price: (map['price'] as num?)?.toDouble() ?? 0,
+      price: _parsePrice(map['price']),
       quantity: (map['quantity'] as num?)?.toInt(),
       executedAt: _parseTimestamp(map['executed_at']),
     );
@@ -40,8 +61,8 @@ class Token {
   final String startupId;
   final String nome;
   final String tokenSymbol;
-  final double precoAtual;
-  final double currentRaised;
+  final Decimal precoAtual;
+  final Decimal currentRaised;
   final List<TokenPricePoint> priceHistory;
   final double variacao;
 
@@ -55,37 +76,30 @@ class Token {
     required this.variacao,
   });
 
-  List<double> get historicoPrecos =>
+  List<Decimal> get historicoPrecos =>
       priceHistory.map((p) => p.price).toList(growable: false);
 
   static double _computeVariationFromSeries(
     List<TokenPricePoint> history,
-    double currentPrice,
+    Decimal currentPrice,
   ) {
-    if (currentPrice <= 0) return 0.0;
+    if (currentPrice <= Decimal.zero) return 0.0;
 
-    final valid = history.where((p) => p.price > 0).toList()
+    final valid = history.where((p) => p.price > Decimal.zero).toList()
       ..sort((a, b) => a.executedAt.compareTo(b.executedAt));
 
     if (valid.isEmpty) return 0.0;
 
-    final last = valid.last;
-    final sameAsLast = (last.price - currentPrice).abs() < 0.0000001;
+    // FIX: usa o PRIMEIRO ponto como base (o mais antigo),
+    // não o último — assim a variação reflete a valorização ao longo do tempo.
+    final base = valid.first.price;
 
-    double? base;
-    if (sameAsLast) {
-      for (var i = valid.length - 2; i >= 0; i--) {
-        if (valid[i].price > 0) {
-          base = valid[i].price;
-          break;
-        }
-      }
-    } else {
-      base = last.price;
-    }
-
-    if (base == null || base <= 0) return 0.0;
-    return ((currentPrice - base) / base) * 100;
+    if (base <= Decimal.zero) return 0.0;
+    // Evita operações que retornem `Rational` — calcula em double com segurança
+    final baseDouble = base.toDouble();
+    final currentDouble = currentPrice.toDouble();
+    // Delega ao utilitário compartilhado — mesma lógica usada na NegociacaoPage
+    return calcularVariacaoPercentual(baseDouble, currentDouble);
   }
 
   factory Token.fromBackendMap(Map<String, dynamic> map) {
@@ -99,9 +113,11 @@ class Token {
             .toList()
           ..sort((a, b) => a.executedAt.compareTo(b.executedAt));
 
-    final backendLastPrice = (map['last_price'] as num?)?.toDouble() ?? 0.0;
-    final historyLastPrice = history.isNotEmpty ? history.last.price : 0.0;
-    final currentPrice = backendLastPrice > 0
+    final backendLastPrice = toDecimal((map['last_price'] ?? '0').toString());
+    final historyLastPrice = history.isNotEmpty
+        ? history.last.price
+        : Decimal.zero;
+    final currentPrice = backendLastPrice > Decimal.zero
         ? backendLastPrice
         : historyLastPrice;
 
@@ -112,7 +128,7 @@ class Token {
       nome: (map['name'] ?? map['nome'] ?? '').toString(),
       tokenSymbol: (map['token_symbol'] ?? '').toString(),
       precoAtual: currentPrice,
-      currentRaised: (map['current_raised'] as num?)?.toDouble() ?? 0,
+      currentRaised: toDecimal((map['current_raised'] ?? '0').toString()),
       priceHistory: history,
       variacao: variation,
     );
