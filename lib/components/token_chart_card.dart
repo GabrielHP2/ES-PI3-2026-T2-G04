@@ -70,22 +70,17 @@ class _TokenChartCardState extends State<TokenChartCard> {
 
     if (pontos.isEmpty) {
       if (token.priceHistory.isEmpty) return [];
-      return token.priceHistory
-          .map(
-            (p) => (
-              x: p.executedAt.toDate().millisecondsSinceEpoch.toDouble(),
-              y: p.price.toDouble(),
-            ),
-          )
-          .toList();
+      final precoAtual = token.precoAtual.toDouble();
+      final agora = now.millisecondsSinceEpoch.toDouble();
+      final periodoInicio = inicio?.millisecondsSinceEpoch.toDouble() ?? agora;
+      return [(x: periodoInicio, y: precoAtual), (x: agora, y: precoAtual)];
     }
 
     if (pontos.length == 1) {
-      final unico = (
-        x: pontos.first.executedAt.toDate().millisecondsSinceEpoch.toDouble(),
-        y: pontos.first.price.toDouble(),
-      );
-      return [unico, unico];
+      final preco = pontos.first.price.toDouble();
+      final agora = now.millisecondsSinceEpoch.toDouble();
+      final periodoInicio = inicio?.millisecondsSinceEpoch.toDouble() ?? agora;
+      return [(x: periodoInicio, y: preco), (x: agora, y: preco)];
     }
 
     return pontos
@@ -210,7 +205,113 @@ class _TokenChartCardState extends State<TokenChartCard> {
                     : LineChart(
                         LineChartData(
                           gridData: const FlGridData(show: false),
-                          titlesData: const FlTitlesData(show: false),
+                          titlesData: FlTitlesData(
+                            show: true,
+                            rightTitles: const AxisTitles(
+                              sideTitles: SideTitles(showTitles: false),
+                            ),
+                            topTitles: const AxisTitles(
+                              sideTitles: SideTitles(showTitles: false),
+                            ),
+                            bottomTitles: AxisTitles(
+                              sideTitles: SideTitles(
+                                showTitles: true,
+                                reservedSize: 20,
+                                interval:
+                                    pontosGrafico.last.x !=
+                                        pontosGrafico.first.x
+                                    ? (pontosGrafico.last.x -
+                                              pontosGrafico.first.x) /
+                                          3
+                                    : null,
+                                getTitlesWidget: (value, meta) {
+                                  if (value == meta.min || value == meta.max) {
+                                    return const SizedBox.shrink();
+                                  }
+                                  final date =
+                                      DateTime.fromMillisecondsSinceEpoch(
+                                        value.toInt(),
+                                      );
+                                  String label;
+                                  switch (_periodoSelecionado) {
+                                    case '1D':
+                                      label =
+                                          '${date.hour.toString().padLeft(2, '0')}h';
+                                      break;
+                                    case '1W':
+                                      const days = [
+                                        'Seg',
+                                        'Ter',
+                                        'Qua',
+                                        'Qui',
+                                        'Sex',
+                                        'Sáb',
+                                        'Dom',
+                                      ];
+                                      label = days[date.weekday - 1];
+                                      break;
+                                    case '1M':
+                                      label =
+                                          '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}';
+                                      break;
+                                    case '1Y':
+                                      const months = [
+                                        'Jan',
+                                        'Fev',
+                                        'Mar',
+                                        'Abr',
+                                        'Mai',
+                                        'Jun',
+                                        'Jul',
+                                        'Ago',
+                                        'Set',
+                                        'Out',
+                                        'Nov',
+                                        'Dez',
+                                      ];
+                                      label = months[date.month - 1];
+                                      break;
+                                    default:
+                                      label = '${date.year}';
+                                  }
+                                  return SideTitleWidget(
+                                    meta: meta,
+                                    child: Text(
+                                      label,
+                                      style: const TextStyle(
+                                        fontSize: 10,
+                                        color: Colors.grey,
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                            leftTitles: AxisTitles(
+                              sideTitles: SideTitles(
+                                showTitles: true,
+                                reservedSize: 52,
+                                getTitlesWidget: (value, meta) {
+                                  if (value == meta.min || value == meta.max) {
+                                    return const SizedBox.shrink();
+                                  }
+                                  final label = value >= 1000
+                                      ? 'R\$${(value / 1000).toStringAsFixed(1)}k'
+                                      : moneyFormatter.format(value);
+                                  return SideTitleWidget(
+                                    meta: meta,
+                                    child: Text(
+                                      label,
+                                      style: const TextStyle(
+                                        fontSize: 10,
+                                        color: Colors.grey,
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                          ),
                           borderData: FlBorderData(show: false),
                           minX: pontosGrafico.first.x,
                           maxX: pontosGrafico.last.x,
