@@ -25,6 +25,7 @@ class _CatalogoPageState extends State<CatalogoPage> {
 
   Future<void> _fetchStartups() async {
     final result = await callStartupsCatalog();
+    if (!mounted) return;
     setState(() {
       _startups = result;
       _isLoading = false;
