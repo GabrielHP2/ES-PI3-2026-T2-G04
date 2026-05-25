@@ -420,32 +420,7 @@ class _PaginaDetalhadaState extends State<PaginaDetalhada> {
 
     return sectionCard(
       title: "Vídeo demonstrativo",
-      child: GestureDetector(
-        onTap: () => _openVideoPlayer(startup.pitchVideoUrl),
-        child: Container(
-          height: 140,
-          width: double.infinity,
-          decoration: BoxDecoration(
-            color: Colors.black,
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Stack(
-            alignment: Alignment.center,
-            children: [
-              // fundo escuro (placeholder)
-              Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
-                  color: Colors.black87,
-                ),
-              ),
-
-              // botão play
-              const Icon(Icons.play_circle_fill, color: Colors.white, size: 50),
-            ],
-          ),
-        ),
-      ),
+      child: _InlineVideoPlayer(url: startup.pitchVideoUrl),
     );
   }
 
@@ -543,53 +518,6 @@ class _PaginaDetalhadaState extends State<PaginaDetalhada> {
     );
   }
 
-  void _openVideoPlayer(String url) {
-    final controller = VideoPlayerController.network(url);
-
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.black,
-      builder: (_) {
-        return FutureBuilder(
-          future: controller.initialize(),
-          builder: (context, snapshot) {
-            if (!snapshot.hasData) {
-              return const SizedBox(
-                height: 300,
-                child: Center(child: CircularProgressIndicator()),
-              );
-            }
-
-            controller.play();
-
-            return AspectRatio(
-              aspectRatio: controller.value.aspectRatio,
-              child: Stack(
-                alignment: Alignment.bottomCenter,
-                children: [
-                  VideoPlayer(controller),
-                  VideoProgressIndicator(controller, allowScrubbing: true),
-                  Positioned(
-                    top: 10,
-                    right: 10,
-                    child: IconButton(
-                      icon: const Icon(Icons.close, color: Colors.white),
-                      onPressed: () {
-                        controller.dispose();
-                        Navigator.pop(context);
-                      },
-                    ),
-                  ),
-                ],
-              ),
-            );
-          },
-        );
-      },
-    );
-  }
-
   String _initials(String name) {
     final parts = name.split(' ');
     if (parts.length == 1) return parts.first.substring(0, 1).toUpperCase();
@@ -597,7 +525,6 @@ class _PaginaDetalhadaState extends State<PaginaDetalhada> {
         .toUpperCase();
   }
 
-  // TODO: passar o histórico do token
   void _showPlaceOrderPopup(OrderType orderType) {
     final token = Token(
       startupId: _startup!.id,
@@ -622,7 +549,6 @@ class _PaginaDetalhadaState extends State<PaginaDetalhada> {
     );
   }
 
-  // TODO: passar o histórico do token
   void _goToNegotiationPage() {
     final token = Token(
       startupId: _startup!.id,
@@ -636,6 +562,117 @@ class _PaginaDetalhadaState extends State<PaginaDetalhada> {
 
     Navigator.of(context).push(
       MaterialPageRoute(builder: (_) => NegociacaoPage(initialToken: token)),
+    );
+  }
+}
+
+class _InlineVideoPlayer extends StatefulWidget {
+  final String url;
+
+  const _InlineVideoPlayer({required this.url});
+
+  @override
+  State<_InlineVideoPlayer> createState() => _InlineVideoPlayerState();
+}
+
+class _InlineVideoPlayerState extends State<_InlineVideoPlayer> {
+  late final VideoPlayerController _controller;
+  bool _isInitialized = false;
+  String? _errorMessage;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = VideoPlayerController.networkUrl(Uri.parse(widget.url));
+    _initializePlayer();
+  }
+
+  Future<void> _initializePlayer() async {
+    try {
+      await _controller.initialize();
+      if (!mounted) return;
+      setState(() {
+        _isInitialized = true;
+      });
+    } catch (error) {
+      if (!mounted) return;
+      setState(() {
+        _errorMessage = 'Não foi possível carregar o vídeo.';
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_errorMessage != null) {
+      return SizedBox(
+        height: 220,
+        child: Center(
+          child: Text(
+            _errorMessage!,
+            style: const TextStyle(color: Colors.white),
+          ),
+        ),
+      );
+    }
+
+    if (!_isInitialized) {
+      return const SizedBox(
+        height: 220,
+        child: Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(12),
+      child: GestureDetector(
+        onTap: () {
+          if (_controller.value.isPlaying) {
+            _controller.pause();
+          } else {
+            _controller.play();
+          }
+          setState(() {});
+        },
+        child: Stack(
+          children: [
+            AspectRatio(
+              aspectRatio: _controller.value.aspectRatio,
+              child: VideoPlayer(_controller),
+            ),
+            Positioned.fill(
+              child: Align(
+                alignment: Alignment.center,
+                child: AnimatedOpacity(
+                  opacity: _controller.value.isPlaying ? 0.0 : 1.0,
+                  duration: const Duration(milliseconds: 180),
+                  child: const Icon(
+                    Icons.play_circle_fill,
+                    color: Colors.white,
+                    size: 64,
+                  ),
+                ),
+              ),
+            ),
+            Positioned.fill(
+              child: Align(
+                alignment: Alignment.bottomCenter,
+                child: VideoProgressIndicator(
+                  _controller,
+                  allowScrubbing: true,
+                  padding: const EdgeInsets.only(bottom: 0),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
