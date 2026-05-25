@@ -30,13 +30,26 @@ class Trade {
       id: json['id'] as String,
       buyOrderId: json['buyOrderId'] as String,
       sellOrderId: json['sellOrderId'] as String,
-      price: (json['price'] as num).toDouble(),
+      price: double.parse(json['price'].toString()),
       qtd: json['qty'] as int,
-      executedAt: DateTime.parse(json['executedAt'] as String),
+      executedAt: _parseTimestamp(json['executedAt']),
       buyerId: json['buyerId'] as String,
       sellerId: json['sellerId'] as String,
       startupId: json['startup_id'] as String,
       tokenSymbol: json['token_symbol'] as String,
     );
+  }
+
+  static DateTime _parseTimestamp(dynamic value) {
+    if (value is String) return DateTime.parse(value).toLocal();
+    if (value is Map) {
+      final seconds = (value['seconds'] ?? value['_seconds'] ?? 0) as int;
+      final nanos = (value['nanos'] ?? value['nanoseconds'] ?? value['_nanoseconds'] ?? 0) as int;
+      return DateTime.fromMicrosecondsSinceEpoch(
+        seconds * 1000000 + nanos ~/ 1000,
+        isUtc: true,
+      ).toLocal();
+    }
+    return DateTime.now();
   }
 }

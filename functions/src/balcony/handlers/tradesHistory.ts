@@ -28,7 +28,7 @@ export const tradesHistory = onCall(async (request) => {
 
     if (tradesSnapshot.empty) {
       logger.info("Nenhuma trade encontrada");
-      return { trades: [] };
+      return { tradesWithSymbols: [] };
     }
 
     // Cria um array de trades a partir do snapshot
