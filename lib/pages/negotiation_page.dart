@@ -31,10 +31,14 @@ class _NegociacaoPageState extends State<NegociacaoPage> {
   }
 
   Future<void> _fetchData() async {
+    setState(() {
+      _isTokenLoading = true;
+    });
     final wallet = await callWalletBalance();
     if (!mounted) return;
     setState(() {
       _saldoUsuario = wallet?.availableBalance ?? 0;
+      _isTokenLoading = false;
     });
   }
 
