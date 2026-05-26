@@ -1,10 +1,11 @@
 import 'package:decimal/decimal.dart';
-import 'package:extended_masked_text/extended_masked_text.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:frontend/models/order_model.dart';
 import 'package:frontend/models/token.dart';
 import 'package:frontend/pages/order_confirmation.dart';
-import 'package:frontend/services/numberformatter_service.dart';
+import 'package:frontend/utils/currency_formatter.dart';
+import 'package:frontend/utils/numberformatter_service.dart';
 
 class PlaceOrderPopUp extends StatefulWidget {
   final Token token;
@@ -29,18 +30,12 @@ class PlaceOrderPopUp extends StatefulWidget {
 }
 
 class _PlaceOrderPopUpState extends State<PlaceOrderPopUp> {
-  late final MoneyMaskedTextController controllerPrice;
+  final controllerPrice = TextEditingController();
   final controllerQuantity = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    controllerPrice = MoneyMaskedTextController(
-      leftSymbol: 'R\$ ',
-      decimalSeparator: ',',
-      thousandSeparator: '.',
-      initialValue: widget.currentPrice.toDouble(),
-    );
   }
 
   @override
@@ -52,7 +47,7 @@ class _PlaceOrderPopUpState extends State<PlaceOrderPopUp> {
 
   void _continuar() {
     final quantity = int.tryParse(controllerQuantity.text.trim());
-    final price = controllerPrice.numberValue;
+    final price = CurrencyFormatter.getNumericValue();
 
     if (quantity == null || quantity <= 0) {
       ScaffoldMessenger.of(
@@ -187,6 +182,10 @@ class _PlaceOrderPopUpState extends State<PlaceOrderPopUp> {
                 Padding(
                   padding: const EdgeInsets.all(6),
                   child: TextField(
+                    inputFormatters: [
+                      FilteringTextInputFormatter.digitsOnly,
+                      CurrencyFormatter.brl,
+                    ],
                     controller: controllerPrice,
                     keyboardType: const TextInputType.numberWithOptions(
                       decimal: true,

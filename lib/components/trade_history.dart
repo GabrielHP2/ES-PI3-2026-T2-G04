@@ -2,9 +2,10 @@
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:frontend/services/numberformatter_service.dart';
+import 'package:frontend/utils/numberformatter_service.dart';
 import '../models/trade.dart';
 import '../services/trade_history_service.dart';
+
 class TradeHistory extends StatefulWidget {
   const TradeHistory({super.key});
 
@@ -13,7 +14,6 @@ class TradeHistory extends StatefulWidget {
 }
 
 class _TradeHistoryState extends State<TradeHistory> {
-
   late Future<List<Trade>> futureTrades;
 
   @override
@@ -21,7 +21,7 @@ class _TradeHistoryState extends State<TradeHistory> {
     super.initState();
     futureTrades = TradeHistoryService.fetchTrades();
   }
-  
+
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<List<Trade>>(
@@ -30,7 +30,9 @@ class _TradeHistoryState extends State<TradeHistory> {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
         } else if (snapshot.hasError) {
-          return const Center(child: Text('Erro ao buscar histórico de trades'));
+          return const Center(
+            child: Text('Erro ao buscar histórico de trades'),
+          );
         } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
           return const Center(child: Text('Nenhuma trade encontrada'));
         }
@@ -48,10 +50,7 @@ class _TradeHistoryState extends State<TradeHistory> {
               elevation: 2,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(20),
-                side: BorderSide(
-                  color: Colors.grey.shade300,
-                  width: 1,
-                ),
+                side: BorderSide(color: Colors.grey.shade300, width: 1),
               ),
               child: ListTile(
                 dense: true,
@@ -65,15 +64,20 @@ class _TradeHistoryState extends State<TradeHistory> {
                 title: Text(
                   trade.tokenSymbol,
                   style: const TextStyle(
-                    fontSize: 18, fontWeight: FontWeight.bold,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
                 subtitle: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text('Quantidade: ${trade.qtd}'),
-                    Text('Preço por Token: ${moneyFormatter.format(trade.price)}'),
-                    Text('Executado em: ${trade.executedAt.day.toString().padLeft(2, '0')}/${trade.executedAt.month.toString().padLeft(2, '0')}/${trade.executedAt.year}'),
+                    Text(
+                      'Preço por Token: ${moneyFormatter.format(trade.price)}',
+                    ),
+                    Text(
+                      'Executado em: ${trade.executedAt.day.toString().padLeft(2, '0')}/${trade.executedAt.month.toString().padLeft(2, '0')}/${trade.executedAt.year}',
+                    ),
                   ],
                 ),
                 subtitleTextStyle: const TextStyle(color: Colors.black87),
@@ -82,7 +86,7 @@ class _TradeHistoryState extends State<TradeHistory> {
                   style: const TextStyle(
                     color: Colors.black,
                     fontWeight: FontWeight.bold,
-                    fontSize: 18
+                    fontSize: 18,
                   ),
                 ),
               ),

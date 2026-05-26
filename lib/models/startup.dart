@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:frontend/services/decimal_service.dart';
+import 'package:frontend/utils/decimal_service.dart';
 
 // ENUMS
 enum StartupStatus { ativa, inativa, encerrada }

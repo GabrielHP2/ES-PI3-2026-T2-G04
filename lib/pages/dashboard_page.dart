@@ -5,7 +5,7 @@ import 'package:frontend/components/card_container.dart';
 import 'package:frontend/components/owned_tokens.dart';
 import 'package:frontend/components/trade_history.dart';
 import 'package:frontend/components/user_order_card.dart';
-import 'package:frontend/services/numberformatter_service.dart';
+import 'package:frontend/utils/numberformatter_service.dart';
 import 'package:frontend/services/portfolio_refresh_service.dart';
 import 'package:frontend/services/wallet_services.dart';
 

@@ -2,7 +2,7 @@
 import 'package:firebase_auth/firebase_auth.dart'; // logout
 import 'package:flutter/material.dart';
 import 'package:frontend/pages/wallet_page.dart'; // navegação ate a carteira
-import 'package:frontend/services/numberformatter_service.dart';
+import 'package:frontend/utils/numberformatter_service.dart';
 import 'package:frontend/services/two_factor_services.dart'; // 2fa
 import 'package:frontend/services/wallet_services.dart'; // controlador para o saldo da carteira funcionar (aguardando o back)
 

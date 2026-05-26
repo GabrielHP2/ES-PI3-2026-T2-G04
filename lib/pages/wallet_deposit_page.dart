@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:extended_masked_text/extended_masked_text.dart';
+import 'package:flutter/services.dart';
 import 'package:frontend/models/wallet.dart';
 import 'package:frontend/services/portfolio_refresh_service.dart';
 import 'package:frontend/services/wallet_services.dart';
+import 'package:frontend/utils/currency_formatter.dart';
 
 enum PaymentMethods { debit, credit, pix, none }
 
@@ -14,12 +15,7 @@ class WalletDepositPage extends StatefulWidget {
 }
 
 class _WalletDepositPageState extends State<WalletDepositPage> {
-  final controller = MoneyMaskedTextController(
-    //Para fazer o input da quantidade de dinheiro estilo pix de bancos
-    leftSymbol: 'R\$ ',
-    decimalSeparator: ',',
-    thousandSeparator: '.',
-  );
+  final controller = TextEditingController();
   PaymentMethods _paymentMethod = PaymentMethods.none;
   bool _isValid = false;
   bool _isEnabled = false;
@@ -44,7 +40,7 @@ class _WalletDepositPageState extends State<WalletDepositPage> {
     super.initState();
     controller.addListener(() {
       setState(() {
-        _isEnabled = (_isValid && controller.numberValue >= 1.00);
+        _isEnabled = (_isValid && CurrencyFormatter.getNumericValue() >= 1.00);
       });
     });
   }
@@ -58,6 +54,10 @@ class _WalletDepositPageState extends State<WalletDepositPage> {
         child: Column(
           children: [
             TextField(
+              inputFormatters: [
+                FilteringTextInputFormatter.digitsOnly,
+                CurrencyFormatter.brl,
+              ],
               controller: controller,
               keyboardType: TextInputType.number,
               style: TextStyle(fontSize: 40, fontWeight: .bold),
@@ -66,7 +66,7 @@ class _WalletDepositPageState extends State<WalletDepositPage> {
                 contentPadding: EdgeInsets.symmetric(horizontal: 16),
               ),
             ),
-            controller.numberValue < 1
+            CurrencyFormatter.getNumericValue() < 1
                 ? Text(
                     'O valor mínimo de deposito é de R\$ 1,00',
                     style: TextStyle(color: Colors.red),
@@ -98,7 +98,9 @@ class _WalletDepositPageState extends State<WalletDepositPage> {
                   setState(() {
                     _isValid = true;
                     _paymentMethod = method;
-                    _isEnabled = (_isValid && controller.numberValue >= 1.00);
+                    _isEnabled =
+                        (_isValid &&
+                        CurrencyFormatter.getNumericValue() >= 1.00);
                   });
                 }
               },
@@ -106,7 +108,7 @@ class _WalletDepositPageState extends State<WalletDepositPage> {
             SizedBox(height: 16),
             _isEnabled
                 ? Text(
-                    'Depositando: R\$ ${controller.numberValue} na sua carteira via ${_paymentMethod == PaymentMethods.debit
+                    'Depositando: R\$ ${CurrencyFormatter.getNumericValue()} na sua carteira via ${_paymentMethod == PaymentMethods.debit
                         ? 'débito'
                         : _paymentMethod == PaymentMethods.credit
                         ? 'crédito'
@@ -125,7 +127,7 @@ class _WalletDepositPageState extends State<WalletDepositPage> {
                       });
 
                       final result = await callWalletDeposit(
-                        controller.numberValue.toString(),
+                        CurrencyFormatter.getNumericValue().toString(),
                         _toPaymentType(_paymentMethod),
                       );
 
