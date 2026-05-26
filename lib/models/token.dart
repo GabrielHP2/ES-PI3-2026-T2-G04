@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:decimal/decimal.dart';
-import 'package:frontend/services/decimal_service.dart';
-import 'package:frontend/services/variation_service.dart';
+import 'package:frontend/utils/decimal_service.dart';
+import 'package:frontend/utils/variation_service.dart';
 
 class TokenPricePoint {
   final String id;

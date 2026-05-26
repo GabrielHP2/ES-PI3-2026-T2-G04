@@ -3,7 +3,7 @@ import 'package:decimal/decimal.dart';
 import 'package:frontend/models/token.dart';
 import 'package:frontend/models/transactions.dart';
 import 'package:frontend/models/wallet.dart';
-import 'package:frontend/services/decimal_service.dart';
+import 'package:frontend/utils/decimal_service.dart';
 import 'package:frontend/services/token_services.dart';
 
 final FirebaseFunctions _functions = FirebaseFunctions.instanceFor(

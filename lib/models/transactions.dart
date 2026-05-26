@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:frontend/services/decimal_service.dart';
+import 'package:frontend/utils/decimal_service.dart';
 
 enum TransactionType { expense, income }
 

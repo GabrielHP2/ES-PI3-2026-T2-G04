@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/services/token_services.dart';
 import 'package:frontend/models/order_model.dart';
-import 'package:frontend/services/numberformatter_service.dart';
+import 'package:frontend/utils/numberformatter_service.dart';
 
 class OrderBook extends StatefulWidget {
   final OrderType type;

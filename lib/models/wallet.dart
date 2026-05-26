@@ -1,4 +1,4 @@
-import 'package:frontend/services/decimal_service.dart';
+import 'package:frontend/utils/decimal_service.dart';
 
 enum PaymentType { credit, debit, pix, none }
 

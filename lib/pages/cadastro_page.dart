@@ -1,9 +1,12 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:frontend/controllers/cadastro_controller.dart';
 import 'package:frontend/models/user_model.dart';
 import 'package:frontend/pages/login_page.dart';
 import 'package:frontend/services/signup_services.dart';
+import 'package:frontend/utils/cpf_formatter.dart';
+import 'package:frontend/utils/phone_formatter.dart';
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({super.key});
@@ -140,6 +143,7 @@ class _SignUpPageState extends State<SignUpPage> {
                     decoration: const InputDecoration(
                       labelText: 'E-mail',
                       border: OutlineInputBorder(),
+                      hintText: 'exemplo@gmail.com',
                     ),
                   ),
                   SizedBox(height: 12),
@@ -149,6 +153,7 @@ class _SignUpPageState extends State<SignUpPage> {
                     decoration: const InputDecoration(
                       labelText: 'Nome Completo',
                       border: OutlineInputBorder(),
+                      hintText: 'Nome e Sobrenome',
                     ),
                   ),
                   SizedBox(height: 12),
@@ -166,17 +171,19 @@ class _SignUpPageState extends State<SignUpPage> {
                   ),
                   SizedBox(height: 12),
                   TextFormField(
+                    inputFormatters: [telefoneFormatter],
                     controller: _controller.phoneController,
                     keyboardType: TextInputType.phone,
                     validator: _controller.validatePhone,
                     decoration: const InputDecoration(
                       labelText: 'Telefone',
                       border: OutlineInputBorder(),
-                      hintText: '+55DDDXXXXXXXXX',
+                      hintText: '+55 (DDD) XXXXX-XXXX',
                     ),
                   ),
                   SizedBox(height: 12),
                   TextFormField(
+                    inputFormatters: [cpfFormatter],
                     controller: _controller.cpfController,
                     keyboardType: TextInputType.number,
                     validator: _controller.validateCPF,
@@ -194,9 +201,15 @@ class _SignUpPageState extends State<SignUpPage> {
                     decoration: const InputDecoration(
                       labelText: 'Senha',
                       border: OutlineInputBorder(),
+                      hint: Text('********'),
                     ),
                   ),
-                  SizedBox(height: 12),
+                  Text(
+                    'Sua senha deve conter: no mínimo 8 caracteres, no máximo 16 caracteres, uma letra maíuscula, uma letra minúscula, um número, um caractére especial',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: 10),
+                  ),
+                  SizedBox(height: 24),
                   ElevatedButton(
                     onPressed: _isLoading
                         ? null

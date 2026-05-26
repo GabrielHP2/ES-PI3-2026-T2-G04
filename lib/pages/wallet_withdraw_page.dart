@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:extended_masked_text/extended_masked_text.dart';
-import 'package:frontend/services/numberformatter_service.dart';
+import 'package:flutter/services.dart';
+import 'package:frontend/utils/currency_formatter.dart';
+import 'package:frontend/utils/numberformatter_service.dart';
 import 'package:frontend/services/portfolio_refresh_service.dart';
 import 'package:frontend/services/wallet_services.dart';
 
@@ -12,12 +13,7 @@ class WalletWithdrawPage extends StatefulWidget {
 }
 
 class _WalletWithdrawPageState extends State<WalletWithdrawPage> {
-  final controller = MoneyMaskedTextController(
-    //Para fazer o input da quantidade de dinheiro estilo pix de bancos
-    leftSymbol: 'R\$ ',
-    decimalSeparator: ',',
-    thousandSeparator: '.',
-  );
+  final controller = TextEditingController();
   bool _isEnabled = false;
   bool _isLoading = false;
 
@@ -27,7 +23,7 @@ class _WalletWithdrawPageState extends State<WalletWithdrawPage> {
     super.initState();
     controller.addListener(() {
       setState(() {
-        _isEnabled = (controller.numberValue >= 1.00);
+        _isEnabled = (CurrencyFormatter.getNumericValue() >= 1.00);
       });
     });
   }
@@ -47,6 +43,10 @@ class _WalletWithdrawPageState extends State<WalletWithdrawPage> {
         child: Column(
           children: [
             TextField(
+              inputFormatters: [
+                FilteringTextInputFormatter.digitsOnly,
+                CurrencyFormatter.brl,
+              ],
               controller: controller,
               keyboardType: TextInputType.number,
               style: const TextStyle(fontSize: 40, fontWeight: FontWeight.bold),
@@ -55,7 +55,7 @@ class _WalletWithdrawPageState extends State<WalletWithdrawPage> {
                 contentPadding: EdgeInsets.symmetric(horizontal: 16),
               ),
             ),
-            controller.numberValue < 1
+            CurrencyFormatter.getNumericValue() < 1
                 ? const Text(
                     'O valor mínimo de saque é de R\$ 1,00',
                     style: TextStyle(color: Colors.red),
@@ -64,7 +64,7 @@ class _WalletWithdrawPageState extends State<WalletWithdrawPage> {
             const SizedBox(height: 32),
             _isEnabled
                 ? Text(
-                    'Sacando: ${moneyFormatter.format(controller.numberValue)} da sua carteira',
+                    'Sacando: ${moneyFormatter.format(CurrencyFormatter.getNumericValue())} da sua carteira',
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w500,
@@ -81,7 +81,7 @@ class _WalletWithdrawPageState extends State<WalletWithdrawPage> {
                       });
 
                       final result = await callWalletWithdraw(
-                        controller.numberValue.toString(),
+                        CurrencyFormatter.getNumericValue().toString(),
                       );
 
                       if (!mounted) return;

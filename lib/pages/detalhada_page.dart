@@ -11,7 +11,7 @@ import 'package:frontend/controllers/startup_controller.dart';
 import 'package:frontend/models/startup.dart';
 import 'package:frontend/models/wallet.dart';
 import 'package:frontend/services/is_investor_service.dart';
-import 'package:frontend/services/numberformatter_service.dart';
+import 'package:frontend/utils/numberformatter_service.dart';
 import 'package:frontend/services/startup_services.dart';
 import 'package:frontend/services/wallet_services.dart';
 import 'package:video_player/video_player.dart';

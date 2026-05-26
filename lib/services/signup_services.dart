@@ -11,7 +11,10 @@ class SignUpService {
     try {
       final payload = {
         'name': user.name.trim(),
-        'phoneNumber': user.phoneNumber.trim().replaceAll(RegExp(r'\s+'), ''),
+        'phoneNumber': user.phoneNumber.trim().replaceAll(
+          RegExp(r'[^\d+]'),
+          '',
+        ),
         'email': user.email.trim().toLowerCase(),
         'birthDate': user.birthDate.trim(),
         'password': user.password,

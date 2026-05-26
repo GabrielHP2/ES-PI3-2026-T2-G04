@@ -13,15 +13,10 @@ class SigninController {
   String? _errorMessage;
   String? get errorMessage => _errorMessage;
 
-  // ========== VALIDADORES PARA TextFormField (retornam String? ou null) ==========
-
   String? validateName(String? value) {
     final name = (value ?? nameController.text).trim();
     if (name.isEmpty) {
       return 'Nome é obrigatório';
-    }
-    if (name.length < 3) {
-      return 'Nome deve ter pelo menos 3 caracteres';
     }
     if (!name.contains(' ')) {
       return 'Insira seu nome completo (nome e sobrenome)';
@@ -34,7 +29,6 @@ class SigninController {
     if (email.isEmpty) {
       return 'Email é obrigatório';
     }
-    // RFC 5322 simplified
     final emailRegex = RegExp(
       r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
     );
@@ -45,14 +39,11 @@ class SigninController {
   }
 
   String? validateCPF(String? value) {
+    // Pega o valor do argumento 'value' se houver, caso contrário limpa o controller
     final cpf = (value ?? cpfController.text).replaceAll(RegExp(r'\D'), '');
 
-    if (cpf.isEmpty) {
-      return 'CPF é obrigatório';
-    }
-    if (cpf.length != 11) {
-      return 'CPF deve ter 11 dígitos';
-    }
+    if (cpf.isEmpty) return 'CPF é obrigatório';
+    if (cpf.length != 11) return 'CPF deve ter 11 dígitos';
 
     // Verificar se todos os dígitos são iguais
     if (cpf.split('').toSet().length == 1) {
@@ -87,15 +78,16 @@ class SigninController {
   }
 
   String? validatePhone(String? value) {
-    final phone = (value ?? phoneController.text).trim().replaceAll(RegExp(r'\s+'), '');
-
-    if (phone.isEmpty) {
+    final rawValue = value ?? phoneController.text;
+    if (rawValue.trim().isEmpty) {
       return 'Telefone é obrigatório';
     }
 
-    final phoneRegex = RegExp(r'^\+55[1-9]\d{9,10}$');
+    final phone = rawValue.replaceAll(RegExp(r'[^\d+]'), '');
+
+    final phoneRegex = RegExp(r'^\+55[1-9]\d{10}$');
     if (!phoneRegex.hasMatch(phone)) {
-      return 'Telefone inválido. Formato: +5511987654321';
+      return 'Telefone inválido. Formato: +55 (DDD) XXXXX-XXXX';
     }
 
     return null;
