@@ -64,7 +64,7 @@ class _WalletWithdrawPageState extends State<WalletWithdrawPage> {
             const SizedBox(height: 32),
             _isEnabled
                 ? Text(
-                    'Sacando: ${moneyFormatter.format(CurrencyFormatter.getNumericValue())} da sua carteira',
+                    'Sacando: ${formatMoney(CurrencyFormatter.getNumericValue())} da sua carteira',
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w500,

@@ -120,47 +120,66 @@ class _UserOrderState extends State<UserOrder> {
             ],
           ),
           padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
-          child: Row(
+          child: Column(
             children: [
-              Expanded(
-                flex: 1,
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(0, 0, 16, 0),
-                  child: order.type == OrderType.buy
-                      ? const Icon(Icons.add, color: Colors.green)
-                      : const Icon(Icons.remove, color: Colors.red),
-                ),
+              Row(
+                children: [
+                  Text(
+                    '\$${order.tokenSymbol}:',
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                    ),
+                  ),
+                  order.type == OrderType.buy
+                      ? Text(
+                          ' Ordem de compra',
+                          style: const TextStyle(
+                            fontSize: 16,
+                            color: Colors.green,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        )
+                      : Text(
+                          ' Ordem de venda',
+                          style: const TextStyle(
+                            fontSize: 16,
+                            color: Colors.red,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                ],
               ),
-              Expanded(
-                flex: 6,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      '\$${order.tokenSymbol}',
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 18,
+              Row(
+                children: [
+                  Expanded(
+                    flex: 6,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Quantidade: ${order.quantity}'),
+                        Text('Preenchido: ${order.quantityFilled}'),
+                        Text(
+                          'Preço por token: ${formatMoney(order.price)}',
+                        ),
+                        Text('Criado em: ${_formatTimestamp(order.createdAt)}'),
+                      ],
+                    ),
+                  ),
+                  Expanded(
+                    flex: 3,
+                    child: Padding(
+                      padding: EdgeInsets.only(bottom: 20),
+                      child: Text(
+                        formatMoney(order.price * order.quantity),
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                        ),
                       ),
                     ),
-                    Text('Quantidade: ${order.quantity}'),
-                    Text('Preenchido: ${order.quantityFilled}'),
-                    Text(
-                      'Preço por token: ${moneyFormatter.format(order.price)}',
-                    ),
-                    Text('Criado em: ${_formatTimestamp(order.createdAt)}'),
-                  ],
-                ),
-              ),
-              Expanded(
-                flex: 3,
-                child: Text(
-                  moneyFormatter.format(order.price * order.quantity),
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 18,
                   ),
-                ),
+                ],
               ),
             ],
           ),

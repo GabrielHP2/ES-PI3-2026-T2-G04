@@ -131,7 +131,7 @@ class _PlaceOrderPopUpState extends State<PlaceOrderPopUp> {
                       ),
                     ),
                     Text(
-                      moneyFormatter.format(widget.currentPrice.toDouble()),
+                      formatMoney(widget.currentPrice.toDouble()),
                       style: const TextStyle(
                         fontSize: 17,
                         fontWeight: FontWeight.bold,
