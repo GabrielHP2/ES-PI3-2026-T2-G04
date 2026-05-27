@@ -102,10 +102,7 @@ class _OrderBookState extends State<OrderBook> {
                     .map(
                       (o) => TableRow(
                         children: [
-                          Text(
-                            formatMoney(o.price),
-                            textAlign: .center,
-                          ),
+                          Text(formatMoney(o.price), textAlign: .center),
                           Text(
                             (o.quantity - o.quantityFilled).toString(),
                             textAlign: .center,

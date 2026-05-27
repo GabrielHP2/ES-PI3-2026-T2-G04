@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:frontend/models/order_model.dart';
 import 'package:frontend/models/token.dart';
 import 'package:frontend/pages/order_confirmation.dart';
+import 'package:frontend/services/token_services.dart';
 import 'package:frontend/utils/currency_formatter.dart';
 import 'package:frontend/utils/numberformatter_service.dart';
 
@@ -30,11 +31,54 @@ class PlaceOrderPopUp extends StatefulWidget {
 }
 
 class _PlaceOrderPopUpState extends State<PlaceOrderPopUp> {
+  bool _isCurrentLoading = true;
+  double currentPrice = 0;
+  int? currentPriceQuantity;
   final controllerPrice = TextEditingController();
   final controllerQuantity = TextEditingController();
 
+  Future<void> _getBestOrder() async {
+    setState(() {
+      _isCurrentLoading = true;
+    });
+    final otherType = widget.type == OrderType.buy
+        ? OrderType.sell
+        : OrderType.buy;
+    final orders = await callGetOrdersByStartupByType(
+      widget.token.startupId,
+      otherType,
+    );
+
+    final openOrders = orders
+        .where((o) => o.quantity > o.quantityFilled)
+        .toList();
+
+    if (openOrders.isEmpty) {
+      setState(() {
+        currentPrice = 0;
+        currentPriceQuantity = null;
+        _isCurrentLoading = false;
+      });
+      return;
+    }
+
+    final bestOrder = openOrders.first;
+
+    setState(() {
+      currentPrice = bestOrder.price == 0
+          ? widget.currentPrice.toDouble()
+          : bestOrder.price;
+      currentPriceQuantity = bestOrder.quantity - bestOrder.quantityFilled;
+      controllerPrice.value = TextEditingValue(text: formatMoney(currentPrice));
+      _isCurrentLoading = false;
+    });
+  }
+
   @override
   void initState() {
+    controllerPrice.value = TextEditingValue(text: formatMoney(currentPrice));
+    controllerQuantity.value = TextEditingValue(text: '1');
+    _getBestOrder();
     super.initState();
   }
 
@@ -120,25 +164,51 @@ class _PlaceOrderPopUpState extends State<PlaceOrderPopUp> {
                   ],
                 ),
                 const SizedBox(height: 13),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      isBuy ? 'Preço atual: ' : 'Preço atual: ',
-                      style: const TextStyle(
-                        fontSize: 17,
-                        fontWeight: FontWeight.w500,
+
+                if (_isCurrentLoading)
+                  const CircularProgressIndicator()
+                else if (currentPrice != 0)
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        isBuy
+                            ? 'Comprar imediatamente por: '
+                            : 'Vender imediatamente por: ',
+                        style: const TextStyle(
+                          fontSize: 17,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
-                    ),
-                    Text(
-                      formatMoney(widget.currentPrice.toDouble()),
-                      style: const TextStyle(
-                        fontSize: 17,
-                        fontWeight: FontWeight.bold,
+                      Text(
+                        formatMoney(currentPrice),
+                        style: const TextStyle(
+                          fontSize: 17,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                    ),
-                  ],
-                ),
+                      if (currentPriceQuantity != null &&
+                          currentPriceQuantity! > 0)
+                        Column(
+                          children: [
+                            Text(
+                              'Quantidade por este preço: ',
+                              style: const TextStyle(
+                                fontSize: 17,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            Text(
+                              '$currentPriceQuantity',
+                              style: const TextStyle(
+                                fontSize: 17,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                    ],
+                  ),
                 const SizedBox(height: 10),
                 Container(
                   alignment: Alignment.centerLeft,
@@ -156,6 +226,7 @@ class _PlaceOrderPopUpState extends State<PlaceOrderPopUp> {
                 Padding(
                   padding: const EdgeInsets.all(6),
                   child: TextField(
+                    textAlign: TextAlign.center,
                     controller: controllerQuantity,
                     keyboardType: TextInputType.number,
                     decoration: const InputDecoration(
@@ -191,7 +262,7 @@ class _PlaceOrderPopUpState extends State<PlaceOrderPopUp> {
                       decimal: true,
                     ),
                     decoration: const InputDecoration(
-                      hintText: 'R\$',
+                      hintText: 'R\$ 0,00',
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(200)),
                       ),
