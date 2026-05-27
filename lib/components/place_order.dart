@@ -226,6 +226,7 @@ class _PlaceOrderPopUpState extends State<PlaceOrderPopUp> {
                 Padding(
                   padding: const EdgeInsets.all(6),
                   child: TextField(
+                    textAlign: TextAlign.center,
                     controller: controllerQuantity,
                     keyboardType: TextInputType.number,
                     decoration: const InputDecoration(
