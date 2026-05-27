@@ -34,7 +34,8 @@ class _PaginaDetalhadaState extends State<PaginaDetalhada> {
   Startup? _startup;
   bool _isLoading = true;
 
-  ScrollController _scrollController = ScrollController();
+  final ScrollController _scrollController = ScrollController();
+  final _investorAreaKey = GlobalKey();
   bool _isUserInvestor = false;
   double _userAvailableBalance = 0;
   Holding? _userHolding;
@@ -86,8 +87,8 @@ class _PaginaDetalhadaState extends State<PaginaDetalhada> {
           ? FloatingActionButton.extended(
               label: Text('Ir para área do investidor'),
               backgroundColor: Colors.amber,
-              onPressed: () => _scrollController.animateTo(
-                1500.0,
+              onPressed: () => Scrollable.ensureVisible(
+                _investorAreaKey.currentContext!,
                 duration: Duration(seconds: 1),
                 curve: Curves.easeInOut,
               ),
@@ -180,6 +181,7 @@ class _PaginaDetalhadaState extends State<PaginaDetalhada> {
                   const SizedBox(height: 32),
                   _isUserInvestor
                       ? Column(
+                          key: _investorAreaKey,
                           children: [
                             SizedBox(
                               width: double.infinity,
