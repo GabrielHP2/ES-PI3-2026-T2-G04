@@ -160,7 +160,7 @@ class _UserOrderState extends State<UserOrder> {
                         Text('Quantidade: ${order.quantity}'),
                         Text('Preenchido: ${order.quantityFilled}'),
                         Text(
-                          'Preço por token: ${moneyFormatter.format(order.price)}',
+                          'Preço por token: ${formatMoney(order.price)}',
                         ),
                         Text('Criado em: ${_formatTimestamp(order.createdAt)}'),
                       ],
@@ -168,11 +168,14 @@ class _UserOrderState extends State<UserOrder> {
                   ),
                   Expanded(
                     flex: 3,
-                    child: Text(
-                      moneyFormatter.format(order.price * order.quantity),
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 18,
+                    child: Padding(
+                      padding: EdgeInsets.only(bottom: 20),
+                      child: Text(
+                        formatMoney(order.price * order.quantity),
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                        ),
                       ),
                     ),
                   ),

@@ -58,7 +58,7 @@ class _TrasactionCardState extends State<TransactionCard> {
 
                 //Text('Quantidade: 2', style: TextStyle(fontSize: 12)),
                 /*Text(
-                  'Preço por token: ${moneyFormatter.format(50.00)}',
+                  'Preço por token: ${formatMoney(50.00)}',
                   style: TextStyle(fontSize: 12),
                 ),
                 */
@@ -70,7 +70,7 @@ class _TrasactionCardState extends State<TransactionCard> {
             flex: 3,
             child: Center(
               child: Text(
-                moneyFormatter.format(transaction.amountBRL),
+                formatMoney(transaction.amountBRL),
                 style: TextStyle(
                   color: transaction.type == TransactionType.expense
                       ? Colors.red

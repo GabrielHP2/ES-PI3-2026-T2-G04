@@ -72,15 +72,16 @@ class _DashboardPageState extends State<DashboardPage> {
                           crossAxisAlignment: .center,
                           children: [
                             Text(
-                              'Valor da carteira',
+                              'Valor investido em tokens',
                               style: TextStyle(
                                 color: Colors.grey.shade600,
                                 fontSize: 18,
                                 fontWeight: .w400,
                               ),
                             ),
+                            SizedBox(height: 8),
                             Text(
-                              moneyFormatter.format(
+                              formatMoney(
                                 _walletValue?.toDouble() ?? 0.0,
                               ),
                               style: TextStyle(
@@ -92,7 +93,7 @@ class _DashboardPageState extends State<DashboardPage> {
                           ],
                         ),
                       ),
-                      sectionSeparator('Seus Tokens'),
+                      sectionSeparator('Seus Investimentos'),
                       OwnedTokensList(),
                       sectionSeparator('Suas Ordens Abertas'),
                       UserOrderList(),

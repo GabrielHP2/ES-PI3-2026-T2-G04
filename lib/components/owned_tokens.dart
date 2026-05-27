@@ -107,7 +107,7 @@ class _OwnedTokenCardState extends State<OwnedTokenCard> {
                   style: TextStyle(fontSize: 12),
                 ),
                 Text(
-                  'Preço médio por token: ${moneyFormatter.format(widget.holding.avgPrice)}',
+                  'Preço médio por token: ${formatMoney(widget.holding.avgPrice)}',
 
                   style: TextStyle(fontSize: 12),
                 ),
@@ -119,7 +119,7 @@ class _OwnedTokenCardState extends State<OwnedTokenCard> {
             child: Column(
               children: [
                 Text(
-                  moneyFormatter.format(
+                  formatMoney(
                     widget.holding.tokenBalance * widget.holding.avgPrice,
                   ),
                   style: TextStyle(fontSize: 20, fontWeight: .bold),

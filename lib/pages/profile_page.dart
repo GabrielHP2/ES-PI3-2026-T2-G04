@@ -259,7 +259,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   // Integração com saldo
                   !_isLoading
                       ? Text(
-                          moneyFormatter.format(_saldoUsuario),
+                          formatMoney(_saldoUsuario),
                           style: const TextStyle(
                             fontSize: 32,
                             fontWeight: FontWeight.bold,

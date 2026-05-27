@@ -151,7 +151,7 @@ class _TokenChartCardState extends State<TokenChartCard> {
                         ),
                       ),
                       Text(
-                        moneyFormatter.format(token.precoAtual.toDouble()),
+                        formatMoney(token.precoAtual.toDouble()),
                         style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.w900,
@@ -367,7 +367,7 @@ class _TokenChartCardState extends State<TokenChartCard> {
                                       '${data.month.toString().padLeft(2, '0')}/'
                                       '${data.year}';
                                   return LineTooltipItem(
-                                    '${moneyFormatter.format(spot.y)}\n',
+                                    '${formatMoney(spot.y)}\n',
                                     const TextStyle(
                                       color: Colors.white,
                                       fontWeight: FontWeight.bold,

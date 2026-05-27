@@ -59,7 +59,7 @@ class _BalanceHeaderState extends State<BalanceHeader> {
               children: [
                 !_isLoading
                     ? Text(
-                        moneyFormatter.format(_saldoUsuario),
+                        formatMoney(_saldoUsuario),
                         style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,

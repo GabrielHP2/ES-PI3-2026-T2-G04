@@ -73,7 +73,7 @@ class _TradeHistoryState extends State<TradeHistory> {
                   children: [
                     Text('Quantidade: ${trade.qtd}'),
                     Text(
-                      'Preço por Token: ${moneyFormatter.format(trade.price)}',
+                      'Preço por Token: ${formatMoney(trade.price)}',
                     ),
                     Text(
                       'Executado em: ${trade.executedAt.day.toString().padLeft(2, '0')}/${trade.executedAt.month.toString().padLeft(2, '0')}/${trade.executedAt.year}',
@@ -82,7 +82,7 @@ class _TradeHistoryState extends State<TradeHistory> {
                 ),
                 subtitleTextStyle: const TextStyle(color: Colors.black87),
                 trailing: Text(
-                  moneyFormatter.format(trade.price * trade.qtd),
+                  formatMoney(trade.price * trade.qtd),
                   style: const TextStyle(
                     color: Colors.black,
                     fontWeight: FontWeight.bold,

@@ -103,7 +103,7 @@ class _OrderBookState extends State<OrderBook> {
                       (o) => TableRow(
                         children: [
                           Text(
-                            moneyFormatter.format(o.price),
+                            formatMoney(o.price),
                             textAlign: .center,
                           ),
                           Text(
