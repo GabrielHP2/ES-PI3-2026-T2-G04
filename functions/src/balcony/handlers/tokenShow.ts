@@ -1,3 +1,6 @@
+//Lucas Leonel - RA: 25015188
+//Joao Pedro Maineri - RA: 25006642
+
 import {
   getFirestore,
   QueryDocumentSnapshot,
@@ -28,7 +31,7 @@ async function getPriceHistory(
 
     return {
       id: doc.id,
-      price: String(data["price"] ?? "0.00"), // Manter como string para precisão
+      price: String(data["price"] ?? "0.00"), // Manter como string para precisão (jao)
       quantity: (data["quantity"] as number | null) ?? null,
       executed_at: data["executed_at"],
     };
