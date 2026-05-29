@@ -2,13 +2,12 @@
 //Joao Pedro Maineri - RA: 25006642
 // Gabriel Henrique Pacagnelli Pagliato - RA: 25016528
 
-import { Filter, getFirestore } from "firebase-admin/firestore";
+import { Filter } from "firebase-admin/firestore";
 import * as logger from "firebase-functions/logger";
 import { onCall, HttpsError } from "firebase-functions/v2/https";
 import { getTokenSymbols } from "../repositories/getTokenSymbols";
 import { TradeType } from "../types/tradeType";
-
-const db = getFirestore();
+import { db } from "../../shared/firebase";
 
 export const tradesHistory = onCall(async (request) => {
   if (!request.auth) {

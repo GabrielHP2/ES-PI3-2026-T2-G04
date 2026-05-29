@@ -2,10 +2,10 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend/models/token.dart';
-import 'package:frontend/utils/numberformatter_service.dart';
+import 'package:frontend/utils/number_formatter.dart';
 import 'package:frontend/services/token_services.dart';
 import 'package:frontend/services/portfolio_refresh_service.dart';
-import 'package:frontend/utils/variation_service.dart';
+import 'package:frontend/utils/variation_utils.dart';
 
 typedef PriceSpot = ({double x, double y});
 

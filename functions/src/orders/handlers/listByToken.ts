@@ -1,7 +1,7 @@
 //Lucas Leonel - RA: 25015188
 
 import { HttpsError, onCall } from "firebase-functions/v2/https";
-import { db } from "../../startups/shared/firebase";
+import { db } from "../../shared/firebase";
 import { logger } from "firebase-functions/v2";
 import { Order } from "../types/orderType";
 

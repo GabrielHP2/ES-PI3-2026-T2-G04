@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:frontend/components/startup_info_container.dart';
 import 'package:frontend/models/startup.dart';
 import 'package:frontend/controllers/startup_controller.dart';
-import 'package:frontend/utils/numberformatter_service.dart';
+import 'package:frontend/utils/number_formatter.dart';
 import 'package:frontend/components/startup_tag.dart';
 
 class StartupCard extends StatelessWidget {

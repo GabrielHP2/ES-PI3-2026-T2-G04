@@ -44,6 +44,14 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 
+# Node.js
+node_modules/
+
+# Environment variables
+.env
+.env.*
+.env.local
+.env*.local
 
 .vscode/
 .idea/

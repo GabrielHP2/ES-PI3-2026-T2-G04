@@ -2,7 +2,6 @@
 //Joao Pedro Maineri - RA: 25006642
 
 import {
-  getFirestore,
   QueryDocumentSnapshot,
   DocumentData,
 } from "firebase-admin/firestore";
@@ -13,8 +12,7 @@ import {
   CallableRequest,
 } from "firebase-functions/v2/https";
 import { PriceHistoryResponseItem, TokenResponse } from "../types/tokenType";
-
-const db = getFirestore();
+import { db } from "../../shared/firebase";
 
 async function getPriceHistory(
   startupDocId: string,

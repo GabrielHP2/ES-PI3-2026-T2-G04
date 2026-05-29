@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:frontend/utils/currency_formatter.dart';
-import 'package:frontend/utils/numberformatter_service.dart';
+import 'package:frontend/utils/number_formatter.dart';
 import 'package:frontend/services/portfolio_refresh_service.dart';
 import 'package:frontend/services/wallet_services.dart';
 

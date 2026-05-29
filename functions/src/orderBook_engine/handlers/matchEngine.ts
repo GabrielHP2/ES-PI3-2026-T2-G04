@@ -3,7 +3,7 @@ import { HttpsError } from "firebase-functions/https";
 import { getOrdersByStartup } from "../../orders/repositories/ordersRepositories";
 import { Order, OrderStatus, OrderType } from "../../orders/types/orderType";
 import { MatchesExecuted, MatchOrder } from "../types/matchTypes";
-import { db } from "../../startups/shared/firebase";
+import { db } from "../../shared/firebase";
 import {
   TokenWalletType,
   TransactionModel,

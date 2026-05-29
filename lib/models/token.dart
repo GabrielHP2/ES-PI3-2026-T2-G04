@@ -1,8 +1,8 @@
 // João Pedro Panza Mainieri - 25006642;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:decimal/decimal.dart';
-import 'package:frontend/utils/decimal_service.dart';
-import 'package:frontend/utils/variation_service.dart';
+import 'package:frontend/utils/decimal_utils.dart';
+import 'package:frontend/utils/variation_utils.dart';
 
 class TokenPricePoint {
   final String id;

@@ -1,5 +1,5 @@
 // João Pedro Panza Mainieri - 25006642;
-import 'package:frontend/utils/decimal_service.dart';
+import 'package:frontend/utils/decimal_utils.dart';
 
 enum PaymentType { credit, debit, pix, none }
 

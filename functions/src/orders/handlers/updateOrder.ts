@@ -2,7 +2,7 @@
 import { HttpsError, onCall } from "firebase-functions/v2/https";
 import { cancelOrder } from "../repositories/ordersRepositories";
 import { logger } from "firebase-functions/v2";
-import { db } from "../../startups/shared/firebase";
+import { db } from "../../shared/firebase";
 
 /**
  * Cancel an existing order in the system.

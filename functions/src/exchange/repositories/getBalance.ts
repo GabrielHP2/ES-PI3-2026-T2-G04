@@ -1,10 +1,7 @@
 // Autor: Gabriel Henrique Pacagnelli Pagliato   RA: 25016528
 
-import { getFirestore } from "firebase-admin/firestore";
-
 import { WalletType } from "../types/walletType";
-
-const db = getFirestore();
+import { db } from "../../shared/firebase";
 
 // Busca no BD o saldo disponível ou bloqueado do usuário
 export async function getBalance(userId: string): Promise<WalletType> {

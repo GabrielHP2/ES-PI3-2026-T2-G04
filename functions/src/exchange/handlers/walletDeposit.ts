@@ -1,6 +1,5 @@
 // Autor: Gabriel Henrique Pacagnelli Pagliato   RA: 25016528
 
-import { getFirestore } from "firebase-admin/firestore";
 import { HttpsError, onCall } from "firebase-functions/https";
 import { logger } from "firebase-functions";
 
@@ -13,8 +12,7 @@ import {
   toDecimal,
   toString,
 } from "../../shared/decimalUtils";
-
-const db = getFirestore();
+import { db } from "../../shared/firebase";
 
 export const walletDeposit = onCall(async (request) => {
   // Decodifica o token do usuário e verifica se ele tem um id válido

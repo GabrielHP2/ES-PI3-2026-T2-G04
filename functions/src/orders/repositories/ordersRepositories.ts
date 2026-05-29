@@ -1,5 +1,5 @@
 // João Pedro Panza Mainieri - 25006642;
-import { db } from "../../startups/shared/firebase";
+import { db } from "../../shared/firebase";
 import {
   CreateOrderDTO,
   Order,

@@ -1,7 +1,5 @@
 // Autor: Gabriel Henrique Pacagnelli Pagliato   RA: 25016528
 
-import {getFirestore} from "firebase-admin/firestore";
-import {getAuth} from "firebase-admin/auth";
 import {onRequest} from "firebase-functions/v2/https";
 
 import {User} from "../types/userType";
@@ -11,9 +9,7 @@ import {
   birthDateRegex,
   phoneNumberRegex,
 } from "../types/regex";
-
-const auth = getAuth();
-const db = getFirestore();
+import { auth, db } from "../../shared/firebase";
 
 function isValidCpf(cpf: string): boolean {
   if (!/^\d{11}$/.test(cpf)) {

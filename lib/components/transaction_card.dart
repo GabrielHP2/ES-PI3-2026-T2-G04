@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:frontend/models/transactions.dart';
-import 'package:frontend/utils/numberformatter_service.dart';
+import 'package:frontend/utils/number_formatter.dart';
 
 class TransactionCard extends StatefulWidget {
   final TransactionModel transaction;

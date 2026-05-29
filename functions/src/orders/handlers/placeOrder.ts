@@ -2,7 +2,7 @@
 import { onCall, HttpsError } from "firebase-functions/v2/https";
 import { createOrder } from "../repositories/ordersRepositories";
 import { CreateOrderDTO, OrderType } from "../types/orderType";
-import { db } from "../../startups/shared/firebase";
+import { db } from "../../shared/firebase";
 import { matchOrders } from "../../orderBook_engine/handlers/matchEngine";
 import {
   multiply,

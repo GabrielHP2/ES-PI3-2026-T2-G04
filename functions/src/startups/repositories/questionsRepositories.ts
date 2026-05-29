@@ -1,6 +1,6 @@
 // Autor: Gabriel Henrique Pacagnelli Pagliato   RA: 25016528
 
-import { db } from "../shared/firebase";
+import { db } from "../../shared/firebase";
 import {
   CreateQuestionDTO,
   QuestionStatus,

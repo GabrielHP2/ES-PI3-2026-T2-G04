@@ -7,7 +7,7 @@ import 'package:frontend/models/token.dart';
 import 'package:frontend/pages/order_confirmation.dart';
 import 'package:frontend/services/token_services.dart';
 import 'package:frontend/utils/currency_formatter.dart';
-import 'package:frontend/utils/numberformatter_service.dart';
+import 'package:frontend/utils/number_formatter.dart';
 
 class PlaceOrderPopUp extends StatefulWidget {
   final Token token;

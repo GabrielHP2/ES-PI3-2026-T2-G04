@@ -5,7 +5,7 @@ import 'package:frontend/models/transactions.dart';
 import 'package:frontend/models/wallet.dart';
 import 'package:frontend/pages/wallet_deposit_page.dart';
 import 'package:frontend/pages/wallet_withdraw_page.dart';
-import 'package:frontend/utils/numberformatter_service.dart';
+import 'package:frontend/utils/number_formatter.dart';
 import 'package:frontend/services/wallet_services.dart';
 
 class WalletPage extends StatefulWidget {
