@@ -31,6 +31,7 @@ class _OrderBookState extends State<OrderBook> {
   }
 
   Future<void> _fetchOrdersByType() async {
+    if (!mounted) return;
     setState(() {
       _isLoading = true;
     });
@@ -38,6 +39,7 @@ class _OrderBookState extends State<OrderBook> {
       widget.startupId,
       widget.type,
     );
+    if (!mounted) return;
     setState(() {
       _orders = result;
       _isLoading = false;
