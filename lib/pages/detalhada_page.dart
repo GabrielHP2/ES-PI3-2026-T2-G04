@@ -1,4 +1,5 @@
 // Lucas Leonel - RA: 25015188
+//Joao Pedro Maineri - RA: 25006642 (fix video player error handling)
 
 import 'package:flutter/material.dart';
 import 'package:frontend/components/balance_header.dart';
