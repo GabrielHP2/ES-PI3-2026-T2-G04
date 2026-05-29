@@ -61,7 +61,7 @@ class _ProfilePageState extends State<ProfilePage> {
     messenger.showSnackBar(
       SnackBar(
         content: Text(message),
-        backgroundColor: backgroundColor ?? const Color(0xFF5759E0),
+        backgroundColor: backgroundColor ?? Colors.indigo,
       ),
     );
   }
@@ -105,7 +105,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 dialogContext,
               ).pop(smsCodeController.text.trim()),
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xff7AE058),
+                backgroundColor: Colors.green,
               ),
               child: const Text(
                 'Confirmar',
@@ -148,7 +148,7 @@ class _ProfilePageState extends State<ProfilePage> {
           // Se sucesso inici o contato com o back
           ElevatedButton(
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF5759E0),
+              backgroundColor: Colors.indigo,
             ),
             child: const Text(
               'Confirmar',
@@ -173,7 +173,7 @@ class _ProfilePageState extends State<ProfilePage> {
       // aviso sucesso
       _showSnack(
         'Autenticação por SMS configurada com sucesso.',
-        backgroundColor: const Color(0xff7AE058),
+        backgroundColor: Colors.green,
       );
       setState(() => _isSmsAuthEnabled = true);
     } catch (e) {
@@ -193,7 +193,7 @@ class _ProfilePageState extends State<ProfilePage> {
       // aviso sucesso
       _showSnack(
         'Autenticação por SMS desativada com sucesso.',
-        backgroundColor: const Color(0xff7AE058),
+        backgroundColor: Colors.green,
       );
       setState(() => _isSmsAuthEnabled = false);
     } catch (e) {
@@ -346,7 +346,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     label: 'Por SMS:',
                     value: _isSmsAuthEnabled,
                     activeColor: Colors.indigo,
-                    inactiveColor: Colors.red,
+                    inactiveColor: Colors.grey.shade400,
                     onChanged: (bool newValue) {
                       _iniciarFluxo2FA(newValue);
                     },

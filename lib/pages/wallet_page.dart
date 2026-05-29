@@ -167,7 +167,7 @@ class _WalletPageState extends State<WalletPage> {
                           }
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.grey.shade600,
+                          backgroundColor: Colors.indigo,
                         ),
                         child: const Text(
                           '    SACAR    ',
