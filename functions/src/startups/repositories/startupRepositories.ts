@@ -3,7 +3,7 @@
 import { FieldValue } from "firebase-admin/firestore";
 import { Startup } from "../types/startupType";
 
-import { db } from "../shared/firebase";
+import { db } from "../../shared/firebase";
 
 const startupCol = db.collection("startups");
 

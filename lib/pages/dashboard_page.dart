@@ -1,3 +1,4 @@
+// João Pedro Panza Mainieri - 25006642;
 import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend/components/balance_header.dart';
@@ -5,7 +6,7 @@ import 'package:frontend/components/card_container.dart';
 import 'package:frontend/components/owned_tokens.dart';
 import 'package:frontend/components/trade_history.dart';
 import 'package:frontend/components/user_order_card.dart';
-import 'package:frontend/utils/numberformatter_service.dart';
+import 'package:frontend/utils/number_formatter.dart';
 import 'package:frontend/services/portfolio_refresh_service.dart';
 import 'package:frontend/services/wallet_services.dart';
 
@@ -81,9 +82,7 @@ class _DashboardPageState extends State<DashboardPage> {
                             ),
                             SizedBox(height: 8),
                             Text(
-                              formatMoney(
-                                _walletValue?.toDouble() ?? 0.0,
-                              ),
+                              formatMoney(_walletValue?.toDouble() ?? 0.0),
                               style: TextStyle(
                                 color: Colors.black,
                                 fontSize: 24,

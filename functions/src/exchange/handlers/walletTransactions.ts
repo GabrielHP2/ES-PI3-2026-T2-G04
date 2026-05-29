@@ -1,11 +1,10 @@
 // Autor: Gabriel Henrique Pacagnelli Pagliato   RA: 25016528
 
-import { getFirestore, Timestamp } from "firebase-admin/firestore";
+import { Timestamp } from "firebase-admin/firestore";
 import { HttpsError, onCall } from "firebase-functions/https";
 import { logger } from "firebase-functions";
 import { TransactionModel } from "../types/walletType";
-
-const db = getFirestore();
+import { db } from "../../shared/firebase";
 
 export const walletTransaction = onCall(async (request) => {
   // Decodifica o token do usuário e verifica se ele tem um id válido

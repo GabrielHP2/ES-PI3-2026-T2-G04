@@ -1,12 +1,10 @@
 // Autor: Gabriel Henrique Pacagnelli Pagliato   RA: 25016528
 
-import { getFirestore } from "firebase-admin/firestore";
 import * as logger from "firebase-functions/logger";
 import { HttpsError } from "firebase-functions/https";
 
 import { TradeType } from "../types/tradeType";
-
-const db = getFirestore();
+import { db } from "../../shared/firebase";
 
 export async function getTokenSymbols(trades: TradeType[]) {
     

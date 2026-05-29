@@ -1,3 +1,4 @@
+// João Pedro Panza Mainieri - 25006642;
 import { isInvestor } from "../repositories/isInvestor";
 import { HttpsError, onCall } from "firebase-functions/https";
 import * as logger from "firebase-functions/logger";
@@ -27,7 +28,7 @@ export const isUserInvestor = onCall(async (request) => {
     });
     throw new HttpsError(
       "internal",
-      "Erro ao verificar se usuário é investidor"
+      "Erro ao verificar se usuário é investidor",
     );
   }
 });

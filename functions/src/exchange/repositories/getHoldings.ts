@@ -1,11 +1,9 @@
 // Autor: Gabriel Henrique Pacagnelli Pagliato   RA: 25016528
 
-import { getFirestore } from "firebase-admin/firestore";
 import { logger } from "firebase-functions";
 
 import { TokenWalletType } from "../types/walletType";
-
-const db = getFirestore();
+import { db } from "../../shared/firebase";
 
 // Busca no BD o saldo disponível ou bloqueado do usuário
 export async function getHoldings(userId: string): Promise<TokenWalletType> {

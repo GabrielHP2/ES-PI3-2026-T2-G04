@@ -1,10 +1,13 @@
-import { Filter, getFirestore } from "firebase-admin/firestore";
+//Lucas Leonel - RA: 25015188
+//Joao Pedro Maineri - RA: 25006642
+// Gabriel Henrique Pacagnelli Pagliato - RA: 25016528
+
+import { Filter } from "firebase-admin/firestore";
 import * as logger from "firebase-functions/logger";
 import { onCall, HttpsError } from "firebase-functions/v2/https";
 import { getTokenSymbols } from "../repositories/getTokenSymbols";
 import { TradeType } from "../types/tradeType";
-
-const db = getFirestore();
+import { db } from "../../shared/firebase";
 
 export const tradesHistory = onCall(async (request) => {
   if (!request.auth) {
@@ -13,18 +16,18 @@ export const tradesHistory = onCall(async (request) => {
   }
 
   try {
-
-    // Faz um query no BD usando filter pra pegar as trades 
+    // Faz um query no BD usando filter pra pegar as trades
     // onde o buyerId ou sellerId seja igual ao id do usuário
-    const tradesSnapshot = await db.collection("trades")
-    .where(Filter.or
-      (
-        Filter.where("buyerId", "==", request.auth.uid), 
-        Filter.where("sellerId", "==", request.auth.uid)
+    const tradesSnapshot = await db
+      .collection("trades")
+      .where(
+        Filter.or(
+          Filter.where("buyerId", "==", request.auth.uid),
+          Filter.where("sellerId", "==", request.auth.uid),
+        ),
       )
-    )
-    .orderBy("executedAt", "desc")
-    .get();
+      .orderBy("executedAt", "desc")
+      .get();
 
     if (tradesSnapshot.empty) {
       logger.info("Nenhuma trade encontrada");
@@ -34,7 +37,7 @@ export const tradesHistory = onCall(async (request) => {
     // Cria um array de trades a partir do snapshot
     const trades = tradesSnapshot.docs.map((doc) => ({
       id: doc.id,
-      ...doc.data() as TradeType,
+      ...(doc.data() as TradeType),
     }));
 
     // Pega os símbolos dos tokens das trades usando a função getTokenSymbols
@@ -42,7 +45,6 @@ export const tradesHistory = onCall(async (request) => {
 
     // Adiciona o símbolo de cada token em cada trade
     const tradesWithSymbols = trades.map((element) => {
-      
       const token_symbol = symbolsList[element.startup_id];
       return {
         ...element,

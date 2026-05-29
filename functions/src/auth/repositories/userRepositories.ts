@@ -1,6 +1,6 @@
 // Autor: Gabriel Henrique Pacagnelli Pagliato   RA: 25016528
 
-import { db } from "../../startups/shared/firebase";
+import { db } from "../../shared/firebase";
 
 export async function getUserNameById(userId: string): Promise<string> {
   try {

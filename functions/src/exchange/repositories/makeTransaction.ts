@@ -1,6 +1,6 @@
 // Autor: Gabriel Henrique Pacagnelli Pagliato   RA: 25016528
 
-import { getFirestore, Timestamp } from "firebase-admin/firestore";
+import { Timestamp } from "firebase-admin/firestore";
 
 import {
   TransactionType,
@@ -9,8 +9,7 @@ import {
   TransactionData,
 } from "../types/walletType";
 import { toDecimal, toString } from "../../shared/decimalUtils";
-
-const db = getFirestore();
+import { db } from "../../shared/firebase";
 
 export async function makeTransaction(
   userId: string,

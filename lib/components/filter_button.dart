@@ -1,3 +1,4 @@
+// João Pedro Panza Mainieri - 25006642;
 import 'package:flutter/material.dart';
 
 class FilterButton extends StatelessWidget {
@@ -42,7 +43,10 @@ class FilterButton extends StatelessWidget {
             ),
             child: Icon(icon, color: Colors.white),
           ),
-          Text(data, style: TextStyle(color: isPressed ? Colors.white : Colors.black)),
+          Text(
+            data,
+            style: TextStyle(color: isPressed ? Colors.white : Colors.black),
+          ),
         ],
       ),
     );

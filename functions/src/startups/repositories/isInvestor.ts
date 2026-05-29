@@ -1,6 +1,6 @@
 // Autor: Gabriel Henrique Pacagnelli Pagliato   RA: 25016528
 
-import { db } from "../shared/firebase";
+import { db } from "../../shared/firebase";
 import * as logger from "firebase-functions/logger";
 
 // Verifica se o array "investing" contem o ID da startup repassada
@@ -15,10 +15,10 @@ export async function isInvestor(
 
     const holdings = userData?.holdings;
     if (!Array.isArray(holdings)) {
-      logger.warn(
-        `isInvestor: holdings is not an array for user=${userId}`,
-        { userId, holdings }
-      );
+      logger.warn(`isInvestor: holdings is not an array for user=${userId}`, {
+        userId,
+        holdings,
+      });
       return false;
     }
 

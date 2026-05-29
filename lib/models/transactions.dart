@@ -1,5 +1,6 @@
+// João Pedro Panza Mainieri - 25006642;
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:frontend/utils/decimal_service.dart';
+import 'package:frontend/utils/decimal_utils.dart';
 
 enum TransactionType { expense, income }
 

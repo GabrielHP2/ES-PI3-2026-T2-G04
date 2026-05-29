@@ -1,8 +1,9 @@
+// João Pedro Panza Mainieri - 25006642;
 import 'package:flutter/material.dart';
 import 'package:frontend/services/portfolio_refresh_service.dart';
 import 'package:frontend/services/token_services.dart';
 import 'package:frontend/models/order_model.dart';
-import 'package:frontend/utils/numberformatter_service.dart';
+import 'package:frontend/utils/number_formatter.dart';
 
 class OrderBook extends StatefulWidget {
   final OrderType type;
