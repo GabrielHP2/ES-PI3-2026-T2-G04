@@ -135,7 +135,7 @@ class _UserOrderState extends State<UserOrder> {
                       ? Text(
                           ' Ordem de compra',
                           style: const TextStyle(
-                            fontSize: 16,
+                            fontSize: 14,
                             color: Colors.green,
                             fontWeight: FontWeight.bold,
                           ),
@@ -143,7 +143,7 @@ class _UserOrderState extends State<UserOrder> {
                       : Text(
                           ' Ordem de venda',
                           style: const TextStyle(
-                            fontSize: 16,
+                            fontSize: 14,
                             color: Colors.red,
                             fontWeight: FontWeight.bold,
                           ),
@@ -159,9 +159,7 @@ class _UserOrderState extends State<UserOrder> {
                       children: [
                         Text('Quantidade: ${order.quantity}'),
                         Text('Preenchido: ${order.quantityFilled}'),
-                        Text(
-                          'Preço por token: ${formatMoney(order.price)}',
-                        ),
+                        Text('Preço por token: ${formatMoney(order.price)}'),
                         Text('Criado em: ${_formatTimestamp(order.createdAt)}'),
                       ],
                     ),
