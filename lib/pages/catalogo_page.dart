@@ -74,7 +74,7 @@ class _CatalogoPageState extends State<CatalogoPage> {
                           isPressed: _selectedFilter == StartupStage.nova,
                           onPressed: () => _toggleFilter(StartupStage.nova),
                           icon: Icons.lightbulb,
-                          iconBackgroundColor: Color(0xff7AE058),
+                          iconBackgroundColor: Colors.green,
                         ),
                         const SizedBox(width: 8),
                         FilterButton(

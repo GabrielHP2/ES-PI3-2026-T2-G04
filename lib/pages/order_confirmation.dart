@@ -37,7 +37,7 @@ class _OrderConfirmationPageState extends State<OrderConfirmationPage> {
     final order = widget.order;
     final currency = NumberFormat.simpleCurrency(locale: 'pt_BR');
     final isBuy = order.type == OrderType.buy;
-    final primaryColor = isBuy ? Colors.green : Colors.red;
+    final primaryColor = Colors.indigo;
 
     if (_result?.success == true) {
       return Scaffold(

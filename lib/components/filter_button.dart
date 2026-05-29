@@ -27,8 +27,8 @@ class FilterButton extends StatelessWidget {
               side: BorderSide(color: Color(0xFFCACACA)),
             )
           : ElevatedButton.styleFrom(
-              backgroundColor: Color(0xFFE1E1E1),
-              side: BorderSide(color: Color(0xFFCACACA)),
+              backgroundColor: Colors.indigo,
+              side: BorderSide(color: Colors.indigo),
             ),
       onPressed: onPressed,
       child: Row(
@@ -42,7 +42,7 @@ class FilterButton extends StatelessWidget {
             ),
             child: Icon(icon, color: Colors.white),
           ),
-          Text(data, style: TextStyle(color: Colors.black)),
+          Text(data, style: TextStyle(color: isPressed ? Colors.white : Colors.black)),
         ],
       ),
     );
