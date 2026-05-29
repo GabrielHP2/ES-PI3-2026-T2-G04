@@ -207,7 +207,7 @@ class _PaginaDetalhadaState extends State<PaginaDetalhada> {
                             const SizedBox(height: 16),
                             BalanceHeader(),
                             const SizedBox(height: 16),
-                            OwnedTokenCard(holding: _userHolding!),
+                            OwnedTokenCard(holding: _userHolding!, showChart: false),
                             const SizedBox(height: 16),
                             TokenChartCard(startupId: widget.startupId),
                             const SizedBox(height: 16),

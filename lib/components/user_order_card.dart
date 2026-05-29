@@ -47,6 +47,7 @@ class _UserOrderState extends State<UserOrder> {
       confirmDismiss: (_) async {
         if (_isCancelling) return false;
 
+        final messenger = ScaffoldMessenger.of(context);
         final shouldCancel =
             await showDialog<bool>(
               context: context,
@@ -76,7 +77,6 @@ class _UserOrderState extends State<UserOrder> {
         if (!mounted) return false;
         setState(() => _isCancelling = false);
 
-        final messenger = ScaffoldMessenger.of(context);
         messenger.hideCurrentSnackBar();
 
         if (!result.success) {
@@ -168,15 +168,32 @@ class _UserOrderState extends State<UserOrder> {
                   ),
                   Expanded(
                     flex: 3,
-                    child: Padding(
-                      padding: EdgeInsets.only(bottom: 20),
-                      child: Text(
-                        formatMoney(order.price * order.quantity),
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 18,
-                        ),
+                    child: Text(
+                      formatMoney(order.price * order.quantity),
+                      textAlign: TextAlign.end,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
                       ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Icon(
+                    Icons.swipe_left,
+                    size: 14,
+                    color: Colors.red.shade300,
+                  ),
+                  const SizedBox(width: 4),
+                  Text(
+                    'deslize para cancelar',
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: Colors.red.shade300,
                     ),
                   ),
                 ],
