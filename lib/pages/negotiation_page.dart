@@ -6,6 +6,7 @@ import 'package:frontend/components/place_order.dart';
 import 'package:frontend/components/user_order_card.dart';
 import 'package:frontend/models/order_model.dart';
 import 'package:frontend/models/token.dart';
+import 'package:frontend/services/portfolio_refresh_service.dart';
 import 'package:frontend/services/wallet_services.dart';
 
 class NegociacaoPage extends StatefulWidget {
@@ -25,9 +26,16 @@ class _NegociacaoPageState extends State<NegociacaoPage> {
   @override
   void initState() {
     super.initState();
+    portfolioRefreshNotifier.addListener(_fetchData);
     _token = widget.initialToken;
     _isTokenLoading = false;
     _fetchData();
+  }
+
+  @override
+  void dispose() {
+    portfolioRefreshNotifier.removeListener(_fetchData);
+    super.dispose();
   }
 
   Future<void> _fetchData() async {
