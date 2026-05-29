@@ -1,6 +1,7 @@
 // Gabriel Hespanholeto Maziero 25004669
 import 'package:firebase_auth/firebase_auth.dart'; // logout
 import 'package:flutter/material.dart';
+import 'package:frontend/pages/login_page.dart';
 import 'package:frontend/pages/wallet_page.dart'; // navegação ate a carteira
 import 'package:frontend/utils/numberformatter_service.dart';
 import 'package:frontend/services/two_factor_services.dart'; // 2fa
@@ -378,8 +379,16 @@ class _ProfilePageState extends State<ProfilePage> {
                       ),
                     ),
                     child: ElevatedButton(
-                      onPressed: () async =>
-                          await FirebaseAuth.instance.signOut(),
+                      onPressed: () async {
+                        await FirebaseAuth.instance.signOut();
+                        if (!context.mounted) return;
+                        Navigator.of(context).pushAndRemoveUntil(
+                          MaterialPageRoute(
+                            builder: (_) => const LoginPage(),
+                          ),
+                          (route) => false,
+                        );
+                      },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.white,
                         elevation: 0,
