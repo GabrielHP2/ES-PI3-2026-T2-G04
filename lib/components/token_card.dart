@@ -1,5 +1,3 @@
-import 'package:decimal/decimal.dart';
-import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend/models/token.dart';
 import 'package:frontend/pages/negotiation_page.dart';
@@ -12,9 +10,6 @@ class TokenCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final corVariacao = token.variacao >= 0 ? Colors.green : Colors.red;
-    final dadosDoGrafico = token.historicoPrecos.isNotEmpty
-        ? token.historicoPrecos
-        : [token.precoAtual, token.precoAtual];
 
     return GestureDetector(
       onTap: () => Navigator.of(context).push(
@@ -35,101 +30,48 @@ class TokenCard extends StatelessWidget {
             ),
           ],
         ),
-        child: Column(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      '\$${token.tokenSymbol}',
-                      style: const TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    Text(
-                      token.nome,
-                      style: const TextStyle(fontSize: 16, color: Colors.grey),
-                    ),
-                  ],
+                Text(
+                  '\$${token.tokenSymbol}',
+                  style: const TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Text(
-                      'R\$${token.precoAtual.toDouble().toStringAsFixed(2)}',
-                      style: const TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    Text(
-                      '(${token.variacao > 0 ? '+' : ''}${token.variacao.toStringAsFixed(2)}%)',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: corVariacao,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
+                Text(
+                  token.nome,
+                  style: const TextStyle(fontSize: 16, color: Colors.grey),
                 ),
               ],
             ),
-            const SizedBox(height: 16),
-            SizedBox(
-              height: 60,
-              width: double.infinity,
-              child: LineChart(
-                LineChartData(
-                  lineTouchData: LineTouchData(
-                    enabled: false,
-                    touchTooltipData: LineTouchTooltipData(
-                      fitInsideHorizontally: true,
-                      fitInsideVertically: true,
-                      getTooltipColor: (_) => Colors.black87,
-                      getTooltipItems: (touchedSpots) {
-                        return touchedSpots.map((spot) {
-                          return LineTooltipItem(
-                            'R\$ ${spot.y.toStringAsFixed(2)}',
-                            const TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          );
-                        }).toList();
-                      },
-                    ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text(
+                  'R\$${token.precoAtual.toDouble().toStringAsFixed(2)}',
+                  style: const TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
                   ),
-                  gridData: const FlGridData(show: false),
-                  titlesData: const FlTitlesData(show: false),
-                  borderData: FlBorderData(show: false),
-                  lineBarsData: [
-                    LineChartBarData(
-                      spots: _gerarPontosDoGrafico(dadosDoGrafico),
-                      isCurved: false,
-                      color: corVariacao,
-                      barWidth: 2,
-                      isStrokeCapRound: true,
-                      dotData: const FlDotData(show: false),
-                    ),
-                  ],
                 ),
-              ),
+                Text(
+                  '(${token.variacao > 0 ? '+' : ''}${token.variacao.toStringAsFixed(2)}%)',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: corVariacao,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
             ),
           ],
         ),
       ),
     );
-  }
-
-  List<FlSpot> _gerarPontosDoGrafico(List<Decimal> dados) {
-    return dados
-        .asMap()
-        .entries
-        .map((entry) => FlSpot(entry.key.toDouble(), entry.value.toDouble()))
-        .toList();
   }
 }
