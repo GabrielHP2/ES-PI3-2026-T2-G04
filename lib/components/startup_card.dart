@@ -1,3 +1,4 @@
+// João Pedro Panza Mainieri - 25006642;
 import 'package:flutter/material.dart';
 import 'package:frontend/components/startup_info_container.dart';
 import 'package:frontend/models/startup.dart';

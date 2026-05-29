@@ -1,3 +1,4 @@
+// João Pedro Panza Mainieri - 25006642;
 import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -69,14 +70,18 @@ class _PlaceOrderPopUpState extends State<PlaceOrderPopUp> {
           ? widget.currentPrice.toDouble()
           : bestOrder.price;
       currentPriceQuantity = bestOrder.quantity - bestOrder.quantityFilled;
-      controllerPrice.value = TextEditingValue(text: moneyFormatter.format(currentPrice));
+      controllerPrice.value = TextEditingValue(
+        text: moneyFormatter.format(currentPrice),
+      );
       _isCurrentLoading = false;
     });
   }
 
   @override
   void initState() {
-    controllerPrice.value = TextEditingValue(text: moneyFormatter.format(currentPrice));
+    controllerPrice.value = TextEditingValue(
+      text: moneyFormatter.format(currentPrice),
+    );
     controllerQuantity.value = TextEditingValue(text: '1');
     _getBestOrder();
     super.initState();

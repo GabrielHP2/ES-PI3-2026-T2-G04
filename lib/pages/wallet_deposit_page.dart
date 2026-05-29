@@ -1,3 +1,4 @@
+// João Pedro Panza Mainieri - 25006642;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:frontend/models/wallet.dart';
@@ -40,7 +41,8 @@ class _WalletDepositPageState extends State<WalletDepositPage> {
     super.initState();
     controller.addListener(() {
       setState(() {
-        _isEnabled = (_isValid && CurrencyFormatter.parseValue(controller.text) >= 1.00);
+        _isEnabled =
+            (_isValid && CurrencyFormatter.parseValue(controller.text) >= 1.00);
       });
     });
   }
@@ -127,7 +129,9 @@ class _WalletDepositPageState extends State<WalletDepositPage> {
                       });
 
                       final result = await callWalletDeposit(
-                        CurrencyFormatter.parseValue(controller.text).toString(),
+                        CurrencyFormatter.parseValue(
+                          controller.text,
+                        ).toString(),
                         _toPaymentType(_paymentMethod),
                       );
 

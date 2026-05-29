@@ -1,3 +1,4 @@
+// João Pedro Panza Mainieri - 25006642;
 import 'package:flutter/material.dart';
 import 'package:frontend/models/order_model.dart';
 import 'package:frontend/utils/numberformatter_service.dart';
@@ -181,18 +182,11 @@ class _UserOrderState extends State<UserOrder> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  Icon(
-                    Icons.swipe_left,
-                    size: 14,
-                    color: Colors.red.shade300,
-                  ),
+                  Icon(Icons.swipe_left, size: 14, color: Colors.red.shade300),
                   const SizedBox(width: 4),
                   Text(
                     'deslize para cancelar',
-                    style: TextStyle(
-                      fontSize: 11,
-                      color: Colors.red.shade300,
-                    ),
+                    style: TextStyle(fontSize: 11, color: Colors.red.shade300),
                   ),
                 ],
               ),

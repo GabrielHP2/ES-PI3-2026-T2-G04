@@ -1,3 +1,4 @@
+// João Pedro Panza Mainieri - 25006642;
 class UserModel {
   late String? uid;
   final String name;

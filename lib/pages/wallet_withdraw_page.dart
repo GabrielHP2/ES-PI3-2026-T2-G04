@@ -1,3 +1,4 @@
+// João Pedro Panza Mainieri - 25006642;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:frontend/utils/currency_formatter.dart';
@@ -81,7 +82,9 @@ class _WalletWithdrawPageState extends State<WalletWithdrawPage> {
                       });
 
                       final result = await callWalletWithdraw(
-                        CurrencyFormatter.parseValue(controller.text).toString(),
+                        CurrencyFormatter.parseValue(
+                          controller.text,
+                        ).toString(),
                       );
 
                       if (!mounted) return;

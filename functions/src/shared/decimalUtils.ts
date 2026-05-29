@@ -1,4 +1,4 @@
-// Autor: Gabriel Henrique Pacagnelli Pagliato   RA: 25016528
+// João Pedro Panza Mainieri - 25006642;
 import Decimal from "decimal.js";
 
 /**
