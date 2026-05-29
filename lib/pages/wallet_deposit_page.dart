@@ -40,7 +40,7 @@ class _WalletDepositPageState extends State<WalletDepositPage> {
     super.initState();
     controller.addListener(() {
       setState(() {
-        _isEnabled = (_isValid && CurrencyFormatter.getNumericValue() >= 1.00);
+        _isEnabled = (_isValid && CurrencyFormatter.parseValue(controller.text) >= 1.00);
       });
     });
   }
@@ -66,7 +66,7 @@ class _WalletDepositPageState extends State<WalletDepositPage> {
                 contentPadding: EdgeInsets.symmetric(horizontal: 16),
               ),
             ),
-            CurrencyFormatter.getNumericValue() < 1
+            CurrencyFormatter.parseValue(controller.text) < 1
                 ? Text(
                     'O valor mínimo de deposito é de R\$ 1,00',
                     style: TextStyle(color: Colors.red),
@@ -100,7 +100,7 @@ class _WalletDepositPageState extends State<WalletDepositPage> {
                     _paymentMethod = method;
                     _isEnabled =
                         (_isValid &&
-                        CurrencyFormatter.getNumericValue() >= 1.00);
+                        CurrencyFormatter.parseValue(controller.text) >= 1.00);
                   });
                 }
               },
@@ -108,7 +108,7 @@ class _WalletDepositPageState extends State<WalletDepositPage> {
             SizedBox(height: 16),
             _isEnabled
                 ? Text(
-                    'Depositando: R\$ ${CurrencyFormatter.getNumericValue()} na sua carteira via ${_paymentMethod == PaymentMethods.debit
+                    'Depositando: R\$ ${CurrencyFormatter.parseValue(controller.text)} na sua carteira via ${_paymentMethod == PaymentMethods.debit
                         ? 'débito'
                         : _paymentMethod == PaymentMethods.credit
                         ? 'crédito'
@@ -127,7 +127,7 @@ class _WalletDepositPageState extends State<WalletDepositPage> {
                       });
 
                       final result = await callWalletDeposit(
-                        CurrencyFormatter.getNumericValue().toString(),
+                        CurrencyFormatter.parseValue(controller.text).toString(),
                         _toPaymentType(_paymentMethod),
                       );
 
