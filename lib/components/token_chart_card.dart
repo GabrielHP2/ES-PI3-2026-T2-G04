@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:frontend/models/token.dart';
 import 'package:frontend/utils/numberformatter_service.dart';
 import 'package:frontend/services/token_services.dart';
+import 'package:frontend/services/portfolio_refresh_service.dart';
 import 'package:frontend/utils/variation_service.dart';
 
 typedef PriceSpot = ({double x, double y});
@@ -22,10 +23,23 @@ class _TokenChartCardState extends State<TokenChartCard> {
   late Future<Token?> _tokenFuture;
   String _periodoSelecionado = '1M';
 
+  void _refresh() {
+    setState(() {
+      _tokenFuture = buscarTokenPorStartupId(widget.startupId);
+    });
+  }
+
   @override
   void initState() {
     super.initState();
+    portfolioRefreshNotifier.addListener(_refresh);
     _tokenFuture = buscarTokenPorStartupId(widget.startupId);
+  }
+
+  @override
+  void dispose() {
+    portfolioRefreshNotifier.removeListener(_refresh);
+    super.dispose();
   }
 
   @override

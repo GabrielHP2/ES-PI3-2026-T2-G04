@@ -5,6 +5,7 @@ import 'package:frontend/pages/login_page.dart';
 import 'package:frontend/pages/wallet_page.dart'; // navegação ate a carteira
 import 'package:frontend/utils/numberformatter_service.dart';
 import 'package:frontend/services/two_factor_services.dart'; // 2fa
+import 'package:frontend/services/portfolio_refresh_service.dart';
 import 'package:frontend/services/wallet_services.dart'; // controlador para o saldo da carteira funcionar (aguardando o back)
 
 class ProfilePage extends StatefulWidget {
@@ -38,16 +39,18 @@ class _ProfilePageState extends State<ProfilePage> {
   Color? get textColor => null;
 
   @override
-  void dispose() {
-    _passwordController.dispose();
-    super.dispose();
+  void initState() {
+    super.initState();
+    portfolioRefreshNotifier.addListener(_fetchWallet);
+    _is2faEnabled();
+    _fetchWallet();
   }
 
   @override
-  void initState() {
-    _is2faEnabled();
-    _fetchWallet();
-    super.initState();
+  void dispose() {
+    portfolioRefreshNotifier.removeListener(_fetchWallet);
+    _passwordController.dispose();
+    super.dispose();
   }
 
   // Notificação de erro ou sucesso em baixo da tela
