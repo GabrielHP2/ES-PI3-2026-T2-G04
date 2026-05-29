@@ -69,14 +69,14 @@ class _PlaceOrderPopUpState extends State<PlaceOrderPopUp> {
           ? widget.currentPrice.toDouble()
           : bestOrder.price;
       currentPriceQuantity = bestOrder.quantity - bestOrder.quantityFilled;
-      controllerPrice.value = TextEditingValue(text: formatMoney(currentPrice));
+      controllerPrice.value = TextEditingValue(text: moneyFormatter.format(currentPrice));
       _isCurrentLoading = false;
     });
   }
 
   @override
   void initState() {
-    controllerPrice.value = TextEditingValue(text: formatMoney(currentPrice));
+    controllerPrice.value = TextEditingValue(text: moneyFormatter.format(currentPrice));
     controllerQuantity.value = TextEditingValue(text: '1');
     _getBestOrder();
     super.initState();
@@ -91,7 +91,7 @@ class _PlaceOrderPopUpState extends State<PlaceOrderPopUp> {
 
   void _continuar() {
     final quantity = int.tryParse(controllerQuantity.text.trim());
-    final price = CurrencyFormatter.getNumericValue();
+    final price = CurrencyFormatter.parseValue(controllerPrice.text);
 
     if (quantity == null || quantity <= 0) {
       ScaffoldMessenger.of(

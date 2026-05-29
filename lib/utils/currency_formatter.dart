@@ -7,4 +7,10 @@ class CurrencyFormatter {
   static double getNumericValue() {
     return brl.getUnformattedValue().toDouble();
   }
+
+  static double parseValue(String text) {
+    final digits = text.replaceAll(RegExp(r'[^\d]'), '');
+    if (digits.isEmpty) return 0;
+    return int.parse(digits) / 100;
+  }
 }

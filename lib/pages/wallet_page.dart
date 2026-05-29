@@ -75,7 +75,7 @@ class _WalletPageState extends State<WalletPage> {
                       children: [
                         Text('SALDO DISPONÍVEL'),
                         Text(
-                          formatMoney(balance!.availableBalance),
+                          moneyFormatter.format(balance!.availableBalance),
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 32,
@@ -110,7 +110,7 @@ class _WalletPageState extends State<WalletPage> {
                           style: TextStyle(fontSize: 11),
                         ),
                         Text(
-                          formatMoney(balance!.blockedBalance),
+                          moneyFormatter.format(balance!.blockedBalance),
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 32,

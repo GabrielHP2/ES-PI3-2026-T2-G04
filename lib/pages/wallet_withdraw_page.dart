@@ -23,7 +23,7 @@ class _WalletWithdrawPageState extends State<WalletWithdrawPage> {
     super.initState();
     controller.addListener(() {
       setState(() {
-        _isEnabled = (CurrencyFormatter.getNumericValue() >= 1.00);
+        _isEnabled = (CurrencyFormatter.parseValue(controller.text) >= 1.00);
       });
     });
   }
@@ -55,7 +55,7 @@ class _WalletWithdrawPageState extends State<WalletWithdrawPage> {
                 contentPadding: EdgeInsets.symmetric(horizontal: 16),
               ),
             ),
-            CurrencyFormatter.getNumericValue() < 1
+            CurrencyFormatter.parseValue(controller.text) < 1
                 ? const Text(
                     'O valor mínimo de saque é de R\$ 1,00',
                     style: TextStyle(color: Colors.red),
@@ -64,7 +64,7 @@ class _WalletWithdrawPageState extends State<WalletWithdrawPage> {
             const SizedBox(height: 32),
             _isEnabled
                 ? Text(
-                    'Sacando: ${formatMoney(CurrencyFormatter.getNumericValue())} da sua carteira',
+                    'Sacando: ${formatMoney(CurrencyFormatter.parseValue(controller.text))} da sua carteira',
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w500,
@@ -81,7 +81,7 @@ class _WalletWithdrawPageState extends State<WalletWithdrawPage> {
                       });
 
                       final result = await callWalletWithdraw(
-                        CurrencyFormatter.getNumericValue().toString(),
+                        CurrencyFormatter.parseValue(controller.text).toString(),
                       );
 
                       if (!mounted) return;
