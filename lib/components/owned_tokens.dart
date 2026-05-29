@@ -73,7 +73,12 @@ class _OwnedTokensListState extends State<OwnedTokensList> {
 
 class OwnedTokenCard extends StatefulWidget {
   final Holding holding;
-  const OwnedTokenCard({super.key, required this.holding});
+  final bool showChart;
+  const OwnedTokenCard({
+    super.key,
+    required this.holding,
+    this.showChart = true,
+  });
 
   @override
   State<OwnedTokenCard> createState() => _OwnedTokenCardState();
@@ -88,7 +93,9 @@ class _OwnedTokenCardState extends State<OwnedTokenCard> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         GestureDetector(
-          onTap: () => setState(() => _expanded = !_expanded),
+          onTap: widget.showChart
+              ? () => setState(() => _expanded = !_expanded)
+              : null,
           child: CardContainer(
             child: Row(
               children: [
@@ -134,13 +141,15 @@ class _OwnedTokenCardState extends State<OwnedTokenCard> {
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      const SizedBox(height: 4),
-                      Icon(
-                        _expanded
-                            ? Icons.keyboard_arrow_up
-                            : Icons.keyboard_arrow_down,
-                        color: Colors.grey,
-                      ),
+                      if (widget.showChart) ...[
+                        const SizedBox(height: 4),
+                        Icon(
+                          _expanded
+                              ? Icons.keyboard_arrow_up
+                              : Icons.keyboard_arrow_down,
+                          color: Colors.grey,
+                        ),
+                      ],
                     ],
                   ),
                 ),
@@ -148,7 +157,7 @@ class _OwnedTokenCardState extends State<OwnedTokenCard> {
             ),
           ),
         ),
-        if (_expanded) ...[
+        if (widget.showChart && _expanded) ...[
           const SizedBox(height: 8),
           TokenChartCard(startupId: widget.holding.startupId),
         ],
