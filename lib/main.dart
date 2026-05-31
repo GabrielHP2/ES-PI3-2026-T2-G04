@@ -1,6 +1,5 @@
-// João Pedro Panza Mainieri - 25006642;
-//Lucas Leonel - RA: 25015188
 // Gabriel Henrique Pacagnelli Pagliato   RA: 25016528
+
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
