@@ -1,5 +1,3 @@
-//Lucas Leonel - RA: 25015188
-//Joao Pedro Maineri - RA: 25006642
 // Gabriel Henrique Pacagnelli Pagliato - RA: 25016528
 
 import { Filter } from "firebase-admin/firestore";

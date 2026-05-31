@@ -1,5 +1,4 @@
 // Lucas Leonel - RA: 25015188
-//Joao Pedro Maineri - RA: 25006642 (fix video player error handling)
 
 import 'package:flutter/material.dart';
 import 'package:frontend/components/balance_header.dart';
@@ -208,7 +207,10 @@ class _PaginaDetalhadaState extends State<PaginaDetalhada> {
                             const SizedBox(height: 16),
                             BalanceHeader(),
                             const SizedBox(height: 16),
-                            OwnedTokenCard(holding: _userHolding!, showChart: false),
+                            OwnedTokenCard(
+                              holding: _userHolding!,
+                              showChart: false,
+                            ),
                             const SizedBox(height: 16),
                             TokenChartCard(startupId: widget.startupId),
                             const SizedBox(height: 16),

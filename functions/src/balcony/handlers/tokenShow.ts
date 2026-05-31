@@ -1,10 +1,6 @@
 //Lucas Leonel - RA: 25015188
-//Joao Pedro Maineri - RA: 25006642
 
-import {
-  QueryDocumentSnapshot,
-  DocumentData,
-} from "firebase-admin/firestore";
+import { QueryDocumentSnapshot, DocumentData } from "firebase-admin/firestore";
 import * as logger from "firebase-functions/logger";
 import {
   onCall,

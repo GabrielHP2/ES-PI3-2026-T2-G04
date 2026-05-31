@@ -1,6 +1,4 @@
-// Lucas Leonel - RA: 25015188 (2FA send sms)
-//Joao Pedro Maineri - RA: 25006642 (2FA send sms)
-// Gabriel Hespanholeto - RA: 25004669 (Front)
+// Lucas Leonel - RA: 25015188
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
